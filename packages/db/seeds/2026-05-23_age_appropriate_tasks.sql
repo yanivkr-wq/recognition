@@ -66,14 +66,15 @@ INSERT INTO task_template (
    'ic-star', '#FFF3D6', 60, FALSE, 114)
 ON CONFLICT (id) DO NOTHING;
 
--- Assign all Lia tasks to Lia.
+-- Assign all Lia tasks to Lia. Note `id::text LIKE` — Postgres's LIKE doesn't
+-- operate on the uuid type directly; we cast to text for the prefix match.
 INSERT INTO task_assignment (household_id, template_id, kid_id, enabled)
 SELECT '11111111-1111-1111-1111-111111111111',
        t.id,
        '33333333-3333-3333-3333-333333333301',
        TRUE
 FROM task_template t
-WHERE t.id LIKE '71000001-%'
+WHERE t.id::text LIKE '71000001-%'
 ON CONFLICT (template_id, kid_id) DO NOTHING;
 
 -- ── YAEL (age 12) — 15 daily tasks ─────────────────────────────────────────
@@ -134,7 +135,7 @@ SELECT '11111111-1111-1111-1111-111111111111',
        '33333333-3333-3333-3333-333333333302',
        TRUE
 FROM task_template t
-WHERE t.id LIKE '72000002-%'
+WHERE t.id::text LIKE '72000002-%'
 ON CONFLICT (template_id, kid_id) DO NOTHING;
 
 -- ── REWARDS (10 household-wide, both age tiers) ────────────────────────────
