@@ -17,7 +17,12 @@ IFS=$'\n\t'
 
 REPO_DIR="${RECO_REPO_DIR:-/opt/recognition}"
 ENV_FILE="${REPO_DIR}/.env"
-COMPOSE="docker compose -f ${REPO_DIR}/infra/docker-compose.yml --env-file ${ENV_FILE}"
+# Function instead of string variable — strict-mode IFS=$'\n\t' suppresses
+# space-splitting on unquoted expansion, so a `${COMPOSE} build` call would
+# be executed as a single command path. Mirrors deploy-prod.sh.
+compose() {
+  docker compose -f "${REPO_DIR}/infra/docker-compose.yml" --env-file "${ENV_FILE}" "$@"
+}
 
 ts()  { date -u +'%Y-%m-%dT%H:%M:%SZ'; }
 log() { printf '[%s] [update-prod] %s\n' "$(ts)" "$*"; }
@@ -29,10 +34,10 @@ log "git pull"
 git pull --ff-only
 
 log "docker compose build"
-${COMPOSE} build
+compose build
 
 log "docker compose up -d (rolling reco-web + reco-worker; reco-pg untouched)"
-${COMPOSE} up -d reco-web reco-worker
+compose up -d reco-web reco-worker
 
 # Smoke test — fail loudly on non-200.
 log "smoke test"
@@ -48,4 +53,4 @@ for i in {1..30}; do
 done
 
 log "container status:"
-${COMPOSE} ps
+compose ps

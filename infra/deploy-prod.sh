@@ -33,7 +33,13 @@ PG_PASS_FILE="${SECRETS_DIR}/postgres_password.txt"
 CADDY_FRAGMENT_SRC="${REPO_DIR}/infra/Caddyfile.fragment"
 CADDY_FRAGMENT_DST="/etc/caddy/conf.d/reco.caddy"
 CRON_FILE="/etc/cron.d/reco-auto-deploy"
-COMPOSE="docker compose -f ${REPO_DIR}/infra/docker-compose.yml --env-file ${ENV_FILE}"
+# Use a function instead of a string variable: the strict-mode `IFS=$'\n\t'`
+# above suppresses space-splitting on unquoted expansion, so `${COMPOSE} build`
+# was being executed as a single command path. A function side-steps IFS
+# entirely and quotes its argument list correctly.
+compose() {
+  docker compose -f "${REPO_DIR}/infra/docker-compose.yml" --env-file "${ENV_FILE}" "$@"
+}
 
 log()  { printf '\033[1;34m[deploy]\033[0m %s\n' "$*"; }
 warn() { printf '\033[1;33m[warn ]\033[0m %s\n' "$*" >&2; }
@@ -159,10 +165,10 @@ log "secrets written to ${ENV_FILE} (chmod 600)"
 
 # ── 3. Build images + bring stack up ───────────────────────────────────────
 log "building docker images (this can take 3-5 min on first run)"
-${COMPOSE} build
+compose build
 
 log "starting reco-pg first so we can apply migrations before web/worker boot"
-${COMPOSE} up -d reco-pg
+compose up -d reco-pg
 
 # Wait for postgres health
 for i in {1..30}; do
@@ -175,7 +181,7 @@ for i in {1..30}; do
 done
 
 log "starting web + worker (worker applies migrations on boot)"
-${COMPOSE} up -d reco-worker reco-web
+compose up -d reco-worker reco-web
 
 # ── 4. Smoke test ───────────────────────────────────────────────────────────
 log "smoke-testing the stack"
