@@ -34,17 +34,22 @@ function safeTo(rawTo: string | null, locale: string): string {
 export async function GET(req: NextRequest): Promise<Response> {
   const locale = req.headers.get('x-reco-locale') ?? 'he';
   const dest = safeTo(req.nextUrl.searchParams.get('to'), locale);
-  const pickUrl = new URL(`/${locale}/pick`, req.url);
+  // Use relative Location strings; browser resolves against the public URL
+  // it's currently on. Avoids the `req.url` → `http://0.0.0.0:3030/...`
+  // trap when running behind a reverse proxy (Caddy → Docker bind addr).
+  const pickPath = `/${locale}/pick`;
+  const redirectRel = (location: string): NextResponse =>
+    new NextResponse(null, { status: 307, headers: { Location: location } });
 
   const trustToken = req.cookies.get(KID_TRUST_COOKIE)?.value;
   if (!trustToken) {
-    return NextResponse.redirect(pickUrl);
+    return redirectRel(pickPath);
   }
 
   const fp = await computeDeviceFingerprint(req.headers);
   const verified = await verifyDeviceTrust({ rawToken: trustToken, userAgentFp: fp });
   if (!verified) {
-    const res = NextResponse.redirect(pickUrl);
+    const res = redirectRel(pickPath);
     res.headers.append('Set-Cookie', clearKidTrustCookieHeader());
     return res;
   }
@@ -53,7 +58,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     id: verified.kidId,
     householdId: verified.householdId,
   });
-  const res = NextResponse.redirect(new URL(dest, req.url));
+  const res = redirectRel(dest);
   res.headers.append('Set-Cookie', setKidSessionCookieHeader(token));
   return res;
 }

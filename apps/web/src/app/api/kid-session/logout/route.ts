@@ -18,7 +18,16 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest): Promise<Response> {
   const locale = req.headers.get('x-reco-locale') ?? 'he';
-  const res = NextResponse.redirect(new URL(`/${locale}/pick`, req.url), { status: 303 });
+  // Use a relative Location so the browser resolves against the public URL
+  // it is currently on. NextResponse.redirect(new URL(..., req.url)) would
+  // serialize an absolute URL using req.url's origin, and behind the Caddy
+  // reverse proxy req.url's origin is `http://0.0.0.0:3030` (Node's bind
+  // address) — landing the kid on an unreachable URL. Relative path avoids
+  // having to trust forwarded headers.
+  const res = new NextResponse(null, {
+    status: 303,
+    headers: { Location: `/${locale}/pick` },
+  });
   res.headers.append('Set-Cookie', clearKidSessionCookieHeader());
   return res;
 }
