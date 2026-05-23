@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 # deploy-prod.sh — Reco one-time / idempotent first install on the VPS.
 #
-# Run on the Hetzner host as a user with sudo + docker access (NOT root).
+# Run on the Hetzner host AS ROOT. The sibling apps on this VPS
+# (family-budget, family-tasks-hub) follow the same convention — no
+# dedicated deploy user exists; ssh-key access is granted on root@.
 # Re-running is safe: every step is "create if missing, leave alone if present".
 #
 # Pre-conditions:
 #   - Ubuntu 24.04, docker + docker compose plugin installed
-#   - Caddy installed at /etc/caddy/Caddyfile (existing tasks-hub setup)
+#   - Caddy installed at /etc/caddy/Caddyfile, already importing /etc/caddy/conf.d/*.caddy
 #   - DNS A record reco.my-restart.co.il → VPS IP already provisioned
-#   - SSH deploy key for the GitHub `recognition` repo configured in ~/.ssh
+#   - The GitHub `recognition` repo is publicly cloneable (or set RECO_REPO_URL to an ssh:// URL)
 #
 # After success:
 #   - /opt/recognition/.env populated (chmod 600)
@@ -42,7 +44,10 @@ require_cmd() {
 }
 
 # ── 0. Sanity ───────────────────────────────────────────────────────────────
-[[ "${EUID}" -ne 0 ]] || fail "run as a sudo-capable user, NOT root"
+# Sibling apps (family-budget, family-tasks-hub) on this VPS run as root —
+# Reco follows the same convention. If a future hardening pass adds a deploy
+# user, flip this guard and drop the `sudo` calls below (they're no-ops as root).
+[[ "${EUID}" -eq 0 ]] || fail "run as root (matches family-budget / family-tasks-hub convention)"
 require_cmd git
 require_cmd docker
 require_cmd openssl

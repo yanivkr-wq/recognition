@@ -53,3 +53,6 @@ playwright-report/
 
 # Worktrees (Claude Code)
 .claude/worktrees/
+
+# Personal Claude Code settings (not for the public repo)
+.claude/settings.local.json
