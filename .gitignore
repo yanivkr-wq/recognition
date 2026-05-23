@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.test
+!.env.example
+!.env.test.example
+
+# Secrets
+infra/secrets/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Coverage
+coverage/
+.nyc_output/
+
+# Testing
+test-results/
+playwright-report/
+
+# Evidence — dev-only photo uploads. The production reco-evidence Docker
+# volume mounts at /var/lib/reco/evidence inside both containers; locally,
+# uploads land in .evidence-dev/ at the repo root so the host can write them.
+# Reward images live in .evidence-dev/rewards/ — same volume, sibling subdir
+# (per Gate 2 §Q3); covered by the .evidence-dev/ entry above.
+.evidence-dev/
+
+# Worktrees (Claude Code)
+.claude/worktrees/

@@ -1,0 +1,5 @@
+# One-shot scripts land here:
+#   - generate-icons.mjs          (sharp-based PNG icon generator from SVG source)
+#   - generate-tokens-css.mjs     (writes design tokens to apps/web/src/app/reco-tokens.css)
+#   - seed-dev.ts                 (local dev seed)
+#   - kid-pin-rotate.ts           (ops helper to reset a forgotten kid PIN)

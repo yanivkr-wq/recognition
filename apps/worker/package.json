@@ -1,0 +1,38 @@
+{
+  "name": "@reco/worker",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reco worker — Fastify 5. Cron dispatcher, evidence serve, ledger writes, notification delivery.",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file=.env.local src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@reco/db": "workspace:*",
+    "@reco/shared": "workspace:*",
+    "fastify": "^5.1.0",
+    "@fastify/cors": "^10.0.0",
+    "@fastify/static": "^8.0.0",
+    "drizzle-orm": "^0.36.0",
+    "pg": "^8.13.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
+    "node-cron": "^3.0.0",
+    "nodemailer": "^6.9.0",
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/lib-storage": "^3.700.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.11.0",
+    "@types/node-cron": "^3.0.0",
+    "@types/nodemailer": "^6.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}

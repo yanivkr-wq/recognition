@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Concept 4 — Spark</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Rubik:wght@400;500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #58CC02;
+    --green-dark: #46A302;
+    --green-deep: #2E7B00;
+    --green-soft: #DCFCBE;
+    --green-pale: #F0FBE3;
+
+    --orange: #FF9600;
+    --orange-dark: #E08600;
+    --orange-deep: #B06800;
+    --orange-soft: #FFE5BF;
+    --orange-pale: #FFF4DD;
+
+    --blue: #1CB0F6;
+    --blue-dark: #0A86CA;
+    --blue-deep: #075E91;
+    --blue-soft: #CCF1FF;
+    --blue-pale: #E7F8FF;
+
+    --gold: #FFC800;
+    --gold-dark: #D2A400;
+    --red: #FF4B4B;
+    --red-dark: #D63232;
+    --purple: #CE82FF;
+    --purple-dark: #A040D8;
+
+    --ink: #3C3C3C;
+    --ink-soft: #777777;
+    --ink-faded: #AFAFAF;
+    --rule: #E5E5E5;
+    --rule-strong: #C8C8C8;
+
+    --bg: #F7F7F7;
+    --card: #FFFFFF;
+  }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Rubik', 'Nunito', sans-serif; min-height: 100vh; }
+
+  .display-en { font-family: 'Fredoka', sans-serif; font-weight: 600; letter-spacing: -.01em; }
+  .display-en-bold { font-family: 'Fredoka', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  .display-he { font-family: 'Rubik', sans-serif; font-weight: 800; letter-spacing: -.01em; }
+  .display-he-bold { font-family: 'Rubik', sans-serif; font-weight: 900; letter-spacing: -.02em; }
+  .body-he { font-family: 'Rubik', sans-serif; font-weight: 500; }
+  .body-en { font-family: 'Nunito', sans-serif; font-weight: 600; }
+  .num { font-family: 'Rubik', sans-serif; font-weight: 800; font-feature-settings: "tnum"; }
+
+  /* Phone frame */
+  .phone {
+    width: 390px; min-height: 844px;
+    background: var(--card);
+    border-radius: 44px;
+    border: 6px solid #1a1a1a;
+    box-shadow:
+      0 0 0 1px #2a2a2a,
+      0 30px 80px rgba(0,0,0,.18),
+      0 60px 120px rgba(0,0,0,.08);
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+  }
+  .phone-inner { height: 100%; min-height: 832px; display: flex; flex-direction: column; position: relative; background: var(--card); }
+  .notch { width: 110px; height: 28px; background: #1a1a1a; border-radius: 0 0 16px 16px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 50; }
+  .statusbar { padding: 14px 20px 6px; display: flex; justify-content: space-between; align-items: center; font-family: 'Rubik', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink); position: relative; z-index: 10; }
+
+  /* The signature 3D button */
+  .btn3d {
+    position: relative;
+    border-radius: 16px;
+    box-shadow: 0 4px 0 0 var(--shadow-color, rgba(0,0,0,.2));
+    transition: transform .08s ease, box-shadow .08s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .btn3d:hover { transform: translateY(1px); box-shadow: 0 3px 0 0 var(--shadow-color, rgba(0,0,0,.2)); }
+  .btn3d-green { background: var(--green); color: white; --shadow-color: var(--green-dark); }
+  .btn3d-orange { background: var(--orange); color: white; --shadow-color: var(--orange-dark); }
+  .btn3d-blue { background: var(--blue); color: white; --shadow-color: var(--blue-dark); }
+  .btn3d-white { background: white; color: var(--ink); border: 2px solid var(--rule); --shadow-color: var(--rule-strong); }
+  .btn3d-red { background: var(--red); color: white; --shadow-color: var(--red-dark); }
+  .btn3d-gold { background: var(--gold); color: var(--orange-deep); --shadow-color: var(--gold-dark); }
+
+  /* 3D card — same chunky ledge */
+  .card3d {
+    background: var(--card);
+    border-radius: 20px;
+    border: 2px solid var(--rule);
+    box-shadow: 0 3px 0 0 var(--rule-strong);
+  }
+  .card3d-green { border-color: var(--green); box-shadow: 0 3px 0 0 var(--green-dark); }
+  .card3d-orange { border-color: var(--orange); box-shadow: 0 3px 0 0 var(--orange-dark); }
+  .card3d-blue { border-color: var(--blue); box-shadow: 0 3px 0 0 var(--blue-dark); }
+  .card3d-soft-green { border-color: #B5E88C; box-shadow: 0 3px 0 0 #8FD45D; background: var(--green-pale); }
+
+  /* Coin icon, with depth */
+  .coin {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1em; height: 1em;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FFE968, var(--gold) 55%, var(--gold-dark));
+    box-shadow:
+      0 2px 0 var(--gold-dark),
+      inset 0 -2px 0 rgba(0,0,0,.15),
+      inset 0 2px 0 rgba(255,255,255,.4);
+    color: var(--orange-deep);
+    font-weight: 900; font-size: .55em;
+    flex-shrink: 0;
+  }
+
+  /* MASCOT: the Reco coin character. ~80px default. */
+  .mascot-wrap { position: relative; display: inline-block; }
+
+  /* Pill */
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-family: 'Rubik', sans-serif; font-size: 12px; font-weight: 700;
+  }
+  .pill-green { background: var(--green-soft); color: var(--green-deep); }
+  .pill-orange { background: var(--orange-soft); color: var(--orange-deep); }
+  .pill-blue { background: var(--blue-soft); color: var(--blue-deep); }
+  .pill-gold { background: #FFF1B5; color: var(--orange-deep); }
+  .pill-red { background: #FFD4D4; color: var(--red-dark); }
+  .pill-purple { background: #F0DFFF; color: var(--purple-dark); }
+  .pill-grey { background: #EEEEEE; color: var(--ink-soft); }
+
+  /* Tabbar — bottom nav, Duolingo-flat */
+  .tabbar {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    background: var(--card);
+    border-top: 2px solid var(--rule);
+    padding: 12px 8px 28px;
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: 'Rubik', sans-serif; font-size: 10px; font-weight: 700; color: var(--ink-faded); text-transform: uppercase; letter-spacing: .04em; }
+  .tab.active { color: var(--green); }
+
+  .frame-h2 { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -.02em; }
+  .swatch { width: 60px; height: 60px; border-radius: 14px; box-shadow: 0 3px 0 0 rgba(0,0,0,.15); }
+
+  /* Progress bar — chunky with rounded fill */
+  .pb-track { background: var(--rule); border-radius: 999px; overflow: hidden; height: 14px; position: relative; box-shadow: inset 0 2px 0 rgba(0,0,0,.06); }
+  .pb-fill { height: 100%; border-radius: 999px; position: relative; }
+  .pb-fill::after { content: ""; position: absolute; top: 2px; left: 4px; right: 4px; height: 3px; background: rgba(255,255,255,.35); border-radius: 999px; }
+
+  /* Streak flame fill animation */
+  .flame-stamp {
+    width: 48px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 16px;
+    font-family: 'Rubik', sans-serif; font-weight: 900; font-size: 16px;
+    position: relative;
+  }
+  .flame-done {
+    background: linear-gradient(180deg, var(--orange), var(--red));
+    color: white;
+    box-shadow: 0 3px 0 0 var(--red-dark), inset 0 2px 0 rgba(255,255,255,.2);
+  }
+  .flame-today {
+    background: white;
+    border: 3px dashed var(--orange);
+    color: var(--orange);
+    box-shadow: 0 3px 0 0 var(--orange-soft);
+  }
+  .flame-future {
+    background: white;
+    border: 2px solid var(--rule);
+    color: var(--ink-faded);
+    box-shadow: 0 3px 0 0 var(--rule-strong);
+  }
+
+  /* Reaction sparkle */
+  .sparkle {
+    position: absolute;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- =================== INTRO SECTION =================== -->
+<section class="relative max-w-6xl mx-auto px-6 pt-20 pb-12" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest">Concept 04</span>
+    <span class="body-en text-[12px] text-[var(--ink-soft)]">— Reco design deck · Duolingo-inspired</span>
+  </div>
+  <div class="flex items-end gap-6 mb-4">
+    <h1 class="display-en-bold text-[80px] leading-[.95] text-[var(--green)]">Spark</h1>
+    <!-- Mascot intro -->
+    <div class="mascot-wrap pb-2">
+      <svg width="100" height="100" viewBox="0 0 100 100">
+        <defs>
+          <radialGradient id="m1" cx="35%" cy="30%">
+            <stop offset="0%" stop-color="#FFE968"/>
+            <stop offset="55%" stop-color="#FFC800"/>
+            <stop offset="100%" stop-color="#D2A400"/>
+          </radialGradient>
+        </defs>
+        <!-- coin body -->
+        <circle cx="50" cy="55" r="42" fill="url(#m1)" stroke="#B89400" stroke-width="3"/>
+        <!-- inner ring -->
+        <circle cx="50" cy="55" r="34" fill="none" stroke="#FFE968" stroke-width="1.5" stroke-dasharray="3 2" opacity=".6"/>
+        <!-- eyes -->
+        <ellipse cx="38" cy="50" rx="5" ry="6" fill="#3C3C3C"/>
+        <ellipse cx="62" cy="50" rx="5" ry="6" fill="#3C3C3C"/>
+        <circle cx="40" cy="48" r="1.5" fill="white"/>
+        <circle cx="64" cy="48" r="1.5" fill="white"/>
+        <!-- smile -->
+        <path d="M 40 64 Q 50 72 60 64" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <!-- cheeks -->
+        <ellipse cx="32" cy="62" rx="4" ry="2.5" fill="#FF9696" opacity=".5"/>
+        <ellipse cx="68" cy="62" rx="4" ry="2.5" fill="#FF9696" opacity=".5"/>
+        <!-- $ symbol on bottom -->
+        <text x="50" y="91" text-anchor="middle" fill="#B89400" font-family="Rubik" font-weight="900" font-size="11">¢</text>
+        <!-- arms -->
+        <path d="M 8 60 Q 4 55 10 53" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 92 60 Q 96 55 90 53" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="display-en text-[12px] text-[var(--orange-deep)] text-center mt-0">Coiny</div>
+    </div>
+  </div>
+  <p class="body-en text-[var(--ink-soft)] text-[18px] max-w-2xl leading-relaxed">
+    Duolingo's playbook adapted for chores. Chunky 3D buttons with a satisfying bottom ledge. A mascot, <strong class="text-[var(--orange-deep)]">Coiny</strong>, with expressions. Saturated brand colors stacked confidently. League-style leaderboard for sibling competition. Streak flames + lesson paths + crown collections. Built for the kid who already knows how Duolingo feels in her thumbs.
+  </p>
+
+  <div class="grid grid-cols-3 gap-10 mt-12">
+    <!-- Palette -->
+    <div>
+      <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-4">Palette</div>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div><div class="swatch" style="background:#58CC02"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#58CC02</div></div>
+        <div><div class="swatch" style="background:#FF9600"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#FF9600</div></div>
+        <div><div class="swatch" style="background:#1CB0F6"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#1CB0F6</div></div>
+        <div><div class="swatch" style="background:#FFC800"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#FFC800</div></div>
+      </div>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div><div class="swatch" style="background:#FF4B4B"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#FF4B4B</div></div>
+        <div><div class="swatch" style="background:#CE82FF"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#CE82FF</div></div>
+        <div><div class="swatch" style="background:#3C3C3C"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#3C3C3C</div></div>
+        <div><div class="swatch" style="background:#F7F7F7; box-shadow:0 0 0 1px #E5E5E5"></div><div class="display-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#F7F7F7</div></div>
+      </div>
+      <p class="body-en text-[14px] text-[var(--ink-soft)] mt-4 leading-relaxed">
+        Reco green is the universal "good job!" Lia wears orange/fire (matches the streak flame, gives her energy). Yael wears Duo blue (cool, calm, focused). Gold is the universal coin currency; red is "wrong/denied"; purple is for special/campaign events. White surfaces, soft-grey backgrounds.
+      </p>
+    </div>
+
+    <!-- Typography -->
+    <div>
+      <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-4">Typography</div>
+      <div class="space-y-3">
+        <div class="border-r-4 border-[var(--green)] pr-4">
+          <div class="display-en-bold text-[44px] text-[var(--green)] leading-none">Reco</div>
+          <div class="display-en text-[10px] text-[var(--ink-soft)] mt-2">Fredoka 700 · English display (chunky, friendly)</div>
+        </div>
+        <div class="border-r-4 border-[var(--orange)] pr-4">
+          <div class="display-he-bold text-[36px] text-[var(--orange-deep)] leading-none">ליה</div>
+          <div class="display-en text-[10px] text-[var(--ink-soft)] mt-2">Rubik 900 · Hebrew display (geometric, bold)</div>
+        </div>
+        <div class="border-r-4 border-[var(--ink-faded)] pr-4">
+          <div class="body-he text-[16px] text-[var(--ink)] leading-snug">תיכף תגיעי לפרס!</div>
+          <div class="display-en text-[10px] text-[var(--ink-soft)] mt-1">Rubik 500 · Hebrew body</div>
+        </div>
+        <div class="border-r-4 border-[var(--gold)] pr-4">
+          <div class="num text-[28px] text-[var(--ink)] leading-none">47 · 38/100</div>
+          <div class="display-en text-[10px] text-[var(--ink-soft)] mt-1">Rubik 800 + tabular numerals</div>
+        </div>
+        <div class="border-r-4 border-[var(--purple)] pr-4">
+          <div class="body-en text-[15px] text-[var(--ink)] italic">"You're on a 3-day streak, Lia!"</div>
+          <div class="display-en text-[10px] text-[var(--ink-soft)] mt-1">Nunito 600 italic · narrative body (English mode)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iconography -->
+    <div>
+      <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-4">Iconography</div>
+      <p class="body-en text-[14px] text-[var(--ink-soft)] leading-relaxed mb-4">
+        Bright illustrated icons set inside saturated colored circles or squircles. Bold rounded silhouettes — no thin line icons. Coiny the mascot makes appearances on celebration moments. 3D depth everywhere (every interactive surface has a bottom ledge). Streak flames, gold coins, crown badges, lock icons for unearned, shield for streak freezes.
+      </p>
+      <div class="flex gap-3 flex-wrap items-center">
+        <!-- Lia avatar -->
+        <div class="w-12 h-12 rounded-full flex items-center justify-center display-he-bold text-[24px] text-white" style="background: linear-gradient(180deg, #FFB854, #FF9600); box-shadow: 0 3px 0 var(--orange-dark);">ל</div>
+        <!-- Yael avatar -->
+        <div class="w-12 h-12 rounded-full flex items-center justify-center display-he-bold text-[24px] text-white" style="background: linear-gradient(180deg, #5DD0FF, #1CB0F6); box-shadow: 0 3px 0 var(--blue-dark);">י</div>
+        <!-- Coin -->
+        <div class="w-12 h-12 rounded-full flex items-center justify-center text-[24px] font-bold" style="background: var(--gold); color: var(--orange-deep); box-shadow: 0 3px 0 var(--gold-dark), inset 0 2px 0 rgba(255,255,255,.4);">¢</div>
+        <!-- Streak flame -->
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-[24px]" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 3px 0 var(--red-dark);">🔥</div>
+        <!-- Crown -->
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-[24px]" style="background: var(--gold); box-shadow: 0 3px 0 var(--gold-dark);">👑</div>
+        <!-- Shield/freeze -->
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-[24px]" style="background: var(--blue-soft); box-shadow: 0 3px 0 var(--blue);">🛡️</div>
+      </div>
+      <p class="body-en text-[12px] text-[var(--ink-soft)] mt-4 italic">
+        Coiny appears on: profile picker, completion celebrations, empty states, and as the bell icon when there are pending approvals.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-6">
+  <div class="flex items-center gap-4 my-8">
+    <hr class="flex-1 border-[var(--rule)] border-2" />
+    <span class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">8 kid screens · Hebrew default · English toggle below</span>
+    <hr class="flex-1 border-[var(--rule)] border-2" />
+  </div>
+</div>
+
+<!-- =================== SCREENS GRID =================== -->
+<main class="max-w-6xl mx-auto px-6 pb-32">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-20 gap-x-12 justify-items-center">
+
+<!-- ============================================ -->
+<!-- A — PROFILE PICKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">A</div>
+    <div class="frame-h2">Profile picker</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Coiny greets the kids</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <!-- Mascot top -->
+      <div class="px-6 pt-4 pb-2 text-center">
+        <div class="mascot-wrap inline-block mb-2">
+          <svg width="120" height="120" viewBox="0 0 100 100">
+            <defs>
+              <radialGradient id="mp1" cx="35%" cy="30%">
+                <stop offset="0%" stop-color="#FFE968"/>
+                <stop offset="55%" stop-color="#FFC800"/>
+                <stop offset="100%" stop-color="#D2A400"/>
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="55" r="42" fill="url(#mp1)" stroke="#B89400" stroke-width="3"/>
+            <circle cx="50" cy="55" r="34" fill="none" stroke="#FFE968" stroke-width="1.5" stroke-dasharray="3 2" opacity=".6"/>
+            <ellipse cx="38" cy="50" rx="5" ry="6" fill="#3C3C3C"/>
+            <ellipse cx="62" cy="50" rx="5" ry="6" fill="#3C3C3C"/>
+            <circle cx="40" cy="48" r="1.5" fill="white"/>
+            <circle cx="64" cy="48" r="1.5" fill="white"/>
+            <!-- waving arms -->
+            <path d="M 6 50 Q -2 40 12 45" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M 94 50 Q 102 40 88 45" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- big smile -->
+            <path d="M 38 64 Q 50 76 62 64" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <ellipse cx="32" cy="62" rx="4" ry="2.5" fill="#FF9696" opacity=".5"/>
+            <ellipse cx="68" cy="62" rx="4" ry="2.5" fill="#FF9696" opacity=".5"/>
+          </svg>
+        </div>
+        <h1 class="display-he-bold text-[40px] text-[var(--green)] leading-tight">היי! מי זאת?</h1>
+        <p class="body-he text-[15px] text-[var(--ink-soft)] mt-2">תקליקי על הפרצוף שלך</p>
+      </div>
+
+      <div class="flex-1 px-5 pt-2 flex flex-col gap-4">
+        <!-- Lia button -->
+        <button class="card3d card3d-orange p-5 flex items-center gap-4 relative">
+          <div class="w-20 h-20 rounded-full flex items-center justify-center display-he-bold text-[44px] text-white" style="background: linear-gradient(180deg, #FFB854, #FF9600); box-shadow: 0 3px 0 var(--orange-dark);">ל</div>
+          <div class="flex-1 text-right">
+            <div class="display-he-bold text-[28px] text-[var(--ink)] leading-tight">ליה</div>
+            <div class="flex items-center justify-end gap-2 mt-2">
+              <span class="pill pill-orange">דרגה 4</span>
+              <span class="pill pill-gold">¢ 47</span>
+            </div>
+            <div class="body-he text-[12px] text-[var(--ink-soft)] mt-2">🔥 רצף של 3 ימים</div>
+          </div>
+        </button>
+
+        <!-- Yael button -->
+        <button class="card3d card3d-blue p-5 flex items-center gap-4 relative">
+          <div class="w-20 h-20 rounded-full flex items-center justify-center display-he-bold text-[44px] text-white" style="background: linear-gradient(180deg, #5DD0FF, #1CB0F6); box-shadow: 0 3px 0 var(--blue-dark);">י</div>
+          <div class="flex-1 text-right">
+            <div class="display-he-bold text-[28px] text-[var(--ink)] leading-tight">יעל</div>
+            <div class="flex items-center justify-end gap-2 mt-2">
+              <span class="pill pill-blue">דרגה 3</span>
+              <span class="pill pill-gold">¢ 89</span>
+            </div>
+            <div class="body-he text-[12px] text-[var(--ink-soft)] mt-2">⚡ רצף של 5 ימים</div>
+          </div>
+        </button>
+      </div>
+
+      <div class="px-6 py-8 text-center" dir="ltr">
+        <hr class="border-[var(--rule)] mb-3 mx-16" />
+        <button class="body-en text-[12px] text-[var(--ink-faded)] uppercase tracking-widest font-bold hover:text-[var(--green)]">→ parent admin</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- B — KID HOME -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">B</div>
+    <div class="frame-h2">Kid home</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Wallet + today + campaign + sibling chip</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <!-- Top row -->
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-full flex items-center justify-center display-he-bold text-[22px] text-white" style="background: linear-gradient(180deg, #FFB854, #FF9600); box-shadow: 0 3px 0 var(--orange-dark);">ל</div>
+          <div>
+            <div class="body-he text-[12px] text-[var(--ink-soft)]">בוקר טוב,</div>
+            <div class="display-he-bold text-[20px] text-[var(--ink)] leading-none">ליה</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- streak flame chip -->
+          <div class="flex items-center gap-1 px-3 py-1.5 rounded-full" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 3px 0 var(--red-dark);">
+            <span class="text-base">🔥</span>
+            <span class="display-en-bold text-white text-[15px]">3</span>
+          </div>
+          <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center relative" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2.5"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></svg>
+            <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-black text-white flex items-center justify-center" style="background: var(--red); box-shadow: 0 2px 0 var(--red-dark);">2</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Wallet hero -->
+      <div class="mx-5 mt-4 card3d card3d-orange p-5 relative overflow-hidden">
+        <div class="absolute -top-2 -right-2 mascot-wrap" style="opacity: .9;">
+          <svg width="68" height="68" viewBox="0 0 100 100">
+            <defs>
+              <radialGradient id="mw1" cx="35%" cy="30%">
+                <stop offset="0%" stop-color="#FFE968"/>
+                <stop offset="55%" stop-color="#FFC800"/>
+                <stop offset="100%" stop-color="#D2A400"/>
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="55" r="42" fill="url(#mw1)" stroke="#B89400" stroke-width="3"/>
+            <ellipse cx="38" cy="52" rx="5" ry="6" fill="#3C3C3C"/>
+            <ellipse cx="62" cy="52" rx="5" ry="6" fill="#3C3C3C"/>
+            <path d="M 40 66 Q 50 74 60 66" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="text-right relative">
+          <div class="body-he text-[13px] text-[var(--orange-deep)] mb-1 font-bold">— הארנק שלי —</div>
+          <div class="flex items-baseline justify-end gap-2 mb-1">
+            <span class="display-en-bold text-[16px] text-[var(--orange-deep)]">coins</span>
+            <span class="num text-[56px] text-[var(--orange-deep)] leading-none">47</span>
+          </div>
+          <div class="flex items-center justify-end gap-2 mt-3">
+            <span class="pill pill-green">+12 היום</span>
+            <span class="pill pill-grey">+84 החודש</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's tasks -->
+      <div class="px-5 mt-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="display-he-bold text-[20px] text-[var(--ink)]">המשימות של היום</div>
+          <span class="pill pill-green">3/4</span>
+        </div>
+        <div class="space-y-2">
+          <!-- done -->
+          <div class="card3d card3d-soft-green p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: var(--green); box-shadow: 0 3px 0 var(--green-dark);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--green-deep)] line-through">להציע את המיטה</div>
+              <div class="body-he text-[11px] text-[var(--green-deep)]">סיימת ב-7:14</div>
+            </div>
+            <span class="pill pill-gold">+1 ¢</span>
+          </div>
+          <!-- evidence required -->
+          <div class="card3d card3d-blue p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: var(--blue); box-shadow: 0 3px 0 var(--blue-dark);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4" fill="var(--blue)"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--ink)]">שיעורי בית</div>
+              <div class="body-he text-[11px] text-[var(--blue-deep)]">📷 תזכורת ב-17:00</div>
+            </div>
+            <span class="pill pill-gold">+20 ¢</span>
+          </div>
+          <!-- regular -->
+          <div class="card3d p-3 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl border-2 border-[var(--rule)]" style="background: white;"></div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--ink)]">לערוך את השולחן</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">לפני ארוחת ערב</div>
+            </div>
+            <span class="pill pill-gold">+5 ¢</span>
+          </div>
+          <!-- long-term -->
+          <div class="card3d p-3">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-[20px]" style="background: var(--purple); box-shadow: 0 3px 0 var(--purple-dark);">📖</div>
+              <div class="flex-1">
+                <div class="display-he-bold text-[15px] text-[var(--ink)]">לקרוא 100 עמודים</div>
+                <div class="body-he text-[11px] text-[var(--ink-soft)]">לטווח-ארוך</div>
+              </div>
+              <span class="pill pill-purple">+1 ¢/עמ׳</span>
+            </div>
+            <div class="pb-track"><div class="pb-fill" style="width:38%; background: linear-gradient(90deg, var(--purple), var(--blue));"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="num text-[13px] text-[var(--purple-dark)]">38 / 100</div>
+              <button class="display-en-bold text-[11px] text-[var(--purple-dark)] uppercase">+ הוסיפי</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active campaign -->
+      <div class="mx-5 mt-4 card3d p-3 flex items-center gap-3 relative" style="background: linear-gradient(135deg, #FFE0CB, white); border-color: var(--orange); box-shadow: 0 3px 0 var(--orange-dark);">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 3px 0 var(--red-dark);">🔥</div>
+        <div class="flex-1 min-w-0 text-right">
+          <div class="display-en-bold text-[11px] text-[var(--orange-deep)] uppercase tracking-widest">streak quest</div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] leading-tight mt-0.5">5 ימים של מיטה</div>
+          <div class="body-he text-[11px] text-[var(--orange-deep)] mt-0.5">עוד יומיים והפרס שלך! 🏆</div>
+        </div>
+        <div class="text-center">
+          <div class="num text-[28px] text-[var(--orange)] leading-none">3<span class="text-[var(--ink-faded)] text-base">/5</span></div>
+        </div>
+      </div>
+
+      <!-- Sibling activity / mini-league -->
+      <div class="mx-5 mt-3 mb-4 card3d p-3" style="background: var(--blue-pale); border-color: var(--blue-soft); box-shadow: 0 3px 0 var(--blue);">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center display-he-bold text-[16px] text-white" style="background: linear-gradient(180deg, #5DD0FF, #1CB0F6); box-shadow: 0 2px 0 var(--blue-dark);">י</div>
+          <div class="flex-1 text-xs text-right">
+            <span class="display-he-bold text-[13px] text-[var(--ink)]">יעל</span>
+            <span class="body-he text-[var(--ink-soft)]"> אספה </span>
+            <span class="display-he-bold text-[13px] text-[var(--blue-deep)]">תג מוסיקאית!</span>
+            <div class="body-he text-[11px] text-[var(--ink-soft)] mt-0.5">— לפני 12 דקות</div>
+          </div>
+          <div class="text-xl">🏅</div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Tabbar -->
+      <div class="tabbar">
+        <div class="tab active">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>
+          בית
+        </div>
+        <div class="tab">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          משימות
+        </div>
+        <div class="tab">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          חנות
+        </div>
+        <div class="tab">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8M4 4l16 14"/></svg>
+          קמפיינים
+        </div>
+        <div class="tab">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
+          תגים
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- C — TASK LIST -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">C</div>
+    <div class="frame-h2">Task list</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Daily + long-term</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">המשימות שלי</div>
+        <div class="w-10"></div>
+      </div>
+
+      <div class="px-5 mt-3 flex gap-2">
+        <button class="btn3d btn3d-green text-[13px] px-4 py-2">היום · 4</button>
+        <button class="btn3d btn3d-white text-[13px] px-4 py-2">טווח-ארוך · 2</button>
+        <button class="btn3d btn3d-white text-[13px] px-4 py-2">הכל</button>
+      </div>
+
+      <!-- Today -->
+      <div class="px-5 mt-5">
+        <div class="display-he-bold text-[16px] text-[var(--ink)] mb-3 flex items-center gap-2">
+          <span class="text-lg">☀</span> היום
+        </div>
+        <div class="space-y-2.5">
+          <div class="card3d card3d-soft-green p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl flex items-center justify-center" style="background: var(--green); box-shadow: 0 3px 0 var(--green-dark);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--green-deep)] line-through">להציע את המיטה</div>
+            </div>
+            <span class="pill pill-gold">+1 ¢</span>
+            <button class="display-en-bold text-[11px] text-[var(--ink-soft)] uppercase">בטל</button>
+          </div>
+          <div class="card3d p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl border-3 border-[var(--rule-strong)] bg-white" style="border-width: 3px;"></div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--ink)]">לערוך את השולחן</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">⏰ 18:00</div>
+            </div>
+            <span class="pill pill-gold">+5 ¢</span>
+          </div>
+          <div class="card3d card3d-blue p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl border-3 border-[var(--blue)] bg-white"></div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--ink)] flex items-center gap-1">שיעורי בית <span class="text-sm">📷</span></div>
+              <div class="body-he text-[11px] text-[var(--blue-deep)]">⏰ 17:00 · תמונה נדרשת</div>
+            </div>
+            <span class="pill pill-gold">+20 ¢</span>
+          </div>
+          <div class="card3d p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-2xl border-3 border-[var(--rule-strong)] bg-white" style="border-width: 3px;"></div>
+            <div class="flex-1">
+              <div class="display-he-bold text-[15px] text-[var(--ink)]">לצחצח שיניים</div>
+            </div>
+            <span class="pill pill-gold">+1 ¢</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Long-term -->
+      <div class="px-5 mt-5">
+        <div class="display-he-bold text-[16px] text-[var(--ink)] mb-3 flex items-center gap-2">
+          <span class="text-lg">🌱</span> לטווח ארוך
+        </div>
+        <div class="space-y-2.5">
+          <div class="card3d p-3" style="border-color: var(--purple); box-shadow: 0 3px 0 var(--purple-dark);">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-[20px]" style="background: var(--purple); box-shadow: 0 3px 0 var(--purple-dark);">📖</div>
+              <div class="flex-1">
+                <div class="display-he-bold text-[15px] text-[var(--ink)]">לקרוא 100 עמודים</div>
+              </div>
+              <span class="pill pill-purple">+1 ¢/עמ׳</span>
+            </div>
+            <div class="pb-track"><div class="pb-fill" style="width:38%; background: linear-gradient(90deg, var(--purple), var(--blue));"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="num text-[14px] text-[var(--purple-dark)]">38 / 100</div>
+              <button class="btn3d btn3d-blue text-white text-[11px] px-3 py-1.5">+ עמודים</button>
+            </div>
+          </div>
+          <div class="card3d p-3" style="border-color: var(--red); box-shadow: 0 3px 0 var(--red-dark);">
+            <div class="flex items-center gap-3 mb-2">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-[20px]" style="background: var(--red); box-shadow: 0 3px 0 var(--red-dark);">🎹</div>
+              <div class="flex-1">
+                <div class="display-he-bold text-[15px] text-[var(--ink)]">פסנתר 300 דקות</div>
+              </div>
+              <span class="pill pill-red">+1 ¢/דק׳</span>
+            </div>
+            <div class="pb-track"><div class="pb-fill" style="width:40%; background: linear-gradient(90deg, var(--red), var(--orange));"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="num text-[14px] text-[var(--red-dark)]">120 / 300</div>
+              <button class="btn3d btn3d-orange text-white text-[11px] px-3 py-1.5">+ דקות</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>בית</div>
+        <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>משימות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>חנות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8"/></svg>קמפיינים</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- D — EVIDENCE UPLOAD -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">D</div>
+    <div class="frame-h2">Send a photo</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Evidence upload + last denial</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="body-en font-bold text-[12px] text-[var(--blue-deep)] uppercase tracking-widest">משימה</div>
+        <div class="w-10"></div>
+      </div>
+
+      <!-- Task hero card -->
+      <div class="mx-5 mt-2 card3d card3d-blue p-5 text-center relative">
+        <div class="w-16 h-16 rounded-3xl mx-auto flex items-center justify-center text-3xl mb-3" style="background: var(--blue); box-shadow: 0 4px 0 var(--blue-dark);">📚</div>
+        <h1 class="display-he-bold text-[28px] text-[var(--ink)] leading-tight">שיעורי בית</h1>
+        <p class="body-he text-[14px] text-[var(--ink-soft)] mt-2 leading-relaxed">
+          תצלמי את העמוד האחרון של שיעורי הבית ונשלח להורים לאישור.
+        </p>
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <span class="pill pill-gold">+20 ¢</span>
+          <span class="pill pill-blue">17:00 ⏰</span>
+        </div>
+      </div>
+
+      <!-- Capture -->
+      <div class="px-5 mt-5">
+        <div class="display-he-bold text-[14px] text-[var(--ink)] mb-3 text-right">📷 צלמי כאן:</div>
+        <div class="card3d p-1.5 relative" style="background: var(--blue-pale); border-color: var(--blue);">
+          <div class="rounded-xl relative overflow-hidden flex flex-col items-center justify-center gap-3" style="aspect-ratio: 4/3; background: white; border: 3px dashed var(--blue);">
+            <div class="w-20 h-20 rounded-full flex items-center justify-center" style="background: var(--blue); box-shadow: 0 4px 0 var(--blue-dark);">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="white"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4" fill="var(--blue)"/></svg>
+            </div>
+            <div class="display-he-bold text-[16px] text-[var(--blue-deep)]">תקליקי לצילום</div>
+            <div class="body-he text-[11px] text-[var(--ink-soft)]">או בחרי מהגלריה</div>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="btn3d btn3d-blue text-white text-[15px] py-3 flex-1 flex items-center justify-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg>
+            צלמי
+          </button>
+          <button class="btn3d btn3d-white text-[15px] py-3 flex-1 flex items-center justify-center gap-2">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/></svg>
+            מהגלריה
+          </button>
+        </div>
+      </div>
+
+      <!-- Last denial — friendly -->
+      <div class="px-5 mt-5">
+        <div class="display-he-bold text-[13px] text-[var(--ink)] mb-2 text-right">— הניסיון הקודם</div>
+        <div class="card3d p-3 flex items-start gap-3 relative" style="border-color: var(--red); box-shadow: 0 3px 0 var(--red-dark); background: #FFF5F5;">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0" style="background: var(--red); box-shadow: 0 3px 0 var(--red-dark);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </div>
+          <div class="flex-1 text-right">
+            <div class="display-he-bold text-[13px] text-[var(--red-dark)]">לא אושר אתמול</div>
+            <div class="body-he text-[12px] text-[var(--ink)] mt-1 leading-snug">"לא רואים את הכותרת — תנסי שוב 🙂"</div>
+            <div class="body-he text-[11px] text-[var(--ink-soft)] mt-1">— אמא, 17:42</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- CTA -->
+      <div class="px-5 pb-5 pt-3">
+        <button class="btn3d btn3d-green w-full py-4 text-white text-[17px] flex items-center justify-center gap-2">
+          ✓ שלחי לאישור
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- E — REDEEM SHOP -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">E</div>
+    <div class="frame-h2">Shop</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">6 rewards · 47 coins · 3 affordable</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">החנות</div>
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><polyline points="12 8 12 12 14 14"/></svg>
+        </button>
+      </div>
+
+      <!-- Wallet hero -->
+      <div class="mx-5 mt-3 card3d p-4 flex items-center gap-4" style="background: linear-gradient(135deg, #FFF1B5, white); border-color: var(--gold); box-shadow: 0 3px 0 var(--gold-dark);">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center text-3xl font-black" style="background: var(--gold); color: var(--orange-deep); box-shadow: 0 3px 0 var(--gold-dark), inset 0 2px 0 rgba(255,255,255,.4);">¢</div>
+        <div class="flex-1 text-right">
+          <div class="body-he text-[12px] text-[var(--orange-deep)] font-bold">היתרה שלי</div>
+          <div class="num text-[36px] text-[var(--orange-deep)] leading-none">47</div>
+        </div>
+        <span class="pill pill-green">3 שווים</span>
+      </div>
+
+      <!-- Grid -->
+      <div class="px-5 mt-4 grid grid-cols-2 gap-3">
+        <!-- candy -->
+        <div class="card3d card3d-green p-3 relative">
+          <div class="absolute -top-1.5 -right-1.5 pill pill-green text-[10px]" style="background: var(--green); color: white; box-shadow: 0 2px 0 var(--green-dark);">חדש!</div>
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-5xl mb-2" style="background: var(--green-pale);">🍬</div>
+          <div class="display-he-bold text-[15px] text-[var(--ink)] mb-2">סוכריה</div>
+          <button class="btn3d btn3d-green w-full py-2 text-white text-[13px] flex items-center justify-center gap-1">
+            <span>קנה</span><span class="num">2 ¢</span>
+          </button>
+        </div>
+        <!-- screen time -->
+        <div class="card3d card3d-green p-3">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-5xl mb-2" style="background: var(--blue-pale);">📱</div>
+          <div class="display-he-bold text-[15px] text-[var(--ink)] mb-2">חצי שעה מסך</div>
+          <button class="btn3d btn3d-green w-full py-2 text-white text-[13px] flex items-center justify-center gap-1">
+            <span>קנה</span><span class="num">5 ¢</span>
+          </button>
+        </div>
+        <!-- ice cream -->
+        <div class="card3d card3d-green p-3">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-5xl mb-2" style="background: #FFE0EC;">🍦</div>
+          <div class="display-he-bold text-[15px] text-[var(--ink)] mb-2">גלידה</div>
+          <button class="btn3d btn3d-green w-full py-2 text-white text-[13px] flex items-center justify-center gap-1">
+            <span>קנה</span><span class="num">8 ¢</span>
+          </button>
+        </div>
+        <!-- sleepover (locked) -->
+        <div class="card3d p-3 relative opacity-70">
+          <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style="background: var(--ink-soft);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+          </div>
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-5xl mb-2 grayscale" style="background: var(--bg);">🛌</div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mb-2">לינה בחוץ</div>
+          <div class="text-center body-he text-[12px] text-[var(--ink-soft)]">חסר <span class="num text-[14px] text-[var(--red)]">3</span> ¢</div>
+        </div>
+        <!-- movie (locked) -->
+        <div class="card3d p-3 relative opacity-70">
+          <div class="absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center" style="background: var(--ink-soft);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-5xl mb-2 grayscale" style="background: var(--bg);">🎬</div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mb-2">סרט בקולנוע</div>
+          <div class="text-center body-he text-[12px] text-[var(--ink-soft)]">חסר <span class="num text-[14px] text-[var(--red)]">53</span> ¢</div>
+        </div>
+        <!-- nintendo (big goal) -->
+        <div class="card3d p-3 relative opacity-70" style="background: linear-gradient(135deg, #F5DDFF, white);">
+          <div class="absolute -top-1.5 -right-1.5 pill pill-purple text-[10px]" style="background: var(--purple); color: white; box-shadow: 0 2px 0 var(--purple-dark);">חלום</div>
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-5xl mb-2 grayscale" style="background: var(--bg);">🎮</div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mb-2">משחק נינטנדו</div>
+          <div class="text-center body-he text-[12px] text-[var(--ink-soft)]">חסר <span class="num text-[14px] text-[var(--purple-dark)]">253</span> ¢</div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[20px]"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>בית</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/></svg>משימות</div>
+        <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>חנות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8"/></svg>קמפיינים</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- F — REDEMPTION TRACKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">F</div>
+    <div class="frame-h2">My orders</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Pending + received</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">ההזמנות שלי</div>
+        <div class="w-10"></div>
+      </div>
+
+      <!-- Pending -->
+      <div class="px-5 mt-4">
+        <div class="display-he-bold text-[16px] text-[var(--ink)] mb-3 flex items-center gap-2">
+          <span class="text-lg">⏳</span> מחכה לקבל · 2
+        </div>
+        <div class="space-y-2.5">
+          <div class="card3d card3d-orange p-3 flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style="background: #FFE0EC;">🍦</div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[15px] text-[var(--ink)]">גלידה</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">הזמנת לפני 2 שעות · 8 ¢</div>
+            </div>
+            <button class="btn3d btn3d-green text-white text-[12px] px-3 py-2 flex-shrink-0">קיבלתי ✓</button>
+          </div>
+          <div class="card3d card3d-orange p-3 flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style="background: var(--green-pale);">🍬</div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[15px] text-[var(--ink)]">סוכריה</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">הזמנת אתמול · 2 ¢</div>
+            </div>
+            <button class="btn3d btn3d-green text-white text-[12px] px-3 py-2 flex-shrink-0">קיבלתי ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Received -->
+      <div class="px-5 mt-6">
+        <div class="display-he-bold text-[16px] text-[var(--ink)] mb-3 flex items-center gap-2">
+          <span class="text-lg">✅</span> קיבלתי · 18 בסך הכל
+        </div>
+        <div class="space-y-2">
+          <div class="card3d p-3 flex items-center gap-3" style="background: var(--green-pale); border-color: #B5E88C;">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 opacity-80" style="background: var(--blue-pale);">📱</div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[14px] text-[var(--ink)]">חצי שעה מסך</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">לפני 3 ימים · 5 ¢</div>
+            </div>
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--green); box-shadow: 0 2px 0 var(--green-dark);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+          </div>
+          <div class="card3d p-3 flex items-center gap-3" style="background: var(--green-pale); border-color: #B5E88C;">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 opacity-80" style="background: var(--green-pale);">🍬</div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[14px] text-[var(--ink)]">סוכריה</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">לפני שבוע · 2 ¢</div>
+            </div>
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--green); box-shadow: 0 2px 0 var(--green-dark);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+          </div>
+          <div class="card3d p-3 flex items-center gap-3 opacity-75" style="background: var(--green-pale); border-color: #B5E88C;">
+            <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 grayscale" style="background: var(--bg);">🎬</div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[14px] text-[var(--ink)]">סרט בקולנוע</div>
+              <div class="body-he text-[11px] text-[var(--ink-soft)]">לפני חודש · 100 ¢</div>
+            </div>
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--green); box-shadow: 0 2px 0 var(--green-dark);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="4" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>בית</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/></svg>משימות</div>
+        <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>חנות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8"/></svg>קמפיינים</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- G — CAMPAIGNS -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">G</div>
+    <div class="frame-h2">Campaigns</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Streak path + total progress + league</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">קמפיינים</div>
+        <div class="w-10"></div>
+      </div>
+
+      <!-- Streak campaign card -->
+      <div class="mx-5 mt-3 card3d card3d-orange p-5 relative" style="background: linear-gradient(180deg, #FFF0DD, white);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 3px 0 var(--red-dark);">🔥</div>
+          <div class="flex-1 text-right">
+            <div class="display-en-bold text-[11px] text-[var(--orange-deep)] uppercase tracking-widest">streak quest</div>
+            <h2 class="display-he-bold text-[20px] text-[var(--ink)] leading-tight">5 ימים של מיטה</h2>
+          </div>
+        </div>
+
+        <!-- Streak chain -->
+        <div class="flex justify-center gap-2 my-4">
+          <div class="flame-stamp flame-done">1</div>
+          <div class="flame-stamp flame-done">2</div>
+          <div class="flame-stamp flame-done">3</div>
+          <div class="flame-stamp flame-today">4</div>
+          <div class="flame-stamp flame-future">5</div>
+        </div>
+
+        <div class="text-center body-he text-[13px] text-[var(--ink)]">
+          <span class="display-he-bold text-[var(--orange)]">3 מתוך 5</span> · עוד יומיים והפרס שלך! 🏆
+        </div>
+
+        <hr class="border-[var(--rule)] my-3 border-2 border-dashed" />
+
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">פרס</div>
+            <div class="num text-[18px] text-[var(--gold-dark)] mt-1">+50 ¢</div>
+          </div>
+          <div>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">תג</div>
+            <div class="text-2xl mt-0.5">👑</div>
+          </div>
+          <div>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">חופשים 🛡️</div>
+            <div class="num text-[18px] text-[var(--ink)] mt-1">0/1</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total campaign card -->
+      <div class="mx-5 mt-4 card3d p-5 relative" style="border-color: var(--purple); box-shadow: 0 3px 0 var(--purple-dark); background: linear-gradient(180deg, #F5E5FF, white);">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0" style="background: var(--purple); box-shadow: 0 3px 0 var(--purple-dark);">📚</div>
+          <div class="flex-1 text-right">
+            <div class="display-en-bold text-[11px] text-[var(--purple-dark)] uppercase tracking-widest">total quest</div>
+            <h2 class="display-he-bold text-[20px] text-[var(--ink)] leading-tight">לקרוא 100 עמודים</h2>
+          </div>
+        </div>
+
+        <div class="flex items-baseline justify-center gap-2 mb-3">
+          <span class="num text-[52px] text-[var(--purple-dark)] leading-none">38</span>
+          <span class="body-he text-[16px] text-[var(--ink-soft)]">/ 100 עמ׳</span>
+        </div>
+        <div class="pb-track" style="height: 18px"><div class="pb-fill" style="width:38%; background: linear-gradient(90deg, var(--purple), var(--blue));"></div></div>
+
+        <div class="flex justify-between mt-3">
+          <div class="text-right">
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">נשאר</div>
+            <div class="num text-[18px] text-[var(--red)]">12 ימים</div>
+          </div>
+          <div class="text-right">
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">עוד</div>
+            <div class="num text-[18px] text-[var(--purple-dark)]">62 עמ׳</div>
+          </div>
+        </div>
+
+        <hr class="border-[var(--rule)] my-3 border-2 border-dashed" />
+
+        <div class="flex items-center justify-around text-center">
+          <div>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">פרס</div>
+            <div class="num text-[18px] text-[var(--gold-dark)] mt-1">+100 ¢</div>
+          </div>
+          <div>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase tracking-widest">תג</div>
+            <div class="text-2xl mt-0.5">🏆</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sibling league -->
+      <div class="mx-5 mt-4 card3d p-3">
+        <div class="display-en-bold text-[11px] text-[var(--ink-soft)] uppercase tracking-widest mb-2 text-right">🏆 ליגת השבוע</div>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-2 p-2 rounded-xl" style="background: var(--gold); box-shadow: 0 2px 0 var(--gold-dark);">
+            <div class="num text-[16px] text-[var(--orange-deep)]">#1</div>
+            <div class="w-7 h-7 rounded-full flex items-center justify-center display-he-bold text-[14px] text-white" style="background: linear-gradient(180deg, #5DD0FF, #1CB0F6);">י</div>
+            <span class="display-he-bold text-[13px] text-[var(--ink)] flex-1">יעל</span>
+            <span class="num text-[14px] text-[var(--ink)]">89 ¢</span>
+          </div>
+          <div class="flex items-center gap-2 p-2 rounded-xl" style="background: var(--orange-pale); border: 2px solid var(--orange); box-shadow: 0 2px 0 var(--orange-dark);">
+            <div class="num text-[16px] text-[var(--orange-deep)]">#2</div>
+            <div class="w-7 h-7 rounded-full flex items-center justify-center display-he-bold text-[14px] text-white" style="background: linear-gradient(180deg, #FFB854, #FF9600);">ל</div>
+            <span class="display-he-bold text-[13px] text-[var(--ink)] flex-1">ליה <span class="text-[10px] text-[var(--orange-dark)]">· את</span></span>
+            <span class="num text-[14px] text-[var(--ink)]">47 ¢</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>בית</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/></svg>משימות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>חנות</div>
+        <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8"/></svg>קמפיינים</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- H — BADGES -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--green)] uppercase tracking-widest mb-1">H</div>
+    <div class="frame-h2">Badges</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">3 earned · 5 locked</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">התגים שלי</div>
+        <div class="w-10"></div>
+      </div>
+
+      <!-- Hero card -->
+      <div class="mx-5 mt-3 card3d card3d-orange p-4 flex items-center gap-3" style="background: linear-gradient(135deg, var(--orange-pale), white);">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center display-he-bold text-[28px] text-white" style="background: linear-gradient(180deg, #FFB854, #FF9600); box-shadow: 0 3px 0 var(--orange-dark);">ל</div>
+        <div class="flex-1 text-right">
+          <div class="display-he-bold text-[18px] text-[var(--ink)] leading-tight">ליה</div>
+          <div class="grid grid-cols-3 gap-2 mt-2 text-center">
+            <div>
+              <div class="num text-[18px] text-[var(--orange)] leading-none">3</div>
+              <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase">אספתי</div>
+            </div>
+            <div>
+              <div class="num text-[18px] text-[var(--ink)] leading-none">8</div>
+              <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase">סך הכל</div>
+            </div>
+            <div>
+              <div class="num text-[18px] text-[var(--green)] leading-none">38%</div>
+              <div class="body-he text-[10px] text-[var(--ink-soft)] uppercase">השלמתי</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle -->
+      <div class="px-5 mt-3 flex gap-2">
+        <button class="btn3d btn3d-orange text-white text-[13px] px-4 py-2">שלי</button>
+        <button class="btn3d btn3d-white text-[13px] px-4 py-2">של יעל</button>
+      </div>
+
+      <!-- Grid -->
+      <div class="px-5 mt-4 grid grid-cols-4 gap-2.5">
+        <!-- Earned 1 -->
+        <div class="text-center">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl mb-1.5 relative" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 4px 0 var(--red-dark);">
+            🛏️
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink)] leading-tight">אלופת מיטה</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl mb-1.5 relative" style="background: linear-gradient(180deg, var(--blue), var(--blue-dark)); box-shadow: 0 4px 0 var(--blue-deep);">
+            📚
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink)] leading-tight">תולעת ספרים</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl mb-1.5 relative" style="background: linear-gradient(180deg, var(--gold), var(--gold-dark)); box-shadow: 0 4px 0 var(--orange-deep);">
+            ⭐
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink)] leading-tight">100 משימות</div>
+        </div>
+        <!-- Locked -->
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--bg); border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+            🎹
+            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background: var(--ink); border: 2px solid white;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink-soft)] leading-tight">מוסיקאית</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--bg); border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+            🔥
+            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background: var(--ink); border: 2px solid white;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink-soft)] leading-tight">רצף 30 ימים</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--bg); border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+            🎂
+            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background: var(--ink); border: 2px solid white;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink-soft)] leading-tight">יום הולדת '26</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--bg); border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+            💯
+            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background: var(--ink); border: 2px solid white;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink-soft)] leading-tight">500 משימות</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-2xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--bg); border: 2px solid var(--rule); box-shadow: 0 3px 0 var(--rule-strong);">
+            🥇
+            <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center" style="background: var(--ink); border: 2px solid white;">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-he-bold text-[10px] text-[var(--ink-soft)] leading-tight">10 קמפיינים</div>
+        </div>
+      </div>
+
+      <!-- Sibling activity card -->
+      <div class="mx-5 mt-5 card3d p-3" style="background: var(--blue-pale); border-color: var(--blue-soft); box-shadow: 0 3px 0 var(--blue);">
+        <div class="display-en-bold text-[11px] text-[var(--blue-deep)] uppercase tracking-widest mb-1 text-right">🔵 פעילות יעל</div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center display-he-bold text-[18px] text-white" style="background: linear-gradient(180deg, #5DD0FF, #1CB0F6); box-shadow: 0 2px 0 var(--blue-dark);">י</div>
+          <div class="flex-1 text-right">
+            <div class="display-he-bold text-[13px] text-[var(--ink)]">יעל אספה את <span class="text-[var(--blue-deep)]">תג המוסיקאית!</span></div>
+            <div class="body-he text-[11px] text-[var(--ink-soft)] mt-0.5">לפני 12 דקות 🎹</div>
+          </div>
+          <div class="text-2xl">🎹</div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>בית</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/></svg>משימות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>חנות</div>
+        <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8"/></svg>קמפיינים</div>
+        <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- /screens -->
+
+<!-- =================== LANGUAGE TOGGLE =================== -->
+<div class="mt-32" dir="ltr">
+  <div class="flex items-center gap-4 mb-8">
+    <hr class="flex-1 border-[var(--rule)] border-2" />
+    <span class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">English (LTR) toggle preview</span>
+    <hr class="flex-1 border-[var(--rule)] border-2" />
+  </div>
+  <p class="body-en text-center text-[14px] text-[var(--ink-soft)] mb-8">Same home, English. Fredoka becomes the dominant display face; Rubik stays for body.</p>
+  <div class="flex justify-center">
+    <div class="phone" lang="en">
+      <div class="notch"></div>
+      <div class="phone-inner" dir="ltr">
+        <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--green)]">Reco</span></div>
+
+        <div class="px-5 pt-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center display-en-bold text-[20px] text-white" style="background: linear-gradient(180deg, #FFB854, #FF9600); box-shadow: 0 3px 0 var(--orange-dark);">L</div>
+            <div>
+              <div class="body-en text-[12px] text-[var(--ink-soft)]">good morning,</div>
+              <div class="display-en-bold text-[20px] text-[var(--ink)] leading-none">Lia</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1 px-3 py-1.5 rounded-full" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 3px 0 var(--red-dark);">
+              <span class="text-base">🔥</span>
+              <span class="display-en-bold text-white text-[15px]">3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-4 card3d card3d-orange p-5 relative overflow-hidden">
+          <div class="absolute -top-2 -left-2 mascot-wrap" style="opacity: .9;">
+            <svg width="68" height="68" viewBox="0 0 100 100">
+              <defs><radialGradient id="mwe" cx="35%" cy="30%"><stop offset="0%" stop-color="#FFE968"/><stop offset="55%" stop-color="#FFC800"/><stop offset="100%" stop-color="#D2A400"/></radialGradient></defs>
+              <circle cx="50" cy="55" r="42" fill="url(#mwe)" stroke="#B89400" stroke-width="3"/>
+              <ellipse cx="38" cy="52" rx="5" ry="6" fill="#3C3C3C"/>
+              <ellipse cx="62" cy="52" rx="5" ry="6" fill="#3C3C3C"/>
+              <path d="M 40 66 Q 50 74 60 66" stroke="#3C3C3C" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <div class="display-en font-bold text-[13px] text-[var(--orange-deep)] mb-1">— YOUR WALLET —</div>
+            <div class="flex items-baseline gap-2 mb-1">
+              <span class="num text-[56px] text-[var(--orange-deep)] leading-none">47</span>
+              <span class="display-en-bold text-[16px] text-[var(--orange-deep)]">coins</span>
+            </div>
+            <div class="flex items-center gap-2 mt-3">
+              <span class="pill pill-green">+12 today</span>
+              <span class="pill pill-grey">+84 this month</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 mt-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="display-en-bold text-[20px] text-[var(--ink)]">Today's tasks</div>
+            <span class="pill pill-green">3/4</span>
+          </div>
+          <div class="space-y-2">
+            <div class="card3d card3d-soft-green p-3 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: var(--green); box-shadow: 0 3px 0 var(--green-dark);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="display-en-bold text-[15px] text-[var(--green-deep)] line-through">Make your bed</div>
+                <div class="body-en text-[11px] text-[var(--green-deep)]">done at 7:14</div>
+              </div>
+              <span class="pill pill-gold">+1 ¢</span>
+            </div>
+            <div class="card3d card3d-blue p-3 flex items-center gap-3">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background: var(--blue); box-shadow: 0 3px 0 var(--blue-dark);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4" fill="var(--blue)"/></svg>
+              </div>
+              <div class="flex-1">
+                <div class="display-en-bold text-[15px] text-[var(--ink)]">Homework</div>
+                <div class="body-en text-[11px] text-[var(--blue-deep)]">📷 reminder at 17:00</div>
+              </div>
+              <span class="pill pill-gold">+20 ¢</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-4 card3d p-3 flex items-center gap-3" style="background: linear-gradient(135deg, #FFE0CB, white); border-color: var(--orange); box-shadow: 0 3px 0 var(--orange-dark);">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0" style="background: linear-gradient(180deg, var(--orange), var(--red)); box-shadow: 0 3px 0 var(--red-dark);">🔥</div>
+          <div class="flex-1 min-w-0">
+            <div class="display-en-bold text-[11px] text-[var(--orange-deep)] uppercase tracking-widest">streak quest</div>
+            <div class="display-en-bold text-[14px] text-[var(--ink)] leading-tight mt-0.5">5-day bed streak</div>
+            <div class="body-en text-[11px] text-[var(--orange-deep)] mt-0.5">2 more days to win! 🏆</div>
+          </div>
+          <div class="text-center">
+            <div class="num text-[28px] text-[var(--orange)] leading-none">3<span class="text-[var(--ink-faded)] text-base">/5</span></div>
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+        <div class="tabbar">
+          <div class="tab active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>home</div>
+          <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 11 12 14 22 4"/></svg>tasks</div>
+          <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>shop</div>
+          <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 6L8 14h8l-4 8"/></svg>quests</div>
+          <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>badges</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== FOOTER =================== -->
+<footer class="mt-32 max-w-3xl mx-auto px-6 pb-16" dir="ltr">
+  <hr class="border-[var(--rule)] border-2 mb-12" />
+  <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-3">— concept 04 notes —</div>
+  <h3 class="display-en-bold text-[28px] text-[var(--ink)] mb-6 leading-snug">Strongest weakness</h3>
+  <p class="body-en text-[18px] text-[var(--ink-soft)] leading-relaxed mb-4">
+    Inheriting Duolingo's visual vocabulary is a fast way to "feels like the kid already uses it" but also a fast way to "feels like a knock-off." Two specific risks: (1) the 3D-button-with-ledge pattern is now strongly trademarked-feeling — kids who play Duolingo daily will notice and may treat Reco as "Duo's cousin," which is fine until the brand wants its own identity; (2) Coiny the mascot needs real illustration work to compete with Duo, not just an SVG smiley face. The mascot is the make-or-break here.
+  </p>
+  <p class="body-en text-[18px] text-[var(--ink-soft)] leading-relaxed">
+    Quietest strength: this concept already speaks the kids' UX language. Lia and Yael (presumably) know what a chunky green button does, what a streak flame means, what a weekly league looks like. Reco doesn't need to teach the genre — it just plugs into a vocabulary they already have. And the league framing — "this week, Yael is #1, you're #2" — converts the abstract "wallet difference" into a concrete weekly competition that resets, which avoids the demoralization risk of a perpetual leaderboard.
+  </p>
+</footer>
+
+</main>
+
+</body>
+</html>

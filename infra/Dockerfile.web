@@ -1,0 +1,49 @@
+# syntax=docker/dockerfile:1.7
+
+# Reco web — Next.js 16 standalone build.
+# Three stages: deps (pnpm install), builder (next build), runner (only the
+# standalone bundle + static + public). The bundle is self-contained — node
+# can run server.js without pnpm or the full workspace present at runtime.
+
+# ── Base ────────────────────────────────────────────────────────────────────
+FROM node:22-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+WORKDIR /app
+
+# ── Stage 1: deps — install once with the lockfile so layer cache hits. ────
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/web/package.json ./apps/web/
+COPY apps/worker/package.json ./apps/worker/
+COPY packages/db/package.json ./packages/db/
+COPY packages/shared/package.json ./packages/shared/
+RUN pnpm install --frozen-lockfile
+
+# ── Stage 2: builder — copy source + build Next standalone. ────────────────
+FROM base AS builder
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=deps /app/packages/db/node_modules ./packages/db/node_modules
+COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
+COPY . .
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm --filter @reco/web build
+
+# ── Stage 3: runner — minimal runtime image. ───────────────────────────────
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3030
+ENV HOSTNAME=0.0.0.0
+RUN addgroup --system --gid 1001 reco \
+    && adduser --system --uid 1001 --ingroup reco reco
+
+# Standalone bundle includes the tracing-discovered subset of node_modules.
+COPY --from=builder --chown=reco:reco /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=reco:reco /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=builder --chown=reco:reco /app/apps/web/public ./apps/web/public
+
+USER reco
+EXPOSE 3030
+CMD ["node", "apps/web/server.js"]

@@ -1,0 +1,98 @@
+# Reco production stack. Sits alongside the family-budget-app and
+# family-tasks-hub compose stacks on the same Hetzner CX32 VPS.
+#
+# Run from /opt/recognition: `docker compose -f infra/docker-compose.yml up -d`
+#
+# The .env in the repo root supplies every secret. Caddy is installed on the
+# HOST, not in this compose file — see infra/Caddyfile.fragment.
+#
+# Ports are bound to 127.0.0.1 so only the host Caddy can reach them; nothing
+# is exposed to the external network. Postgres has no host port at all.
+
+name: reco
+
+services:
+  reco-pg:
+    image: postgres:16-alpine
+    container_name: reco-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: reco
+      POSTGRES_DB: reco
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
+      # ICU he-IL collation so ORDER BY on Hebrew strings sorts correctly
+      # (BUILD-PLAN.md Phase 1 task 7 + ARCHITECTURE.md gotcha §14).
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=he-IL --encoding=UTF8"
+      LANG: en_US.utf8
+    volumes:
+      - reco-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reco -d reco"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - reco-net
+
+  reco-web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.web
+    image: reco-web:latest
+    container_name: reco-web
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://reco:${POSTGRES_PASSWORD}@reco-pg:5432/reco
+      PORT: "3030"
+      HOSTNAME: 0.0.0.0
+    ports:
+      - "127.0.0.1:3030:3030"
+    volumes:
+      # Same named volume on both containers (ARCHITECTURE.md §9). Web writes
+      # on upload; worker reads on serve and unlinks on purge. Reward images
+      # live in `rewards/` subdir of this same volume (Gate 2 §Q3); the
+      # evidence-purge cron is row-driven, so they're safe.
+      - reco-evidence:/var/lib/reco/evidence:rw
+    depends_on:
+      reco-pg:
+        condition: service_healthy
+    networks:
+      - reco-net
+
+  reco-worker:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile.worker
+    image: reco-worker:latest
+    container_name: reco-worker
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://reco:${POSTGRES_PASSWORD}@reco-pg:5432/reco
+      WORKER_PORT: "8100"
+      WORKER_HOST: 0.0.0.0
+    ports:
+      - "127.0.0.1:8100:8100"
+    volumes:
+      - reco-evidence:/var/lib/reco/evidence:rw
+    depends_on:
+      reco-pg:
+        condition: service_healthy
+    networks:
+      - reco-net
+
+volumes:
+  reco-pg-data:
+    name: reco-pg-data
+  reco-evidence:
+    name: reco-evidence
+
+networks:
+  reco-net:
+    name: reco-net
+    driver: bridge

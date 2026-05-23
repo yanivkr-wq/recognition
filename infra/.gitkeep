@@ -1,0 +1,8 @@
+# Infrastructure files land here in sub-milestone 1e:
+#   - docker-compose.yml         (reco-web + reco-worker + reco-pg + evidence volume)
+#   - Dockerfile.web              (Next.js 16 multi-stage standalone build)
+#   - Dockerfile.worker           (Node 22 Fastify worker)
+#   - Caddyfile.fragment          (reco.my-restart.co.il subdomain block)
+#   - deploy-prod.sh              (idempotent first-install)
+#   - update-prod.sh              (called by auto-deploy each push)
+#   - auto-deploy.sh              (host cron, polls GitHub */2 min)

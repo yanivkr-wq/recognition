@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Plush · 3 badge design directions</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Heebo:wght@300;400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FF6B9D; --pink-dark: #E94B7F; --pink-pale: #FFE0EB; --pink-soft: #FFF0F6;
+    --mint: #4ED9A5; --mint-dark: #2EB683; --mint-pale: #D6F5E8; --mint-soft: #EBFAF3;
+    --sky: #6EC9F4; --sky-dark: #3DA8DD; --sky-pale: #DBEFFB; --sky-soft: #EDF6FD;
+    --lavender: #B59FE5; --lavender-dark: #8B72CE; --lavender-pale: #ECE4F8; --lavender-soft: #F6F1FC;
+    --yellow: #FFD75E; --yellow-dark: #E8B927; --yellow-pale: #FFF3D6;
+    --peach: #FF9F7A; --peach-pale: #FFE5D8;
+    --ink: #2D2A4A; --ink-soft: #6E6B89; --ink-faded: #A8A6BB;
+    --rule: #EFEDF5; --rule-soft: #F7F5FA;
+    --bg: #FAF8F5; --card: #FFFFFF;
+  }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Quicksand', 'Heebo', sans-serif; min-height: 100vh; }
+  .display-en-bold { font-family: 'Fredoka', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  .display-en { font-family: 'Fredoka', sans-serif; font-weight: 600; letter-spacing: -.01em; }
+  .display-he-bold { font-family: 'Heebo', sans-serif; font-weight: 900; letter-spacing: -.02em; }
+  .display-he { font-family: 'Heebo', sans-serif; font-weight: 800; }
+  .body-he { font-family: 'Heebo', sans-serif; font-weight: 500; }
+  .body-en { font-family: 'Quicksand', sans-serif; font-weight: 600; }
+  .num { font-family: 'Heebo', sans-serif; font-weight: 800; font-feature-settings: "tnum"; }
+  .card-soft { background: var(--card); border-radius: 24px; box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 4px 12px rgba(45,42,74,.06); border: 1px solid var(--rule); }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-family: 'Heebo', sans-serif; font-size: 11px; font-weight: 700; }
+  .pill-pink { background: var(--pink-pale); color: var(--pink-dark); }
+  .pill-mint { background: var(--mint-pale); color: var(--mint-dark); }
+  .pill-yellow { background: var(--yellow-pale); color: var(--yellow-dark); }
+  .pill-sky { background: var(--sky-pale); color: var(--sky-dark); }
+  .pill-lavender { background: var(--lavender-pale); color: var(--lavender-dark); }
+  .pill-grey { background: var(--rule); color: var(--ink-soft); }
+
+  /* ============ Direction A — Embroidered Patch ============ */
+  .patch {
+    position: relative;
+    width: 140px; height: 140px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .patch-large { width: 200px; height: 200px; }
+  .patch-bg {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+  }
+  .patch-emblem {
+    position: relative; z-index: 2;
+    width: 56%;
+  }
+  .patch-count {
+    position: absolute; bottom: -6px; left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11px;
+    color: var(--ink);
+    box-shadow: 0 2px 6px rgba(45,42,74,.15);
+    z-index: 3;
+  }
+  .patch-locked { filter: grayscale(1); opacity: .55; }
+  .patch-lock-overlay {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 4;
+  }
+  .patch-lock-overlay .lock-circle {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(45,42,74,.85);
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ============ Direction B — Hanging Medal ============ */
+  .medal-wrap {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
+    width: 140px;
+  }
+  .medal-wrap-large { width: 200px; }
+
+  /* ============ Direction C — Collectible Card ============ */
+  .card-badge {
+    width: 140px;
+    background: white;
+    border-radius: 18px;
+    border: 1.5px solid var(--rule);
+    box-shadow: 0 4px 12px rgba(45,42,74,.08);
+    overflow: hidden;
+    display: flex; flex-direction: column;
+  }
+  .card-badge-large { width: 220px; }
+  .card-badge-top {
+    padding: 16px 12px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+  }
+  .card-badge-bottom {
+    padding: 12px;
+    background: white;
+    border-top: 1px dashed var(--rule);
+  }
+  .card-badge-count-chip {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(4px);
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11px;
+    color: var(--ink);
+  }
+  .card-badge-rarity {
+    position: absolute; top: 8px; left: 8px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-family: 'Heebo', sans-serif; font-weight: 700; font-size: 9px;
+    text-transform: uppercase; letter-spacing: .08em;
+  }
+
+  .frame-h2 { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -.02em; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ================== SVG LIBRARY ================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="em-crown" viewBox="0 0 60 60">
+      <path d="M 8 22 L 16 36 L 22 22 L 30 38 L 38 22 L 44 36 L 52 22 L 50 50 L 10 50 Z" fill="#FFD75E"/>
+      <rect x="10" y="48" width="40" height="4" fill="#E8B927"/>
+      <circle cx="16" cy="36" r="3" fill="#FF6B9D"/>
+      <circle cx="30" cy="38" r="3.5" fill="#FF6B9D"/>
+      <circle cx="44" cy="36" r="3" fill="#FF6B9D"/>
+      <circle cx="14" cy="22" r="2" fill="#FFE99A"/>
+      <circle cx="30" cy="22" r="2" fill="#FFE99A"/>
+      <circle cx="46" cy="22" r="2" fill="#FFE99A"/>
+    </symbol>
+    <symbol id="em-trophy" viewBox="0 0 60 60">
+      <path d="M 12 14 Q 4 18 8 28 Q 10 32 14 32" stroke="#FFD75E" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 48 14 Q 56 18 52 28 Q 50 32 46 32" stroke="#FFD75E" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 12 10 L 48 10 L 46 36 Q 44 42 30 42 Q 16 42 14 36 Z" fill="#FFD75E"/>
+      <path d="M 30 16 L 33 24 L 41 24 L 35 29 L 37 38 L 30 33 L 23 38 L 25 29 L 19 24 L 27 24 Z" fill="#E8B927"/>
+      <rect x="26" y="42" width="8" height="6" fill="#FFD75E"/>
+      <rect x="18" y="48" width="24" height="6" rx="1" fill="#8B5E3C"/>
+    </symbol>
+    <symbol id="em-medal" viewBox="0 0 60 60">
+      <path d="M 22 4 L 18 24 L 26 26 L 30 8 Z" fill="#FF6B9D"/>
+      <path d="M 38 4 L 42 24 L 34 26 L 30 8 Z" fill="#6EC9F4"/>
+      <circle cx="30" cy="38" r="15" fill="#FFD75E"/>
+      <circle cx="30" cy="38" r="11" fill="#FFE99A"/>
+      <path d="M 30 30 L 32 36 L 38 36 L 33 40 L 35 46 L 30 42 L 25 46 L 27 40 L 22 36 L 28 36 Z" fill="#E8B927"/>
+    </symbol>
+    <symbol id="em-diamond" viewBox="0 0 60 60">
+      <path d="M 18 18 L 42 18 L 50 28 L 30 52 L 10 28 Z" fill="#6EC9F4"/>
+      <path d="M 18 18 L 30 28 L 42 18" fill="#A6DFFA"/>
+      <path d="M 10 28 L 30 28 L 30 52" fill="#3DA8DD"/>
+      <path d="M 30 28 L 30 52 L 50 28" fill="#6EC9F4"/>
+      <polygon points="20,22 24,18 28,22 24,26" fill="#DBEFFB" opacity=".8"/>
+    </symbol>
+    <symbol id="em-cert" viewBox="0 0 60 60">
+      <rect x="14" y="6" width="32" height="44" rx="2" fill="white" stroke="#D6D4DC" stroke-width="1.5"/>
+      <line x1="20" y1="14" x2="40" y2="14" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="19" x2="36" y2="19" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="24" x2="38" y2="24" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="36" cy="40" r="7" fill="#FFD75E" stroke="#E8B927" stroke-width="1"/>
+      <circle cx="36" cy="40" r="4" fill="#FFE99A"/>
+      <path d="M 30 40 L 27 56 L 32 52 L 36 56 L 40 52 L 45 56 L 42 40 Z" fill="#E94B7F"/>
+    </symbol>
+    <symbol id="em-gift" viewBox="0 0 60 60">
+      <rect x="8" y="24" width="44" height="28" rx="2" fill="#FFD75E"/>
+      <rect x="27" y="24" width="6" height="28" fill="#E94B7F"/>
+      <rect x="8" y="34" width="44" height="6" fill="#E94B7F"/>
+      <path d="M 30 24 Q 18 14 22 8 Q 28 6 30 18 Q 32 6 38 8 Q 42 14 30 24 Z" fill="#E94B7F"/>
+      <circle cx="30" cy="22" r="3" fill="#FF6B9D"/>
+    </symbol>
+    <symbol id="em-star" viewBox="0 0 60 60">
+      <path d="M 30 6 L 37 22 L 54 24 L 41 35 L 45 52 L 30 43 L 15 52 L 19 35 L 6 24 L 23 22 Z" fill="#FFD75E"/>
+      <path d="M 30 16 L 34 26 L 44 27 L 36 33 L 38 42 L 30 37 L 22 42 L 24 33 L 16 27 L 26 26 Z" fill="#FFE99A" opacity=".7"/>
+    </symbol>
+    <symbol id="em-torch" viewBox="0 0 60 60">
+      <rect x="26" y="32" width="8" height="22" rx="1" fill="#8B5E3C"/>
+      <rect x="24" y="52" width="12" height="4" rx="1" fill="#5C3F25"/>
+      <path d="M 20 22 L 40 22 L 38 34 L 22 34 Z" fill="#B5C0CC"/>
+      <rect x="20" y="22" width="20" height="2" fill="#8C9BA8"/>
+      <path d="M 30 2 Q 18 14 18 22 Q 18 30 24 30 Q 20 22 26 16 Q 22 28 30 28 Q 38 28 34 16 Q 40 22 36 30 Q 42 30 42 22 Q 42 14 30 2 Z" fill="#FF6B9D"/>
+      <path d="M 30 10 Q 24 16 26 22 Q 30 24 30 22 Q 32 16 30 10 Z" fill="#FFD75E"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- =================== INTRO =================== -->
+<section class="max-w-6xl mx-auto px-6 pt-20 pb-8" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="display-en text-[12px] font-bold text-[var(--pink)] uppercase tracking-widest">Plush · badge architecture</span>
+    <span class="body-en text-[12px] text-[var(--ink-soft)]">— 3 directions for the wrapper around the emblem</span>
+  </div>
+  <h1 class="display-en-bold text-[52px] leading-[1] text-[var(--ink)] mb-4">3 badge concepts</h1>
+  <p class="body-en text-[var(--ink-soft)] text-[17px] max-w-2xl leading-relaxed">
+    Same palette. Same fonts. Same illustrated emblems (crown, trophy, medal, diamond, etc.). What changes is the <strong>wrapper</strong> — the badge's outer shape, its display affordance, its collectible feel. Three genuinely different architectural moves, all aligned with Plush.
+  </p>
+</section>
+
+<!-- ============ DIRECT COMPARISON ============ -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="text-center mb-8">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">Same emblem (Crown · "King of Tasks") — three wrappers</div>
+  </div>
+  <div class="grid grid-cols-3 gap-8 max-w-4xl mx-auto items-end">
+    <!-- A: Patch -->
+    <div class="text-center">
+      <div class="patch patch-large mx-auto">
+        <div class="patch-bg" style="background: #FFE0EB;"></div>
+        <div class="patch-bg" style="inset: 14px; background: white;"></div>
+        <div class="patch-bg" style="inset: 22px; background: radial-gradient(circle at 35% 30%, #FFF0F6, #FFE0EB); border: 3px dashed #FF6B9D;"></div>
+        <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+        <div class="patch-count">×12</div>
+      </div>
+      <div class="display-en-bold text-[16px] text-[var(--ink)] mt-6">A · Embroidered patch</div>
+      <div class="body-en italic text-[12px] text-[var(--ink-soft)]">stitched · circular · sticker-album feel</div>
+    </div>
+
+    <!-- B: Hanging Medal -->
+    <div class="text-center">
+      <div class="medal-wrap medal-wrap-large mx-auto">
+        <!-- Ribbon -->
+        <svg width="100%" viewBox="0 0 100 30" style="margin-bottom: -4px;">
+          <path d="M 30 0 L 70 0 L 65 28 L 50 22 L 35 28 Z" fill="#FF6B9D"/>
+          <path d="M 30 0 L 38 0 L 44 22 L 35 28 Z" fill="#E94B7F"/>
+          <path d="M 62 0 L 70 0 L 65 28 L 56 22 Z" fill="#E94B7F"/>
+        </svg>
+        <!-- Medal -->
+        <div class="relative">
+          <svg width="100%" viewBox="0 0 140 140">
+            <!-- outer ring gold -->
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <!-- inner ring lighter -->
+            <circle cx="70" cy="70" r="54" fill="#FFE99A"/>
+            <!-- inner field -->
+            <circle cx="70" cy="70" r="46" fill="white"/>
+            <!-- shine highlight -->
+            <ellipse cx="50" cy="40" rx="20" ry="6" fill="white" opacity=".5"/>
+            <!-- emblem -->
+            <g transform="translate(40 40)"><use href="#em-crown"/></g>
+            <!-- engraved count -->
+            <text x="70" y="125" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="11" fill="#9C7400">EARNED ×12</text>
+          </svg>
+        </div>
+      </div>
+      <div class="display-en-bold text-[16px] text-[var(--ink)] mt-6">B · Hanging medal</div>
+      <div class="body-en italic text-[12px] text-[var(--ink-soft)]">ribbon strap · gold rim · trophy-shelf feel</div>
+    </div>
+
+    <!-- C: Card -->
+    <div class="text-center">
+      <div class="card-badge card-badge-large mx-auto">
+        <div class="card-badge-top" style="background: linear-gradient(180deg, #FFE0EB, #FFF0F6); aspect-ratio: 1.2;">
+          <span class="card-badge-count-chip">×12</span>
+          <span class="card-badge-rarity" style="background: #FFD75E; color: #5C3F25;">נדיר</span>
+          <svg width="60%" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+        </div>
+        <div class="card-badge-bottom">
+          <div class="display-he-bold text-[14px] text-[var(--ink)] text-right">מלכת משימות</div>
+          <div class="body-he text-[10px] text-[var(--ink-soft)] mt-1 text-right">3 ימים של מיטה ברצף</div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-[var(--rule-soft)]">
+            <span class="pill pill-yellow">+50 ¢</span>
+            <span class="body-en text-[9px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">'26</span>
+          </div>
+        </div>
+      </div>
+      <div class="display-en-bold text-[16px] text-[var(--ink)] mt-6">C · Collectible card</div>
+      <div class="body-en italic text-[12px] text-[var(--ink-soft)]">portrait card · rarity tag · Pokémon-deck feel</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== DIRECTION A — PATCH ================== -->
+<section class="max-w-6xl mx-auto px-6 mb-20" dir="ltr">
+  <div class="card-soft p-8" style="background: linear-gradient(135deg, #FFF0F6, white);">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="display-en-bold text-[20px] text-[var(--pink)] uppercase tracking-widest">A</span>
+      <div>
+        <h2 class="display-en-bold text-[32px] text-[var(--ink)] leading-tight">Embroidered patch</h2>
+        <p class="body-en text-[15px] text-[var(--ink-soft)] mt-2 max-w-2xl leading-relaxed">
+          Flat circular patch with a stitched dashed outer ring. No 3D, no metallic surface — pure flat-illustration. The dashed border evokes embroidery/iron-on patches like Girl Scout merit badges or enamel pins. Soft, casual, tactile. Count chip below the patch in a small white pill.
+          <span class="block mt-2 text-[var(--ink)]"><strong>Best when:</strong> you want the kid app to feel <em>playful and tactile</em> — like a sticker album the kid is filling. Lowest visual weight; tiles well in dense grids.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Earned row -->
+    <div class="grid grid-cols-4 gap-6 mb-6">
+      <!-- Crown -->
+      <div class="text-center">
+        <div class="patch mx-auto">
+          <div class="patch-bg" style="background: #FFE0EB;"></div>
+          <div class="patch-bg" style="inset: 10px; background: white;"></div>
+          <div class="patch-bg" style="inset: 16px; background: radial-gradient(circle at 35% 30%, #FFF0F6, #FFE0EB); border: 2.5px dashed #FF6B9D;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+          <div class="patch-count">×12</div>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink)] mt-5">מלכת משימות</div>
+      </div>
+      <!-- Trophy -->
+      <div class="text-center">
+        <div class="patch mx-auto">
+          <div class="patch-bg" style="background: #FFF3D6;"></div>
+          <div class="patch-bg" style="inset: 10px; background: white;"></div>
+          <div class="patch-bg" style="inset: 16px; background: radial-gradient(circle at 35% 30%, #FFF9E5, #FFF3D6); border: 2.5px dashed #E8B927;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-trophy"/></svg>
+          <div class="patch-count">×4</div>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink)] mt-5">אלופת 100</div>
+      </div>
+      <!-- Medal -->
+      <div class="text-center">
+        <div class="patch mx-auto">
+          <div class="patch-bg" style="background: #DBEFFB;"></div>
+          <div class="patch-bg" style="inset: 10px; background: white;"></div>
+          <div class="patch-bg" style="inset: 16px; background: radial-gradient(circle at 35% 30%, #EDF6FD, #DBEFFB); border: 2.5px dashed #6EC9F4;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-medal"/></svg>
+          <div class="patch-count">×2</div>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink)] mt-5">תולעת ספרים</div>
+      </div>
+      <!-- Locked: Diamond -->
+      <div class="text-center">
+        <div class="patch patch-locked mx-auto">
+          <div class="patch-bg" style="background: #EFEDF5;"></div>
+          <div class="patch-bg" style="inset: 10px; background: white;"></div>
+          <div class="patch-bg" style="inset: 16px; background: #F4F2F8; border: 2.5px dashed #A8A6BB;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-diamond"/></svg>
+        </div>
+        <div class="patch-lock-overlay" style="position: relative; height: 0;">
+          <div class="lock-circle" style="margin-top: -76px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink-faded)] mt-5">יהלום · נעול</div>
+      </div>
+    </div>
+
+    <!-- Dense grid sample -->
+    <div class="border-t border-[var(--rule)] pt-6">
+      <div class="display-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold mb-3 text-center">8-badge grid · how it tiles</div>
+      <div class="grid grid-cols-4 gap-4 max-w-2xl mx-auto">
+        <div class="patch mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #FFE0EB;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #FFF0F6; border: 2px dashed #FF6B9D;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+          <div class="patch-count" style="font-size: 9px; padding: 2px 8px;">×12</div>
+        </div>
+        <div class="patch mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #FFF3D6;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #FFF9E5; border: 2px dashed #E8B927;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-trophy"/></svg>
+          <div class="patch-count" style="font-size: 9px; padding: 2px 8px;">×4</div>
+        </div>
+        <div class="patch mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #DBEFFB;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #EDF6FD; border: 2px dashed #6EC9F4;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-medal"/></svg>
+          <div class="patch-count" style="font-size: 9px; padding: 2px 8px;">×2</div>
+        </div>
+        <div class="patch mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #FFE5D8;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #FFEDD5; border: 2px dashed #FF9F7A;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-star"/></svg>
+          <div class="patch-count" style="font-size: 9px; padding: 2px 8px;">×1</div>
+        </div>
+        <div class="patch patch-locked mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #EFEDF5;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #F4F2F8; border: 2px dashed #A8A6BB;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-diamond"/></svg>
+        </div>
+        <div class="patch patch-locked mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #EFEDF5;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #F4F2F8; border: 2px dashed #A8A6BB;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-cert"/></svg>
+        </div>
+        <div class="patch patch-locked mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #EFEDF5;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #F4F2F8; border: 2px dashed #A8A6BB;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-gift"/></svg>
+        </div>
+        <div class="patch patch-locked mx-auto" style="width: 90px; height: 90px;">
+          <div class="patch-bg" style="background: #EFEDF5;"></div>
+          <div class="patch-bg" style="inset: 7px; background: white;"></div>
+          <div class="patch-bg" style="inset: 12px; background: #F4F2F8; border: 2px dashed #A8A6BB;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-torch"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== DIRECTION B — HANGING MEDAL ================== -->
+<section class="max-w-6xl mx-auto px-6 mb-20" dir="ltr">
+  <div class="card-soft p-8" style="background: linear-gradient(135deg, #FFF9E5, white);">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="display-en-bold text-[20px] text-[var(--yellow-dark)] uppercase tracking-widest">B</span>
+      <div>
+        <h2 class="display-en-bold text-[32px] text-[var(--ink)] leading-tight">Hanging medal</h2>
+        <p class="body-en text-[15px] text-[var(--ink-soft)] mt-2 max-w-2xl leading-relaxed">
+          Vertical layout. Fabric ribbon strap at the top (color-coded per badge category) folds into a gold-rimmed medallion. Inner field is white with the illustrated emblem centered. Earned count engraved at the bottom of the medal rim. Locked state is a gray medallion on a gray ribbon.
+          <span class="block mt-2 text-[var(--ink)]"><strong>Best when:</strong> you want the kid to feel like she's <em>earning real awards</em> — a trophy room. Higher visual weight per badge; tiles less densely; works in a 3-column grid.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Earned row -->
+    <div class="grid grid-cols-4 gap-6 mb-6">
+      <!-- Crown -->
+      <div class="text-center">
+        <div class="medal-wrap mx-auto">
+          <svg width="100%" viewBox="0 0 100 30" style="margin-bottom: -4px;">
+            <path d="M 30 0 L 70 0 L 65 28 L 50 22 L 35 28 Z" fill="#FF6B9D"/>
+            <path d="M 30 0 L 38 0 L 44 22 L 35 28 Z" fill="#E94B7F"/>
+            <path d="M 62 0 L 70 0 L 65 28 L 56 22 Z" fill="#E94B7F"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="54" fill="#FFE99A"/>
+            <circle cx="70" cy="70" r="46" fill="white"/>
+            <ellipse cx="50" cy="40" rx="20" ry="6" fill="white" opacity=".5"/>
+            <g transform="translate(40 40)"><use href="#em-crown"/></g>
+            <text x="70" y="125" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="9" fill="#9C7400">EARNED ×12</text>
+          </svg>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink)] mt-3">מלכת משימות</div>
+      </div>
+      <!-- Trophy -->
+      <div class="text-center">
+        <div class="medal-wrap mx-auto">
+          <svg width="100%" viewBox="0 0 100 30" style="margin-bottom: -4px;">
+            <path d="M 30 0 L 70 0 L 65 28 L 50 22 L 35 28 Z" fill="#FFD75E"/>
+            <path d="M 30 0 L 38 0 L 44 22 L 35 28 Z" fill="#E8B927"/>
+            <path d="M 62 0 L 70 0 L 65 28 L 56 22 Z" fill="#E8B927"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="54" fill="#FFE99A"/>
+            <circle cx="70" cy="70" r="46" fill="white"/>
+            <ellipse cx="50" cy="40" rx="20" ry="6" fill="white" opacity=".5"/>
+            <g transform="translate(40 40)"><use href="#em-trophy"/></g>
+            <text x="70" y="125" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="9" fill="#9C7400">EARNED ×4</text>
+          </svg>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink)] mt-3">אלופת 100</div>
+      </div>
+      <!-- Medal -->
+      <div class="text-center">
+        <div class="medal-wrap mx-auto">
+          <svg width="100%" viewBox="0 0 100 30" style="margin-bottom: -4px;">
+            <path d="M 30 0 L 70 0 L 65 28 L 50 22 L 35 28 Z" fill="#6EC9F4"/>
+            <path d="M 30 0 L 38 0 L 44 22 L 35 28 Z" fill="#3DA8DD"/>
+            <path d="M 62 0 L 70 0 L 65 28 L 56 22 Z" fill="#3DA8DD"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="54" fill="#FFE99A"/>
+            <circle cx="70" cy="70" r="46" fill="white"/>
+            <ellipse cx="50" cy="40" rx="20" ry="6" fill="white" opacity=".5"/>
+            <g transform="translate(40 40)"><use href="#em-medal"/></g>
+            <text x="70" y="125" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="9" fill="#9C7400">EARNED ×2</text>
+          </svg>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink)] mt-3">תולעת ספרים</div>
+      </div>
+      <!-- Locked: Diamond -->
+      <div class="text-center">
+        <div class="medal-wrap mx-auto" style="filter: grayscale(.8); opacity: .55;">
+          <svg width="100%" viewBox="0 0 100 30" style="margin-bottom: -4px;">
+            <path d="M 30 0 L 70 0 L 65 28 L 50 22 L 35 28 Z" fill="#B0B0B0"/>
+            <path d="M 30 0 L 38 0 L 44 22 L 35 28 Z" fill="#888"/>
+            <path d="M 62 0 L 70 0 L 65 28 L 56 22 Z" fill="#888"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#C8C8C8" stroke="#888" stroke-width="2"/>
+            <circle cx="70" cy="70" r="54" fill="#DCDCDC"/>
+            <circle cx="70" cy="70" r="46" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-diamond"/></g>
+            <circle cx="70" cy="70" r="20" fill="rgba(0,0,0,.6)"/>
+            <path d="M 64 66 L 64 62 Q 64 58 70 58 Q 76 58 76 62 L 76 66 M 62 66 L 78 66 L 78 78 L 62 78 Z" stroke="white" stroke-width="2.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="display-he-bold text-[12px] text-[var(--ink-faded)] mt-3">יהלום · נעול</div>
+      </div>
+    </div>
+
+    <!-- Dense grid sample (3 col fits better for vertical medals) -->
+    <div class="border-t border-[var(--rule)] pt-6">
+      <div class="display-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold mb-3 text-center">8-badge grid · how it tiles (3-col on phone)</div>
+      <div class="grid grid-cols-4 gap-3 max-w-2xl mx-auto">
+        <!-- 3 earned + 5 locked -->
+        <div class="medal-wrap mx-auto" style="width: 80px;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#FF6B9D"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-crown"/></g>
+          </svg>
+          <div style="font-family: Fredoka; font-weight: 700; font-size: 10px; color: var(--ink-soft); margin-top: -4px;">×12</div>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#FFD75E"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-trophy"/></g>
+          </svg>
+          <div style="font-family: Fredoka; font-weight: 700; font-size: 10px; color: var(--ink-soft); margin-top: -4px;">×4</div>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#6EC9F4"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-medal"/></g>
+          </svg>
+          <div style="font-family: Fredoka; font-weight: 700; font-size: 10px; color: var(--ink-soft); margin-top: -4px;">×2</div>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#FF9F7A"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-star"/></g>
+          </svg>
+          <div style="font-family: Fredoka; font-weight: 700; font-size: 10px; color: var(--ink-soft); margin-top: -4px;">×1</div>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px; filter: grayscale(.8); opacity: .55;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#B0B0B0"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#C8C8C8" stroke="#888" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-diamond"/></g>
+          </svg>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px; filter: grayscale(.8); opacity: .55;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#B0B0B0"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#C8C8C8" stroke="#888" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-cert"/></g>
+          </svg>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px; filter: grayscale(.8); opacity: .55;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#B0B0B0"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#C8C8C8" stroke="#888" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-gift"/></g>
+          </svg>
+        </div>
+        <div class="medal-wrap mx-auto" style="width: 80px; filter: grayscale(.8); opacity: .55;">
+          <svg width="100%" viewBox="0 0 100 25" style="margin-bottom: -3px;">
+            <path d="M 30 0 L 70 0 L 65 23 L 50 18 L 35 23 Z" fill="#B0B0B0"/>
+          </svg>
+          <svg width="100%" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" r="64" fill="#C8C8C8" stroke="#888" stroke-width="2"/>
+            <circle cx="70" cy="70" r="50" fill="white"/>
+            <g transform="translate(40 40)"><use href="#em-torch"/></g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================== DIRECTION C — COLLECTIBLE CARD ================== -->
+<section class="max-w-6xl mx-auto px-6 mb-20" dir="ltr">
+  <div class="card-soft p-8" style="background: linear-gradient(135deg, #F6F1FC, white);">
+    <div class="flex items-start gap-3 mb-6">
+      <span class="display-en-bold text-[20px] text-[var(--lavender-dark)] uppercase tracking-widest">C</span>
+      <div>
+        <h2 class="display-en-bold text-[32px] text-[var(--ink)] leading-tight">Collectible card</h2>
+        <p class="body-en text-[15px] text-[var(--ink-soft)] mt-2 max-w-2xl leading-relaxed">
+          Portrait card with a colored top section (illustrated emblem + count chip + rarity tag) and a white bottom section (badge name + tiny description + bonus coin chip + year earned). Reads like a Pokémon or trading card. Locked cards show "??" with the emblem grayed out under a dashed border.
+          <span class="block mt-2 text-[var(--ink)]"><strong>Best when:</strong> you want a <em>true collection mentality</em> — kid swipes through cards, compares with sibling, has favorites. Highest content density per badge. Tiles in 2-col on phone. Each badge feels like a discrete artifact.</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Earned row -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <!-- Crown -->
+      <div class="card-badge mx-auto">
+        <div class="card-badge-top" style="background: linear-gradient(180deg, #FFE0EB, #FFF0F6); aspect-ratio: 1.2;">
+          <span class="card-badge-count-chip">×12</span>
+          <span class="card-badge-rarity" style="background: #FFD75E; color: #5C3F25;">נדיר</span>
+          <svg width="60%" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+        </div>
+        <div class="card-badge-bottom">
+          <div class="display-he-bold text-[13px] text-[var(--ink)] text-right">מלכת משימות</div>
+          <div class="body-he text-[10px] text-[var(--ink-soft)] mt-0.5 text-right">3 ימים של מיטה</div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-[var(--rule-soft)]">
+            <span class="pill pill-yellow" style="font-size: 9px;">+50 ¢</span>
+            <span class="body-en text-[9px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">'26</span>
+          </div>
+        </div>
+      </div>
+      <!-- Trophy -->
+      <div class="card-badge mx-auto">
+        <div class="card-badge-top" style="background: linear-gradient(180deg, #FFF3D6, #FFF9E5); aspect-ratio: 1.2;">
+          <span class="card-badge-count-chip">×4</span>
+          <span class="card-badge-rarity" style="background: #FFD75E; color: #5C3F25;">נדיר</span>
+          <svg width="60%" viewBox="0 0 60 60"><use href="#em-trophy"/></svg>
+        </div>
+        <div class="card-badge-bottom">
+          <div class="display-he-bold text-[13px] text-[var(--ink)] text-right">אלופת 100</div>
+          <div class="body-he text-[10px] text-[var(--ink-soft)] mt-0.5 text-right">100 משימות הושלמו</div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-[var(--rule-soft)]">
+            <span class="pill pill-yellow" style="font-size: 9px;">+100 ¢</span>
+            <span class="body-en text-[9px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">'26</span>
+          </div>
+        </div>
+      </div>
+      <!-- Medal -->
+      <div class="card-badge mx-auto">
+        <div class="card-badge-top" style="background: linear-gradient(180deg, #DBEFFB, #EDF6FD); aspect-ratio: 1.2;">
+          <span class="card-badge-count-chip">×2</span>
+          <span class="card-badge-rarity" style="background: #6EC9F4; color: white;">רגיל</span>
+          <svg width="60%" viewBox="0 0 60 60"><use href="#em-medal"/></svg>
+        </div>
+        <div class="card-badge-bottom">
+          <div class="display-he-bold text-[13px] text-[var(--ink)] text-right">תולעת ספרים</div>
+          <div class="body-he text-[10px] text-[var(--ink-soft)] mt-0.5 text-right">100 עמודים</div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-[var(--rule-soft)]">
+            <span class="pill pill-yellow" style="font-size: 9px;">+30 ¢</span>
+            <span class="body-en text-[9px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">'26</span>
+          </div>
+        </div>
+      </div>
+      <!-- Locked: Diamond -->
+      <div class="card-badge mx-auto" style="opacity: .7;">
+        <div class="card-badge-top" style="background: linear-gradient(180deg, #EFEDF5, #F7F5FA); aspect-ratio: 1.2; border: 2px dashed #A8A6BB;">
+          <span class="card-badge-rarity" style="background: #2D2A4A; color: white;">נעול</span>
+          <div style="filter: grayscale(1); opacity: .5;">
+            <svg width="60%" viewBox="0 0 60 60"><use href="#em-diamond"/></svg>
+          </div>
+        </div>
+        <div class="card-badge-bottom">
+          <div class="display-he-bold text-[13px] text-[var(--ink-faded)] text-right">??</div>
+          <div class="body-he text-[10px] text-[var(--ink-faded)] mt-0.5 text-right">השלימי 30 ימי רצף</div>
+          <div class="flex items-center justify-between mt-2 pt-2 border-t border-[var(--rule-soft)]">
+            <span class="pill pill-grey" style="font-size: 9px;">+? ¢</span>
+            <span class="body-en text-[9px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">?</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dense grid (2 col is the natural shape for cards on phone) -->
+    <div class="border-t border-[var(--rule)] pt-6">
+      <div class="display-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold mb-3 text-center">8-badge grid · 2-col on phone</div>
+      <div class="grid grid-cols-4 gap-3 max-w-3xl mx-auto">
+        <div class="card-badge mx-auto" style="width: 110px;">
+          <div class="card-badge-top" style="background: linear-gradient(180deg, #FFE0EB, #FFF0F6); aspect-ratio: 1.1; padding: 8px;">
+            <span class="card-badge-count-chip" style="font-size: 9px; padding: 2px 6px;">×12</span>
+            <svg width="60%" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink)] text-right">מלכת משימות</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px;">
+          <div class="card-badge-top" style="background: linear-gradient(180deg, #FFF3D6, #FFF9E5); aspect-ratio: 1.1; padding: 8px;">
+            <span class="card-badge-count-chip" style="font-size: 9px; padding: 2px 6px;">×4</span>
+            <svg width="60%" viewBox="0 0 60 60"><use href="#em-trophy"/></svg>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink)] text-right">אלופת 100</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px;">
+          <div class="card-badge-top" style="background: linear-gradient(180deg, #DBEFFB, #EDF6FD); aspect-ratio: 1.1; padding: 8px;">
+            <span class="card-badge-count-chip" style="font-size: 9px; padding: 2px 6px;">×2</span>
+            <svg width="60%" viewBox="0 0 60 60"><use href="#em-medal"/></svg>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink)] text-right">תולעת ספרים</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px;">
+          <div class="card-badge-top" style="background: linear-gradient(180deg, #FFE5D8, #FFEDD5); aspect-ratio: 1.1; padding: 8px;">
+            <span class="card-badge-count-chip" style="font-size: 9px; padding: 2px 6px;">×1</span>
+            <svg width="60%" viewBox="0 0 60 60"><use href="#em-star"/></svg>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink)] text-right">כוכבת</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px; opacity: .65;">
+          <div class="card-badge-top" style="background: #F7F5FA; aspect-ratio: 1.1; padding: 8px; border: 2px dashed #A8A6BB;">
+            <div style="filter: grayscale(1); opacity: .5;"><svg width="60%" viewBox="0 0 60 60"><use href="#em-diamond"/></svg></div>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink-faded)] text-right">יהלום</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px; opacity: .65;">
+          <div class="card-badge-top" style="background: #F7F5FA; aspect-ratio: 1.1; padding: 8px; border: 2px dashed #A8A6BB;">
+            <div style="filter: grayscale(1); opacity: .5;"><svg width="60%" viewBox="0 0 60 60"><use href="#em-cert"/></svg></div>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink-faded)] text-right">מסיימת</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px; opacity: .65;">
+          <div class="card-badge-top" style="background: #F7F5FA; aspect-ratio: 1.1; padding: 8px; border: 2px dashed #A8A6BB;">
+            <div style="filter: grayscale(1); opacity: .5;"><svg width="60%" viewBox="0 0 60 60"><use href="#em-gift"/></svg></div>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink-faded)] text-right">יום הולדת</div>
+          </div>
+        </div>
+        <div class="card-badge mx-auto" style="width: 110px; opacity: .65;">
+          <div class="card-badge-top" style="background: #F7F5FA; aspect-ratio: 1.1; padding: 8px; border: 2px dashed #A8A6BB;">
+            <div style="filter: grayscale(1); opacity: .5;"><svg width="60%" viewBox="0 0 60 60"><use href="#em-torch"/></svg></div>
+          </div>
+          <div class="card-badge-bottom" style="padding: 6px 8px;">
+            <div class="display-he-bold text-[10px] text-[var(--ink-faded)] text-right">10 קמפיינים</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== RECOMMENDATION =================== -->
+<footer class="max-w-3xl mx-auto px-6 pb-32" dir="ltr">
+  <hr class="border-[var(--rule)] mb-12" />
+  <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-3">— recommendation —</div>
+  <h3 class="display-en-bold text-[28px] text-[var(--ink)] mb-6 leading-snug">If I had to pick: <span class="text-[var(--lavender-dark)]">C · Collectible card</span></h3>
+  <p class="body-en text-[17px] text-[var(--ink-soft)] leading-relaxed mb-4">
+    The collectible card is the only direction where each badge is <strong>a discrete artifact</strong>, not just a tile in a grid. It carries name, description, count, rarity, year, and coin bonus all in one container. That density unlocks UX moves the other two can't: tap-to-flip for a back-of-card view, swipe-through deck navigation, "favorites pinned to top," even sibling-trade fantasy (Lia and Yael compare their decks).
+  </p>
+  <p class="body-en text-[17px] text-[var(--ink-soft)] leading-relaxed mb-4">
+    <strong>A · Patch</strong> is closest to the original Child Reward reference and tiles densest — best if your design philosophy is "more visible badges = more pull." But each patch is information-light; you need a detail page to do anything useful with one.
+  </p>
+  <p class="body-en text-[17px] text-[var(--ink-soft)] leading-relaxed">
+    <strong>B · Medal</strong> is the most "premium award" feel. Best if Reco wants badges to read as serious achievements. Each one carries weight visually but its information density is lowest — the ribbon-strap header eats space.
+  </p>
+  <p class="body-en text-[15px] text-[var(--ink-soft)] italic leading-relaxed mt-8">
+    Honest caveat: <strong>C inherits less from the Child Reward DNA</strong> than A or B. If matching that reference closely was important, A (patch) wins on visual heritage. But for Reco's specific feature set (campaigns produce badges with bonus coins + dates + descriptions), C's information architecture is the right shape.
+  </p>
+</footer>
+
+</body>
+</html>

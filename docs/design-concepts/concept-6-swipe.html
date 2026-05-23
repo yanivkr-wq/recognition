@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Concept 6 — Swipe</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Heebo:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #B4F44E;
+    --lime-bright: #C4FF5B;
+    --lime-deep: #8DCE2A;
+    --lime-pale: #E8FBC5;
+
+    --ink: #0A0A0A;
+    --ink-soft: #4A4A4A;
+    --ink-faded: #8E8E8E;
+    --ink-dim: #B0B0B0;
+    --rule: #ECECEC;
+    --rule-soft: #F4F4F4;
+
+    --bg: #F5F2EB;
+    --card: #FFFFFF;
+    --card-shade: #FAFAF6;
+
+    --tile-mint: #C9E9C5;
+    --tile-peach: #F5DDC8;
+    --tile-sky: #C3D9E8;
+    --tile-lavender: #D7C9E5;
+    --tile-pink: #F3CCC9;
+    --tile-purple: #E0CFEC;
+    --tile-yellow: #F5E7B0;
+
+    --accent-purple: #9D5BD4;
+    --accent-pink: #E64980;
+    --accent-warning: #FFB454;
+  }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+  .grotesque { font-family: 'Bricolage Grotesque', sans-serif; }
+  .display-en { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 500; letter-spacing: -.03em; }
+  .display-en-bold { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; letter-spacing: -.04em; }
+  .display-he { font-family: 'Heebo', sans-serif; font-weight: 500; letter-spacing: -.02em; }
+  .display-he-bold { font-family: 'Heebo', sans-serif; font-weight: 900; letter-spacing: -.03em; }
+  .body-he { font-family: 'Heebo', sans-serif; font-weight: 400; }
+  .body-he-md { font-family: 'Heebo', sans-serif; font-weight: 500; }
+  .body-en { font-family: 'Inter', sans-serif; font-weight: 500; }
+  .num { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-feature-settings: "tnum"; letter-spacing: -.03em; }
+  .num-he { font-family: 'Heebo', sans-serif; font-weight: 900; font-feature-settings: "tnum"; letter-spacing: -.02em; }
+
+  /* Phone frame — light gray bezel matching reference */
+  .phone {
+    width: 390px; min-height: 844px;
+    background: var(--bg);
+    border-radius: 48px;
+    border: 8px solid #1a1a1a;
+    box-shadow:
+      0 0 0 2px #2a2a2a,
+      0 40px 80px rgba(10, 10, 10, .15),
+      0 80px 160px rgba(10, 10, 10, .08);
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+  }
+  .phone-inner { height: 100%; min-height: 828px; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+  .notch { width: 110px; height: 32px; background: #1a1a1a; border-radius: 0 0 18px 18px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 50; }
+  .statusbar { padding: 14px 24px 6px; display: flex; justify-content: space-between; align-items: center; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--ink); position: relative; z-index: 10; }
+
+  /* Lime CTA */
+  .btn-lime {
+    background: var(--lime);
+    color: var(--ink);
+    border-radius: 999px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    border: none;
+    transition: transform .1s, background .1s;
+  }
+  .btn-lime:hover { background: var(--lime-bright); transform: translateY(-1px); }
+
+  .btn-ink {
+    background: var(--ink); color: white;
+    border-radius: 999px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+  }
+
+  .btn-white {
+    background: white; color: var(--ink);
+    border-radius: 999px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 600;
+    border: 1px solid var(--rule);
+  }
+
+  /* Big rounded card */
+  .card-hero {
+    background: var(--card);
+    border-radius: 32px;
+    box-shadow: 0 1px 2px rgba(10,10,10,.04);
+  }
+
+  .card-soft {
+    background: var(--card);
+    border-radius: 24px;
+    box-shadow: 0 1px 2px rgba(10,10,10,.03);
+  }
+
+  /* Tile (token category) */
+  .tile {
+    border-radius: 28px;
+    aspect-ratio: 1.05;
+    display: flex; flex-direction: column;
+    padding: 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .tile-emblem {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 1px 2px rgba(10,10,10,.05);
+  }
+  .tile-emblem-black {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.06);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Bottom pill tab bar */
+  .tabbar-wrap {
+    padding: 12px 16px 24px;
+    background: transparent;
+  }
+  .tabbar {
+    background: white;
+    border-radius: 999px;
+    padding: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    box-shadow: 0 4px 24px rgba(10,10,10,.08), 0 1px 3px rgba(10,10,10,.06);
+  }
+  .tab-pill {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-faded);
+  }
+  .tab-pill.active {
+    background: var(--ink); color: white;
+  }
+  .tab-scan {
+    background: var(--lime);
+    color: var(--ink);
+    padding: 12px 20px;
+    border-radius: 999px;
+    display: flex; align-items: center; gap: 6px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* Pill annotation */
+  .pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--rule-soft);
+    color: var(--ink);
+  }
+  .pill-lime { background: var(--lime); color: var(--ink); }
+  .pill-ink { background: var(--ink); color: white; }
+  .pill-mint { background: var(--tile-mint); color: var(--ink); }
+  .pill-warning { background: var(--accent-warning); color: var(--ink); }
+  .pill-outline { background: white; color: var(--ink); border: 1px solid var(--rule); }
+
+  /* Token count badge — small white pill with cup icon */
+  .count-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    box-shadow: 0 1px 2px rgba(10,10,10,.05);
+  }
+
+  .frame-h2 { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -.02em; }
+  .swatch { width: 60px; height: 60px; border-radius: 18px; box-shadow: 0 2px 6px rgba(10,10,10,.08); }
+
+  /* Progress bar */
+  .pb-track { background: var(--rule); border-radius: 999px; overflow: hidden; height: 8px; position: relative; }
+  .pb-fill { height: 100%; border-radius: 999px; background: var(--ink); }
+  .pb-fill-lime { height: 100%; border-radius: 999px; background: var(--lime); }
+
+  /* Avatar circle */
+  .av {
+    border-radius: 50%; aspect-ratio: 1; position: relative;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+
+  /* Bold-highlight word in headline (the SwipeDrinks signature move) */
+  .bold-word { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; letter-spacing: -.04em; }
+  .he-bold-word { font-family: 'Heebo', sans-serif; font-weight: 900; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- =================== INTRO SECTION =================== -->
+<section class="relative max-w-6xl mx-auto px-6 pt-20 pb-12" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">Concept 06</span>
+    <span class="body-en text-[12px] text-[var(--ink-faded)]">— Reco design deck · SwipeDrinks-inspired</span>
+  </div>
+
+  <div class="flex items-end gap-4 mb-4">
+    <h1 class="display-en text-[88px] leading-[.9]">
+      <span class="text-[var(--ink)]">Get your</span><span class="bold-word text-[var(--ink)]"> tokens.</span><br/>
+      <span class="text-[var(--ink-soft)]">This is </span><span class="bold-word text-[var(--ink)]">Swipe.</span>
+    </h1>
+  </div>
+
+  <p class="body-en text-[var(--ink-soft)] text-[18px] max-w-2xl leading-relaxed">
+    Modern fintech-grade minimalism. One signature accent (lime green). Pastel category tiles with black emblems. Selective bold typography. Big numbers with small pill annotations. The energy of a sophisticated young-adult app, scaled down for a kid who's old enough to want something that doesn't look like a kid app.
+  </p>
+
+  <div class="grid grid-cols-3 gap-10 mt-12">
+    <!-- Palette -->
+    <div>
+      <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-4">Palette</div>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div><div class="swatch" style="background:#B4F44E"></div><div class="body-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#B4F44E</div></div>
+        <div><div class="swatch" style="background:#0A0A0A"></div><div class="body-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#0A0A0A</div></div>
+        <div><div class="swatch" style="background:#F5F2EB"></div><div class="body-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#F5F2EB</div></div>
+        <div><div class="swatch" style="background:#FFFFFF; box-shadow: 0 0 0 1px var(--rule)"></div><div class="body-en text-[10px] mt-1.5 text-[var(--ink-soft)]">#FFFFFF</div></div>
+      </div>
+      <div class="grid grid-cols-6 gap-2 mb-3">
+        <div><div class="swatch" style="background:#C9E9C5; width: 36px; height: 36px;"></div></div>
+        <div><div class="swatch" style="background:#F5DDC8; width: 36px; height: 36px;"></div></div>
+        <div><div class="swatch" style="background:#C3D9E8; width: 36px; height: 36px;"></div></div>
+        <div><div class="swatch" style="background:#D7C9E5; width: 36px; height: 36px;"></div></div>
+        <div><div class="swatch" style="background:#F3CCC9; width: 36px; height: 36px;"></div></div>
+        <div><div class="swatch" style="background:#E0CFEC; width: 36px; height: 36px;"></div></div>
+      </div>
+      <p class="body-en text-[14px] text-[var(--ink-soft)] leading-relaxed">
+        One single accent: lime. Black for everything important. Cream off-white for app background, white for cards. Pastel tiles for category emblems — 6 hues that rotate through the badge grid. No gradients. No shadows beyond a hairline. The whole concept is about restraint.
+      </p>
+    </div>
+
+    <!-- Typography -->
+    <div>
+      <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-4">Typography</div>
+      <div class="space-y-3">
+        <div class="border-r-2 border-[var(--lime)] pr-4">
+          <div class="display-en-bold text-[44px] text-[var(--ink)] leading-none">Reco</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)] mt-2">Bricolage Grotesque 800 · Latin display</div>
+        </div>
+        <div class="border-r-2 border-[var(--ink)] pr-4">
+          <div class="display-he-bold text-[36px] text-[var(--ink)] leading-none">ליה</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)] mt-2">Heebo 900 · Hebrew display</div>
+        </div>
+        <div class="border-r-2 border-[var(--ink-faded)] pr-4">
+          <div class="display-en text-[28px] text-[var(--ink)] leading-tight">Get your <span class="bold-word">tokens</span></div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)] mt-1">Selective bold mid-sentence · the signature move</div>
+        </div>
+        <div class="border-r-2 border-[var(--rule)] pr-4">
+          <div class="num text-[44px] text-[var(--ink)] leading-none">47</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)] mt-1">Bricolage 800 · tabular numerals (the hero number pattern)</div>
+        </div>
+        <div class="border-r-2 border-[var(--rule)] pr-4">
+          <div class="body-he text-[15px] text-[var(--ink)]">קבלי את <span class="he-bold-word">המטבעות</span> שלך</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)] mt-1">Heebo · body with selective bold word</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iconography -->
+    <div>
+      <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-4">Iconography</div>
+      <p class="body-en text-[14px] text-[var(--ink-soft)] leading-relaxed mb-4">
+        Black silhouette icons. Sometimes inside a circle, sometimes loose on a pastel tile. No outlines, no two-tone, no gradient. The aesthetic equivalent of black ink on colored paper. Token count uses a tiny cup icon (here a coin icon) inside a small white pill — the count is the data, the icon is the texture.
+      </p>
+      <div class="flex gap-3 flex-wrap items-center">
+        <div class="tile-emblem-black w-12 h-12"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><path d="M12 2 L15 8.5 L22 9.5 L17 14.5 L18 22 L12 18.5 L6 22 L7 14.5 L2 9.5 L9 8.5 Z"/></svg></div>
+        <div class="tile-emblem-black w-12 h-12"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><path d="M12 2c2 0 4 2 4 4s-2 4-4 4-4-2-4-4 2-4 4-4zm-6 18c0-4 3-7 6-7s6 3 6 7v2H6v-2z"/></svg></div>
+        <div class="tile-emblem-black w-12 h-12"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="12" r="9"/></svg></div>
+        <div class="tile-emblem-black w-12 h-12"><svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <!-- coin -->
+        <div class="w-12 h-12 rounded-full bg-[var(--lime)] flex items-center justify-center">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="12" r="9" fill="var(--ink)"/><text x="12" y="17" text-anchor="middle" font-size="14" font-weight="900" fill="var(--lime)">$</text></svg>
+        </div>
+      </div>
+      <p class="body-en text-[12px] text-[var(--ink-soft)] mt-4 italic">
+        Lime is reserved exclusively for the primary CTA (the central "Scan/Submit" tab button, the streak chip, the highlighted active row in the ledger).
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-6">
+  <div class="flex items-center gap-4 my-8">
+    <hr class="flex-1 border-[var(--rule)]" />
+    <span class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">8 kid screens · Hebrew default · English toggle below</span>
+    <hr class="flex-1 border-[var(--rule)]" />
+  </div>
+</div>
+
+<!-- =================== SCREENS GRID =================== -->
+<main class="max-w-6xl mx-auto px-6 pb-32">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-20 gap-x-12 justify-items-center">
+
+<!-- ============================================ -->
+<!-- A — PROFILE PICKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">A</div>
+    <div class="frame-h2">Profile picker</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">Pick a profile, jump in</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-10 pb-3">
+        <div class="body-en text-[13px] text-[var(--ink-faded)] mb-1">היי שלום</div>
+        <h1 class="display-he text-[44px] text-[var(--ink)] leading-[1.05]">בחרי <span class="he-bold-word">פרופיל</span></h1>
+      </div>
+
+      <div class="flex-1 px-5 pt-4 flex flex-col gap-4">
+        <!-- Lia card -->
+        <button class="card-hero p-5 flex items-center gap-4 relative">
+          <div class="av w-20" style="background: var(--tile-peach);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+          </div>
+          <div class="flex-1 text-right">
+            <div class="display-he-bold text-[24px] text-[var(--ink)] leading-tight">ליה</div>
+            <div class="body-he text-[12px] text-[var(--ink-faded)] mt-0.5">דרגה 4 · 9 שנים</div>
+            <div class="flex items-center justify-end gap-1.5 mt-2">
+              <span class="count-pill"><span class="num">47</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+              <span class="pill pill-lime"><span class="num text-[12px]">3</span> רצף</span>
+            </div>
+          </div>
+        </button>
+
+        <!-- Yael card -->
+        <button class="card-hero p-5 flex items-center gap-4 relative">
+          <div class="av w-20" style="background: var(--tile-sky);">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+          </div>
+          <div class="flex-1 text-right">
+            <div class="display-he-bold text-[24px] text-[var(--ink)] leading-tight">יעל</div>
+            <div class="body-he text-[12px] text-[var(--ink-faded)] mt-0.5">דרגה 3 · 11 שנים</div>
+            <div class="flex items-center justify-end gap-1.5 mt-2">
+              <span class="count-pill"><span class="num">89</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+              <span class="pill pill-lime"><span class="num text-[12px]">5</span> רצף</span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="px-6 pt-8" dir="ltr">
+        <button class="btn-white w-full py-3.5 text-[14px] flex items-center justify-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+          Parent login
+        </button>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="tabbar-wrap mt-2">
+        <div class="tabbar">
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/></svg></div>
+          <div class="tab-scan">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2"/></svg>
+            Scan
+          </div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- B — KID HOME -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">B</div>
+    <div class="frame-h2">Kid home</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">Hero number · today card · active campaign</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <!-- Top bar -->
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <div>
+          <div class="body-he text-[12px] text-[var(--ink-faded)]">ברוכה השבה</div>
+          <div class="display-he-bold text-[15px] text-[var(--ink)]">ליה</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+          </button>
+          <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center relative" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--lime)] text-[10px] font-black text-[var(--ink)] flex items-center justify-center">2</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero: Get your tokens -->
+      <div class="px-6 pt-6">
+        <h1 class="display-he text-[34px] text-[var(--ink)] leading-[1.05] text-right">
+          הרווחת <span class="he-bold-word">מטבעות</span><br/>
+          תקליקי <span class="he-bold-word">משימה</span>
+        </h1>
+      </div>
+
+      <!-- Big number row -->
+      <div class="px-6 mt-5 flex items-end justify-between">
+        <div class="flex items-baseline gap-2">
+          <span class="num text-[88px] text-[var(--ink)] leading-none">47</span>
+          <span class="pill pill-lime text-[10px]">¢ Today</span>
+        </div>
+        <!-- Sibling chip cluster -->
+        <div class="text-right">
+          <div class="body-en text-[10px] text-[var(--ink-faded)] mb-1">היריבה שלך</div>
+          <div class="flex items-center -space-x-2">
+            <div class="av w-9" style="background: var(--tile-sky); border: 2px solid var(--bg);">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+            </div>
+            <div class="av w-9 bg-[var(--ink)] text-white text-[10px] font-black border-2 border-[var(--bg)]">
+              <span class="num text-[11px]">89</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Featured task card -->
+      <div class="mx-5 mt-6 card-hero p-5 relative overflow-hidden">
+        <div class="text-right">
+          <h2 class="display-he-bold text-[30px] text-[var(--ink)] leading-tight">שיעורי<br/>בית</h2>
+          <div class="mt-2 inline-flex">
+            <span class="pill pill-outline">תזכורת 17:00 →</span>
+          </div>
+          <div class="body-he text-[12px] text-[var(--ink-faded)] mt-1">דרושה תמונה · +20 מטבעות</div>
+        </div>
+        <!-- Big illustration / emoji as decoration -->
+        <div class="absolute -bottom-2 -left-2 text-[120px] opacity-90 leading-none select-none">📚</div>
+        <!-- Bottom CTA -->
+        <div class="flex items-center justify-between mt-8 relative">
+          <div>
+            <div class="display-he text-[15px] text-[var(--ink)]">תקליקי<br/><span class="he-bold-word">עכשיו</span></div>
+          </div>
+          <button class="w-14 h-14 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M14 5l7 7-7 7M21 12H3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Today's tasks list -->
+      <div class="px-6 mt-5">
+        <div class="flex items-center justify-between mb-3">
+          <div class="display-he-bold text-[16px] text-[var(--ink)]">משימות היום</div>
+          <span class="body-en text-[12px] text-[var(--ink-faded)]"><span class="num text-[13px] text-[var(--ink)]">2</span>/4</span>
+        </div>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-3 py-2.5">
+            <div class="w-6 h-6 rounded-full bg-[var(--lime)] flex items-center justify-center flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="body-he-md text-[14px] text-[var(--ink-soft)] line-through">להציע את המיטה</div>
+            </div>
+            <span class="num text-[14px] text-[var(--ink-faded)]">+1</span>
+          </div>
+          <div class="flex items-center gap-3 py-2.5">
+            <div class="w-6 h-6 rounded-full bg-[var(--lime)] flex items-center justify-center flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="body-he-md text-[14px] text-[var(--ink-soft)] line-through">לצחצח שיניים</div>
+            </div>
+            <span class="num text-[14px] text-[var(--ink-faded)]">+1</span>
+          </div>
+          <div class="flex items-center gap-3 py-2.5 border-t border-[var(--rule)] pt-3 mt-1">
+            <div class="w-6 h-6 rounded-full border-2 border-[var(--ink)] flex-shrink-0"></div>
+            <div class="flex-1">
+              <div class="body-he-md text-[14px] text-[var(--ink)]">לערוך את השולחן</div>
+            </div>
+            <span class="num text-[14px] text-[var(--ink)]">+5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Tab bar -->
+      <div class="tabbar-wrap">
+        <div class="tabbar">
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <div class="tab-scan">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2"/></svg>
+            Scan
+          </div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- C — TASK LIST -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">C</div>
+    <div class="frame-h2">Task list</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">All today's tasks · clean list</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="av w-10" style="background: var(--tile-peach);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+        </div>
+      </div>
+
+      <div class="px-6 pt-6">
+        <h1 class="display-he text-[44px] text-[var(--ink)] leading-[1.05] text-right">
+          המשימות<br/><span class="he-bold-word">שלי</span>
+        </h1>
+      </div>
+
+      <!-- Filter chips -->
+      <div class="px-6 mt-5 flex gap-2">
+        <button class="btn-ink px-4 py-2 text-[13px] text-white">היום</button>
+        <button class="btn-white px-4 py-2 text-[13px]">טווח-ארוך</button>
+        <button class="btn-white px-4 py-2 text-[13px]">הכל</button>
+      </div>
+
+      <!-- Task list -->
+      <div class="px-6 mt-6">
+        <div class="display-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold mb-3 text-right">בוקר · 7-9</div>
+        <div class="space-y-1">
+          <div class="flex items-center gap-3 py-3 border-b border-[var(--rule)]">
+            <div class="w-6 h-6 rounded-full bg-[var(--lime)] flex items-center justify-center flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+            <div class="flex-1 text-right">
+              <div class="body-he-md text-[15px] text-[var(--ink-soft)] line-through">להציע את המיטה</div>
+              <div class="body-en text-[10px] text-[var(--ink-faded)]">7:00</div>
+            </div>
+            <span class="num text-[16px] text-[var(--ink-faded)]">+1</span>
+          </div>
+          <div class="flex items-center gap-3 py-3 border-b border-[var(--rule)]">
+            <div class="w-6 h-6 rounded-full bg-[var(--lime)] flex items-center justify-center flex-shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+            </div>
+            <div class="flex-1 text-right">
+              <div class="body-he-md text-[15px] text-[var(--ink-soft)] line-through">לצחצח שיניים</div>
+              <div class="body-en text-[10px] text-[var(--ink-faded)]">7:30</div>
+            </div>
+            <span class="num text-[16px] text-[var(--ink-faded)]">+1</span>
+          </div>
+          <div class="flex items-center gap-3 py-3 border-b border-[var(--rule)]">
+            <div class="w-6 h-6 rounded-full border-2 border-[var(--ink)] flex-shrink-0"></div>
+            <div class="flex-1 text-right">
+              <div class="body-he-md text-[15px] text-[var(--ink)]">לאכול ארוחת בוקר</div>
+              <div class="body-en text-[10px] text-[var(--ink-faded)]">7:30</div>
+            </div>
+            <span class="num text-[16px] text-[var(--ink)]">+5</span>
+          </div>
+          <div class="flex items-center gap-3 py-3 border-b border-[var(--rule)]">
+            <div class="w-6 h-6 rounded-full border-2 border-[var(--ink)] flex-shrink-0"></div>
+            <div class="flex-1 text-right">
+              <div class="body-he-md text-[15px] text-[var(--ink)]">להתלבש</div>
+              <div class="body-en text-[10px] text-[var(--ink-faded)]">8:30</div>
+            </div>
+            <span class="num text-[16px] text-[var(--ink)]">+12</span>
+          </div>
+        </div>
+
+        <div class="display-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold mb-3 mt-6 text-right">אחרי הצהריים · 16-19</div>
+        <div class="space-y-1">
+          <div class="flex items-center gap-3 py-3">
+            <div class="w-6 h-6 rounded-full border-2 border-[var(--ink)] flex-shrink-0 relative">
+              <span class="absolute -top-1 -right-1 w-3 h-3 bg-[var(--lime)] rounded-full"></span>
+            </div>
+            <div class="flex-1 text-right">
+              <div class="body-he-md text-[15px] text-[var(--ink)] flex items-center justify-end gap-1.5">📷 שיעורי בית</div>
+              <div class="body-en text-[10px] text-[var(--ink-faded)]">17:00 · תמונה</div>
+            </div>
+            <span class="num text-[16px] text-[var(--ink)]">+20</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Long-term grid (token tile style) -->
+      <div class="px-6 mt-6">
+        <div class="display-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold mb-3 text-right">לטווח ארוך</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="tile" style="background: var(--tile-lavender);">
+            <div class="tile-emblem mb-3" style="background: white;">
+              <span class="text-2xl">📖</span>
+            </div>
+            <div class="display-he-bold text-[13px] text-[var(--ink)] leading-tight">100 עמודים</div>
+            <div class="num text-[20px] text-[var(--ink)] mt-1">38/100</div>
+            <div class="absolute bottom-3 left-3">
+              <span class="count-pill"><span class="num">+1</span>/עמ׳</span>
+            </div>
+          </div>
+          <div class="tile" style="background: var(--tile-peach);">
+            <div class="tile-emblem mb-3" style="background: white;">
+              <span class="text-2xl">🎹</span>
+            </div>
+            <div class="display-he-bold text-[13px] text-[var(--ink)] leading-tight">300 דקות</div>
+            <div class="num text-[20px] text-[var(--ink)] mt-1">120/300</div>
+            <div class="absolute bottom-3 left-3">
+              <span class="count-pill"><span class="num">+1</span>/דק׳</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <div class="tabbar-wrap">
+        <div class="tabbar">
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+          <div class="tab-scan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2"/></svg>Scan</div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- D — EVIDENCE UPLOAD -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">D</div>
+    <div class="frame-h2">Send for approval</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">Photo + submit · Scan button is the action</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="av w-10" style="background: var(--tile-peach);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+        </div>
+      </div>
+
+      <div class="px-6 pt-6">
+        <div class="body-en text-[12px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">משימה ב-17:00</div>
+        <h1 class="display-he text-[40px] text-[var(--ink)] leading-[1.05] text-right mt-2">
+          שיעורי <span class="he-bold-word">בית</span>
+        </h1>
+      </div>
+
+      <!-- Hero card with capture area -->
+      <div class="mx-5 mt-5 card-hero p-5" style="background: var(--tile-mint);">
+        <div class="flex items-start justify-between">
+          <span class="pill pill-outline">תמונה אחת</span>
+          <div class="text-right">
+            <div class="num text-[44px] text-[var(--ink)] leading-none">+20</div>
+            <div class="body-en text-[12px] text-[var(--ink-faded)]">¢ tokens</div>
+          </div>
+        </div>
+
+        <!-- Camera capture frame -->
+        <div class="mt-5 rounded-3xl p-1.5" style="background: white;">
+          <div class="rounded-2xl relative overflow-hidden flex flex-col items-center justify-center gap-3" style="aspect-ratio: 4/3; background: white; border: 1.5px dashed var(--ink);">
+            <div class="w-20 h-20 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--lime)" stroke-width="2"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <div class="display-he-bold text-[17px] text-[var(--ink)]">תקליקי לצילום</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-6 mt-4 flex gap-2">
+        <button class="btn-white flex-1 py-3 text-[14px] flex items-center justify-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/></svg>
+          מהגלריה
+        </button>
+        <button class="btn-ink flex-1 py-3 text-[14px] text-white flex items-center justify-center gap-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg>
+          צלמי
+        </button>
+      </div>
+
+      <!-- Last denial -->
+      <div class="mx-6 mt-5 card-soft p-3 flex items-start gap-3" style="background: white;">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--tile-pink);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </div>
+        <div class="flex-1 text-right min-w-0">
+          <div class="body-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">הניסיון הקודם</div>
+          <div class="body-he text-[12px] text-[var(--ink)] mt-0.5 leading-snug">"לא רואים את הכותרת — תנסי שוב"</div>
+          <div class="body-en text-[10px] text-[var(--ink-faded)] mt-1">אמא · 17:42 אתמול</div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Big lime submit -->
+      <div class="px-5 pb-2">
+        <button class="btn-lime w-full py-4 text-[16px] flex items-center justify-center gap-2">
+          שלחי לאישור →
+        </button>
+      </div>
+
+      <div class="tabbar-wrap pt-2">
+        <div class="tabbar">
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>
+          <div class="tab-scan" style="background: var(--ink); color: var(--lime);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg>Submit</div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- E — REDEEM SHOP -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">E</div>
+    <div class="frame-h2">Shop / Redeem</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">Token tiles · 6 rewards · 3 affordable</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="av w-10" style="background: var(--tile-peach);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+        </div>
+      </div>
+
+      <div class="px-6 pt-6">
+        <h1 class="display-he text-[44px] text-[var(--ink)] leading-[1.05] text-right">
+          <span class="he-bold-word">החנות</span>
+        </h1>
+        <div class="flex items-center gap-2 mt-3 justify-end">
+          <span class="pill pill-lime"><span class="num text-[12px]">47</span> ¢ זמינים</span>
+          <span class="pill pill-outline">3 שווים</span>
+        </div>
+      </div>
+
+      <!-- Tabs (My / All) -->
+      <div class="px-6 mt-5 flex gap-2">
+        <button class="btn-ink px-4 py-2 text-[13px] text-white">קטנים</button>
+        <button class="btn-white px-4 py-2 text-[13px]">גדולים</button>
+      </div>
+
+      <!-- Tile grid -->
+      <div class="px-5 mt-4 grid grid-cols-2 gap-3">
+        <div class="tile" style="background: var(--tile-mint);">
+          <div class="tile-emblem mb-2"><span class="text-2xl">🍬</span></div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mt-auto">סוכריה</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="count-pill"><span class="num">2</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            <button class="w-7 h-7 rounded-full bg-[var(--lime)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M14 5l7 7-7 7M21 12H3"/></svg></button>
+          </div>
+        </div>
+        <div class="tile" style="background: var(--tile-peach);">
+          <div class="tile-emblem mb-2"><span class="text-2xl">📱</span></div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mt-auto">חצי שעה מסך</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="count-pill"><span class="num">5</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            <button class="w-7 h-7 rounded-full bg-[var(--lime)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M14 5l7 7-7 7M21 12H3"/></svg></button>
+          </div>
+        </div>
+        <div class="tile" style="background: var(--tile-sky);">
+          <div class="tile-emblem mb-2"><span class="text-2xl">🍦</span></div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mt-auto">גלידה</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="count-pill"><span class="num">8</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            <button class="w-7 h-7 rounded-full bg-[var(--lime)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3"><path d="M14 5l7 7-7 7M21 12H3"/></svg></button>
+          </div>
+        </div>
+        <div class="tile" style="background: var(--tile-lavender);">
+          <div class="tile-emblem mb-2"><span class="text-2xl">🛌</span></div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mt-auto">לינה בחוץ</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="count-pill"><span class="num">50</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            <span class="body-en text-[10px] text-[var(--ink-faded)] font-bold">חסר 3</span>
+          </div>
+        </div>
+        <div class="tile relative" style="background: var(--tile-pink); opacity: .8;">
+          <div class="absolute top-3 left-3 w-7 h-7 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--lime)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="tile-emblem mb-2 grayscale"><span class="text-2xl">🎬</span></div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mt-auto">סרט בקולנוע</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="count-pill"><span class="num">100</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            <span class="body-en text-[10px] text-[var(--ink-faded)] font-bold">חסר 53</span>
+          </div>
+        </div>
+        <div class="tile relative" style="background: var(--tile-purple); opacity: .8;">
+          <div class="absolute top-3 left-3 w-7 h-7 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--lime)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="absolute top-3 right-3 pill pill-ink text-[9px]">חלום</div>
+          <div class="tile-emblem mb-2 grayscale"><span class="text-2xl">🎮</span></div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mt-auto">משחק נינטנדו</div>
+          <div class="flex items-center justify-between mt-2">
+            <span class="count-pill"><span class="num">300</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            <span class="body-en text-[10px] text-[var(--ink-faded)] font-bold">חסר 253</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[10px]"></div>
+      <div class="tabbar-wrap">
+        <div class="tabbar">
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>
+          <div class="tab-scan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2M3 17v2a2 2 0 002 2h2M21 17v2a2 2 0 01-2 2h-2"/></svg>Scan</div>
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- F — REDEMPTION TRACKER (View transactions style) -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">F</div>
+    <div class="frame-h2">View transactions</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">Recent ledger · lime highlights most recent</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="av w-10" style="background: var(--tile-peach);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+        </div>
+      </div>
+
+      <div class="px-6 pt-5">
+        <h1 class="display-he text-[44px] text-[var(--ink)] leading-[1.05] text-right">
+          <span class="he-bold-word">היסטוריה</span>
+        </h1>
+        <div class="body-en text-[12px] text-[var(--ink-faded)] uppercase tracking-widest font-bold mt-3 text-right">DEC 03, 2026</div>
+      </div>
+
+      <div class="px-5 mt-5 space-y-3">
+        <!-- Most recent — lime highlight -->
+        <div class="card-hero p-4 flex items-start gap-3" style="background: var(--lime);">
+          <div class="w-9 h-9 rounded-full bg-[var(--ink)] flex items-center justify-center flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--lime)"><polyline points="20 6 9 17 4 12" stroke="var(--lime)" stroke-width="3" fill="none"/></svg>
+          </div>
+          <div class="flex-1 min-w-0 text-right">
+            <div class="body-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold">12/03/2026 · 16:01</div>
+            <div class="display-he-bold text-[16px] text-[var(--ink)] leading-tight mt-1">שיעורי בית · אושר</div>
+            <div class="flex items-center gap-1.5 mt-2">
+              <span class="count-pill"><span class="num">+20</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+              <span class="pill" style="background: var(--ink); color: var(--lime);">אמא אישרה</span>
+            </div>
+            <div class="body-he text-[11px] text-[var(--ink-soft)] mt-2.5 border-t border-[var(--ink)]/15 pt-2">יתרה לאחר: <span class="num text-[13px] text-[var(--ink)]">47</span> ¢</div>
+          </div>
+        </div>
+
+        <!-- Earlier transaction -->
+        <div class="card-hero p-4 flex items-start gap-3" style="background: white;">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--tile-mint);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg>
+          </div>
+          <div class="flex-1 min-w-0 text-right">
+            <div class="body-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">12/03/2026 · 07:14</div>
+            <div class="display-he-bold text-[14px] text-[var(--ink)] leading-tight mt-1">להציע את המיטה</div>
+            <div class="flex items-center gap-1.5 mt-2">
+              <span class="count-pill"><span class="num">+1</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Redemption -->
+        <div class="card-hero p-4 flex items-start gap-3" style="background: white;">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--tile-sky);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--ink)"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0 text-right">
+            <div class="body-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">12/02/2026 · 18:30</div>
+            <div class="display-he-bold text-[14px] text-[var(--ink)] leading-tight mt-1">קניתי גלידה</div>
+            <div class="flex items-center gap-1.5 mt-2">
+              <span class="count-pill"><span class="num text-[var(--accent-pink)]">−8</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+              <span class="pill">קיבלתי</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Admin credit -->
+        <div class="card-hero p-4 flex items-start gap-3" style="background: white;">
+          <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style="background: var(--tile-yellow);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--ink)"><path d="M12 2L4 6v6c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V6l-8-4z"/></svg>
+          </div>
+          <div class="flex-1 min-w-0 text-right">
+            <div class="body-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">12/01/2026 · 19:00 · אמא</div>
+            <div class="display-he-bold text-[14px] text-[var(--ink)] leading-tight mt-1">בונוס מאמא</div>
+            <div class="body-he text-[11px] text-[var(--ink-soft)] mt-0.5">"עזרה עם יעל בשיעורים"</div>
+            <div class="flex items-center gap-1.5 mt-2">
+              <span class="count-pill"><span class="num">+5</span><span class="text-[var(--ink-faded)] body-en text-[11px]">¢</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar-wrap">
+        <div class="tabbar">
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>
+          <div class="tab-scan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2"/></svg>Scan</div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- G — CAMPAIGNS (Event-details style) -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">G</div>
+    <div class="frame-h2">Campaigns</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">Event-details layout · streak + total</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-en text-[11px] text-[var(--ink-faded)] uppercase tracking-widest font-bold">פעילים</div>
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+
+      <!-- Streak campaign big card -->
+      <div class="mx-5 mt-3 card-hero p-5" style="background: var(--lime);">
+        <div class="flex items-start justify-between">
+          <div class="w-16 h-16 rounded-full bg-[var(--ink)] flex items-center justify-center text-3xl">🐝</div>
+          <button class="w-10 h-10 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="2"/><circle cx="12" cy="5" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+          </button>
+        </div>
+        <h2 class="display-he-bold text-[26px] text-[var(--ink)] leading-tight mt-3">קמפיין רצף<br/>3 ימים של מיטה</h2>
+        <div class="body-he text-[12px] text-[var(--ink-soft)] mt-1">התחיל 7 בדצמבר</div>
+
+        <!-- Progress chain -->
+        <div class="flex items-center gap-2 mt-5">
+          <div class="flex-1 h-12 rounded-2xl bg-[var(--ink)] flex items-center justify-center"><span class="text-white num text-[18px]">1</span></div>
+          <div class="flex-1 h-12 rounded-2xl bg-[var(--ink)] flex items-center justify-center"><span class="text-white num text-[18px]">2</span></div>
+          <div class="flex-1 h-12 rounded-2xl bg-white border-2 border-dashed border-[var(--ink)] flex items-center justify-center"><span class="num text-[18px]">3</span></div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between pt-4 border-t border-[var(--ink)]/15">
+          <div>
+            <div class="body-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold">פרס</div>
+            <div class="num text-[24px] text-[var(--ink)] leading-none mt-1">+50 ¢</div>
+          </div>
+          <div class="text-right">
+            <div class="body-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold">תג</div>
+            <div class="display-he-bold text-[15px] text-[var(--ink)] mt-1">Busy Bee</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Group / sibling -->
+      <div class="mx-5 mt-4">
+        <div class="display-en text-[10px] text-[var(--ink-faded)] uppercase tracking-widest font-bold mb-3 text-right">GROUP TOKENS</div>
+        <div class="space-y-2">
+          <div class="card-hero p-3 flex items-center gap-3" style="background: white;">
+            <div class="av w-10" style="background: var(--tile-peach);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+            </div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[14px] text-[var(--ink)]">ליה · את</div>
+              <div class="body-he text-[11px] text-[var(--ink-faded)]">רצף של 3</div>
+            </div>
+            <span class="count-pill"><span class="num">3</span><span class="text-[var(--ink-faded)] body-en text-[11px]">/3</span></span>
+          </div>
+          <div class="card-hero p-3 flex items-center gap-3" style="background: white;">
+            <div class="av w-10" style="background: var(--tile-sky);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+            </div>
+            <div class="flex-1 text-right">
+              <div class="display-he-bold text-[14px] text-[var(--ink)]">יעל</div>
+              <div class="body-he text-[11px] text-[var(--ink-faded)]">רצף של 5 · ניצחה</div>
+            </div>
+            <span class="count-pill pill-lime"><span class="num">5</span><span class="body-en text-[11px]">/3</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total campaign — compact card -->
+      <div class="mx-5 mt-4 card-hero p-4" style="background: white;">
+        <div class="flex items-center justify-between mb-2">
+          <div class="tile-emblem-black w-9 h-9"><span class="text-base">📚</span></div>
+          <span class="pill pill-outline">12 ימים נותרו</span>
+        </div>
+        <div class="text-right">
+          <div class="display-he-bold text-[16px] text-[var(--ink)]">לקרוא <span class="he-bold-word">100 עמודים</span></div>
+          <div class="flex items-baseline justify-end gap-2 mt-1">
+            <span class="body-en text-[12px] text-[var(--ink-faded)]">/ 100 עמ׳</span>
+            <span class="num text-[36px] text-[var(--ink)] leading-none">38</span>
+          </div>
+          <div class="pb-track mt-3"><div class="pb-fill" style="width: 38%"></div></div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[10px]"></div>
+      <div class="tabbar-wrap">
+        <div class="tabbar">
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>
+          <div class="tab-scan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2"/></svg>Scan</div>
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- H — BADGES (My Tokens style) -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-1">H</div>
+    <div class="frame-h2">My tokens (badges)</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-faded)] mt-1">2-col tile grid · the signature screen</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+      <div class="px-6 pt-3 flex items-center justify-between">
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="av w-10" style="background: var(--tile-peach);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+        </div>
+      </div>
+
+      <div class="px-6 pt-6">
+        <h1 class="display-he text-[44px] text-[var(--ink)] leading-[1.05] text-right">
+          <span class="he-bold-word">התגים</span><br/>שלי
+        </h1>
+      </div>
+
+      <!-- Toggle -->
+      <div class="px-6 mt-4">
+        <div class="inline-flex bg-white rounded-full p-1" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+          <button class="btn-ink px-4 py-2 text-[13px] text-white">שלי · 3</button>
+          <button class="px-4 py-2 text-[13px] text-[var(--ink-soft)] font-bold body-en">של יעל · 5</button>
+        </div>
+      </div>
+
+      <!-- Grid 2-col -->
+      <div class="px-5 mt-4 grid grid-cols-2 gap-3">
+        <!-- Earned -->
+        <div class="tile" style="background: var(--tile-mint); aspect-ratio: 1;">
+          <div class="tile-emblem mb-2"><span class="text-2xl">🐝</span></div>
+          <div class="display-he-bold text-[13px] text-[var(--ink)] mt-auto leading-tight">Busy Bee</div>
+          <div class="absolute bottom-3 left-3">
+            <span class="count-pill"><span class="num">x12</span></span>
+          </div>
+        </div>
+        <div class="tile" style="background: var(--tile-peach); aspect-ratio: 1;">
+          <div class="tile-emblem mb-2"><span class="text-2xl">📚</span></div>
+          <div class="display-he-bold text-[13px] text-[var(--ink)] mt-auto leading-tight">תולעת ספרים</div>
+          <div class="absolute bottom-3 left-3">
+            <span class="count-pill"><span class="num">x4</span></span>
+          </div>
+        </div>
+        <div class="tile" style="background: var(--tile-yellow); aspect-ratio: 1;">
+          <div class="tile-emblem mb-2"><span class="text-2xl">⭐</span></div>
+          <div class="display-he-bold text-[13px] text-[var(--ink)] mt-auto leading-tight">100 משימות</div>
+          <div class="absolute bottom-3 left-3">
+            <span class="count-pill"><span class="num">x2</span></span>
+          </div>
+        </div>
+        <!-- Locked -->
+        <div class="tile relative" style="background: var(--rule-soft); aspect-ratio: 1; opacity: .65;">
+          <div class="absolute top-3 left-3 w-7 h-7 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--lime)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="tile-emblem mb-2 grayscale"><span class="text-2xl">🎹</span></div>
+          <div class="display-he-bold text-[13px] text-[var(--ink-soft)] mt-auto leading-tight">מוסיקאית</div>
+        </div>
+        <div class="tile relative" style="background: var(--rule-soft); aspect-ratio: 1; opacity: .65;">
+          <div class="absolute top-3 left-3 w-7 h-7 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--lime)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="tile-emblem mb-2 grayscale"><span class="text-2xl">🔥</span></div>
+          <div class="display-he-bold text-[13px] text-[var(--ink-soft)] mt-auto leading-tight">רצף 30 ימים</div>
+        </div>
+        <div class="tile relative" style="background: var(--rule-soft); aspect-ratio: 1; opacity: .65;">
+          <div class="absolute top-3 left-3 w-7 h-7 rounded-full bg-[var(--ink)] flex items-center justify-center">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="var(--lime)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="tile-emblem mb-2 grayscale"><span class="text-2xl">🎂</span></div>
+          <div class="display-he-bold text-[13px] text-[var(--ink-soft)] mt-auto leading-tight">יום הולדת '26</div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[10px]"></div>
+      <div class="tabbar-wrap">
+        <div class="tabbar">
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+          <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+          <div class="tab-scan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2"/></svg>Scan</div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+          <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- /screens -->
+
+<!-- =================== LANGUAGE TOGGLE =================== -->
+<div class="mt-32" dir="ltr">
+  <div class="flex items-center gap-4 mb-8">
+    <hr class="flex-1 border-[var(--rule)]" />
+    <span class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">English (LTR) preview</span>
+    <hr class="flex-1 border-[var(--rule)]" />
+  </div>
+  <p class="body-en text-center text-[14px] text-[var(--ink-faded)] mb-8">Same home, English. Bricolage's selective bolding shines in LTR.</p>
+  <div class="flex justify-center">
+    <div class="phone" lang="en">
+      <div class="notch"></div>
+      <div class="phone-inner" dir="ltr">
+        <div class="statusbar"><span>10:41</span><span class="body-en font-bold">Reco</span></div>
+
+        <div class="px-6 pt-3 flex items-center justify-between">
+          <div>
+            <div class="body-en text-[12px] text-[var(--ink-faded)]">Welcome back</div>
+            <div class="display-en-bold text-[15px] text-[var(--ink)]">Lia</div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg>
+            </button>
+            <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center" style="box-shadow: 0 1px 2px rgba(10,10,10,.05);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="px-6 pt-6">
+          <h1 class="display-en text-[34px] text-[var(--ink)] leading-[1.05]">
+            Get your <span class="bold-word">tokens</span><br/>
+            Tap a <span class="bold-word">task</span>
+          </h1>
+        </div>
+
+        <div class="px-6 mt-5 flex items-end justify-between">
+          <div class="flex items-baseline gap-2">
+            <span class="num text-[88px] text-[var(--ink)] leading-none">47</span>
+            <span class="pill pill-lime text-[10px]">¢ Today</span>
+          </div>
+          <div class="text-right">
+            <div class="body-en text-[10px] text-[var(--ink-faded)] mb-1">Your rival</div>
+            <div class="flex items-center -space-x-2">
+              <div class="av w-9" style="background: var(--tile-sky); border: 2px solid var(--bg);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--ink)"><circle cx="12" cy="9" r="3"/><path d="M12 14c-3 0-6 2-6 5v1h12v-1c0-3-3-5-6-5z"/></svg>
+              </div>
+              <div class="av w-9 bg-[var(--ink)] text-white text-[10px] font-black border-2 border-[var(--bg)]">
+                <span class="num text-[11px]">89</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-6 card-hero p-5 relative overflow-hidden">
+          <div>
+            <h2 class="display-en-bold text-[30px] text-[var(--ink)] leading-tight">Home<br/>work</h2>
+            <div class="mt-2 inline-flex">
+              <span class="pill pill-outline">Reminder 17:00 →</span>
+            </div>
+            <div class="body-en text-[12px] text-[var(--ink-faded)] mt-1">Photo required · +20 tokens</div>
+          </div>
+          <div class="absolute -bottom-2 -right-2 text-[120px] opacity-90 leading-none">📚</div>
+          <div class="flex items-center justify-between mt-8 relative">
+            <button class="w-14 h-14 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+            <div class="text-right">
+              <div class="display-en text-[15px] text-[var(--ink)]">Tap<br/><span class="bold-word">now</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-6 mt-5">
+          <div class="flex items-center justify-between mb-3">
+            <div class="display-en-bold text-[16px] text-[var(--ink)]">Today's tasks</div>
+            <span class="body-en text-[12px] text-[var(--ink-faded)]"><span class="num text-[13px] text-[var(--ink)]">2</span>/4</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-3 py-2.5">
+              <div class="w-6 h-6 rounded-full bg-[var(--lime)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg></div>
+              <div class="flex-1"><div class="body-en text-[14px] text-[var(--ink-soft)] line-through">Make bed</div></div>
+              <span class="num text-[14px] text-[var(--ink-faded)]">+1</span>
+            </div>
+            <div class="flex items-center gap-3 py-2.5">
+              <div class="w-6 h-6 rounded-full bg-[var(--lime)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="3.5" stroke-linecap="round"><polyline points="4 12 10 18 20 6"/></svg></div>
+              <div class="flex-1"><div class="body-en text-[14px] text-[var(--ink-soft)] line-through">Brush teeth</div></div>
+              <span class="num text-[14px] text-[var(--ink-faded)]">+1</span>
+            </div>
+            <div class="flex items-center gap-3 py-2.5 border-t border-[var(--rule)] pt-3 mt-1">
+              <div class="w-6 h-6 rounded-full border-2 border-[var(--ink)]"></div>
+              <div class="flex-1"><div class="body-en text-[14px] text-[var(--ink)]">Set the table</div></div>
+              <span class="num text-[14px] text-[var(--ink)]">+5</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+
+        <div class="tabbar-wrap">
+          <div class="tabbar">
+            <div class="tab-pill active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>
+            <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>
+            <div class="tab-scan"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 7V5a2 2 0 012-2h2M21 7V5a2 2 0 00-2-2h-2"/></svg>Scan</div>
+            <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>
+            <div class="tab-pill"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== FOOTER =================== -->
+<footer class="mt-32 max-w-3xl mx-auto px-6 pb-16" dir="ltr">
+  <hr class="border-[var(--rule)] mb-12" />
+  <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-3">— concept 06 notes —</div>
+  <h3 class="display-en-bold text-[32px] text-[var(--ink)] mb-6 leading-snug">Strongest weakness</h3>
+  <p class="body-en text-[18px] text-[var(--ink-soft)] leading-relaxed mb-4">
+    This is the most "grown-up" concept of the six — and that's exactly its risk. The SwipeDrinks design language was built for young adults at festivals; lifting it to a 9–11 year old means the app reads as cool but possibly cold. The aesthetic has very low chrome — no characters, no mascot, no playful flourishes. For a kid who thinks "kid apps" are embarrassing, this is exactly what she wants. For a kid who needs warmth and encouragement, this might feel like an iPhone settings screen. <strong class="text-[var(--ink)]">Run a 30-second test on Lia and Yael with the home screen of this concept versus Plush — that one taste will tell you which side of the line they're on.</strong>
+  </p>
+  <p class="body-en text-[18px] text-[var(--ink-soft)] leading-relaxed">
+    Quietest strength: this concept's restraint scales. Spark and Plush bet hard on illustrations and mascots — both demand ongoing design investment to look right. Swipe bets on typography, layout, and a single accent color. That's cheap to maintain and ages well: the kids' tablet shows the same app in three years that it shows today, just with bigger numbers. The "Scan" tab metaphor also gives the photo-evidence feature a confident, gestural identity that none of the other concepts have.
+  </p>
+</footer>
+
+</main>
+
+</body>
+</html>

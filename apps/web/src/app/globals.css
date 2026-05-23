@@ -1,0 +1,131 @@
+/*
+ * Reco — global styles.
+ *
+ * Hand-mirrored from BRANDBOOK.md v1.0 + packages/shared/src/design-tokens/tokens.ts.
+ * If tokens change there, this file must be updated to match — there is no
+ * generation script yet (TODO: scripts/generate-tokens-css.ts post-Phase-1).
+ *
+ * Tailwind 4 reads @theme entries and exposes them as utilities (bg-pink,
+ * text-ink, rounded-2xl, shadow-card, font-display-hebrew, etc.). The :root
+ * block below mirrors them as raw CSS variables for inline styles that don't
+ * fit cleanly into a Tailwind utility.
+ */
+
+@import "tailwindcss";
+
+@theme {
+  /* Brand · pink */
+  --color-pink: #FF6B9D;
+  --color-pink-dark: #E94B7F;
+  --color-pink-pale: #FFE0EB;
+  --color-pink-soft: #FFF0F6;
+
+  /* Kid · Lia (peach) */
+  --color-peach: #FF9F7A;
+  --color-peach-pale: #FFE5D8;
+
+  /* Kid · Yael (sky) */
+  --color-sky: #6EC9F4;
+  --color-sky-dark: #3DA8DD;
+  --color-sky-pale: #DBEFFB;
+  --color-sky-soft: #EDF6FD;
+
+  /* Semantic · success */
+  --color-mint: #4ED9A5;
+  --color-mint-dark: #2EB683;
+  --color-mint-pale: #D6F5E8;
+  --color-mint-soft: #EBFAF3;
+
+  /* Semantic · currency */
+  --color-yellow: #FFD75E;
+  --color-yellow-dark: #E8B927;
+  --color-yellow-pale: #FFF3D6;
+
+  /* Semantic · campaigns */
+  --color-lavender: #B59FE5;
+  --color-lavender-dark: #8B72CE;
+  --color-lavender-pale: #ECE4F8;
+  --color-lavender-soft: #F6F1FC;
+
+  /* Surfaces + ink */
+  --color-bg: #FAF8F5;
+  --color-card: #FFFFFF;
+  --color-ink: #2D2A4A;
+  --color-ink-soft: #6E6B89;
+  --color-ink-faded: #A8A6BB;
+  --color-rule: #EFEDF5;
+  --color-rule-soft: #F7F5FA;
+
+  /* Fonts — pulled from next/font/google via CSS variables set in root layout */
+  --font-display-hebrew: var(--font-heebo), system-ui, sans-serif;
+  --font-display-latin: var(--font-fredoka), system-ui, sans-serif;
+  --font-body-hebrew: var(--font-heebo), system-ui, sans-serif;
+  --font-body-latin: var(--font-quicksand), var(--font-fredoka), system-ui, sans-serif;
+  --font-numerals: var(--font-heebo), system-ui, sans-serif;
+
+  /* Shadows (always tinted with ink, never solid black per BRANDBOOK §7.5) */
+  --shadow-hairline: 0 1px 2px rgba(45, 42, 74, 0.05);
+  --shadow-card: 0 4px 12px rgba(45, 42, 74, 0.06);
+  --shadow-cta-pink: 0 4px 12px rgba(255, 107, 157, 0.35);
+  --shadow-cta-mint: 0 4px 12px rgba(78, 217, 165, 0.30);
+  --shadow-modal: 0 30px 80px rgba(45, 42, 74, 0.15);
+
+  /* Border radii used by Reco beyond Tailwind's defaults */
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+}
+
+/* Raw CSS variables for direct var(--name) consumption. */
+:root {
+  --pink: #FF6B9D;
+  --pink-dark: #E94B7F;
+  --pink-pale: #FFE0EB;
+  --pink-soft: #FFF0F6;
+  --peach: #FF9F7A;
+  --peach-pale: #FFE5D8;
+  --sky: #6EC9F4;
+  --sky-dark: #3DA8DD;
+  --sky-pale: #DBEFFB;
+  --sky-soft: #EDF6FD;
+  --mint: #4ED9A5;
+  --mint-dark: #2EB683;
+  --mint-pale: #D6F5E8;
+  --mint-soft: #EBFAF3;
+  --yellow: #FFD75E;
+  --yellow-dark: #E8B927;
+  --yellow-pale: #FFF3D6;
+  --lavender: #B59FE5;
+  --lavender-dark: #8B72CE;
+  --lavender-pale: #ECE4F8;
+  --lavender-soft: #F6F1FC;
+  --bg: #FAF8F5;
+  --card: #FFFFFF;
+  --ink: #2D2A4A;
+  --ink-soft: #6E6B89;
+  --ink-faded: #A8A6BB;
+  --rule: #EFEDF5;
+  --rule-soft: #F7F5FA;
+}
+
+/* Base reset + brandbook defaults */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    background-color: var(--bg);
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-heebo), var(--font-quicksand), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html[dir="ltr"] body {
+    font-family: var(--font-fredoka), var(--font-quicksand), system-ui, sans-serif;
+  }
+  /* BRANDBOOK §3.2 — numbers always tabular */
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-heebo), system-ui, sans-serif;
+  }
+}

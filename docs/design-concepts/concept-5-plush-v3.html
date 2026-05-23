@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Concept 5 v3 — Plush (selective icon upgrade)</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Heebo:wght@300;400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FF6B9D; --pink-dark: #E94B7F; --pink-pale: #FFE0EB; --pink-soft: #FFF0F6;
+    --mint: #4ED9A5; --mint-dark: #2EB683; --mint-pale: #D6F5E8; --mint-soft: #EBFAF3;
+    --sky: #6EC9F4; --sky-dark: #3DA8DD; --sky-pale: #DBEFFB; --sky-soft: #EDF6FD;
+    --lavender: #B59FE5; --lavender-dark: #8B72CE; --lavender-pale: #ECE4F8; --lavender-soft: #F6F1FC;
+    --yellow: #FFD75E; --yellow-dark: #E8B927; --yellow-pale: #FFF3D6;
+    --peach: #FF9F7A; --peach-pale: #FFE5D8;
+    --ink: #2D2A4A; --ink-soft: #6E6B89; --ink-faded: #A8A6BB;
+    --rule: #EFEDF5; --rule-soft: #F7F5FA;
+    --bg: #FAF8F5; --card: #FFFFFF;
+  }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Quicksand', 'Heebo', sans-serif; min-height: 100vh; }
+  .display-en-bold { font-family: 'Fredoka', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  .display-en { font-family: 'Fredoka', sans-serif; font-weight: 600; letter-spacing: -.01em; }
+  .display-he-bold { font-family: 'Heebo', sans-serif; font-weight: 900; letter-spacing: -.02em; }
+  .display-he { font-family: 'Heebo', sans-serif; font-weight: 800; }
+  .body-he { font-family: 'Heebo', sans-serif; font-weight: 500; }
+  .body-en { font-family: 'Quicksand', sans-serif; font-weight: 600; }
+  .num { font-family: 'Heebo', sans-serif; font-weight: 800; font-feature-settings: "tnum"; }
+  .phone {
+    width: 390px; min-height: 844px; background: var(--card);
+    border-radius: 44px; border: 6px solid #1a1a1a;
+    box-shadow: 0 0 0 1px #2a2a2a, 0 30px 80px rgba(45,42,74,.15), 0 60px 120px rgba(45,42,74,.06);
+    overflow: hidden; position: relative; isolation: isolate;
+  }
+  .phone-inner { height: 100%; min-height: 832px; display: flex; flex-direction: column; position: relative; background: var(--bg); }
+  .notch { width: 110px; height: 28px; background: #1a1a1a; border-radius: 0 0 16px 16px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 50; }
+  .statusbar { padding: 14px 20px 6px; display: flex; justify-content: space-between; align-items: center; font-family: 'Quicksand', sans-serif; font-size: 12px; font-weight: 700; color: var(--ink); position: relative; z-index: 10; }
+  .card-soft { background: var(--card); border-radius: 20px; box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 4px 12px rgba(45,42,74,.06); border: 1px solid var(--rule); }
+  .card-pink { background: var(--pink-soft); border: 1px solid var(--pink-pale); border-radius: 20px; }
+  .card-sky { background: var(--sky-soft); border: 1px solid var(--sky-pale); border-radius: 20px; }
+  .card-mint { background: var(--mint-soft); border: 1px solid var(--mint-pale); border-radius: 20px; }
+  .card-yellow { background: var(--yellow-pale); border: 1px solid #FFE9A8; border-radius: 20px; }
+  .btn-pink { background: var(--pink); color: white; border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 800; box-shadow: 0 4px 12px rgba(255,107,157,.35); border: none; }
+  .btn-mint { background: var(--mint); color: white; border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 800; box-shadow: 0 4px 12px rgba(78,217,165,.3); }
+  .btn-white { background: white; color: var(--ink); border: 1.5px solid var(--rule); border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 700; }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-family: 'Heebo', sans-serif; font-size: 11px; font-weight: 700; }
+  .pill-mint { background: var(--mint-pale); color: var(--mint-dark); }
+  .pill-pink { background: var(--pink-pale); color: var(--pink-dark); }
+  .pill-sky { background: var(--sky-pale); color: var(--sky-dark); }
+  .pill-lavender { background: var(--lavender-pale); color: var(--lavender-dark); }
+  .pill-yellow { background: var(--yellow-pale); color: var(--yellow-dark); }
+  .pill-grey { background: var(--rule); color: var(--ink-soft); }
+  .tabbar { display: grid; grid-template-columns: repeat(5, 1fr); background: var(--card); border-top: 1px solid var(--rule); padding: 14px 8px 28px; }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: 'Heebo', sans-serif; font-size: 10px; font-weight: 700; color: var(--ink-faded); }
+  .tab.active { color: var(--pink); }
+  .tab.active .tab-icon-bg { background: var(--pink-pale); }
+  .tab-icon-bg { width: 34px; height: 34px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .frame-h2 { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 18px; color: var(--ink); letter-spacing: -.02em; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ================== SVG LIBRARY ================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- KEPT FROM v2: Avatars -->
+    <symbol id="av-fox" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#FFE5D8"/>
+      <path d="M 22 38 L 30 18 L 42 36 Z" fill="#FF9F7A"/>
+      <path d="M 58 36 L 70 18 L 78 38 Z" fill="#FF9F7A"/>
+      <path d="M 27 33 L 32 23 L 37 33 Z" fill="#FFCCB0"/>
+      <path d="M 63 33 L 68 23 L 73 33 Z" fill="#FFCCB0"/>
+      <ellipse cx="50" cy="58" rx="30" ry="28" fill="#FF9F7A"/>
+      <ellipse cx="50" cy="68" rx="20" ry="15" fill="#FFE5D8"/>
+      <ellipse cx="32" cy="63" rx="5" ry="3" fill="#FFB89A" opacity=".6"/>
+      <ellipse cx="68" cy="63" rx="5" ry="3" fill="#FFB89A" opacity=".6"/>
+      <ellipse cx="40" cy="55" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <ellipse cx="60" cy="55" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <circle cx="41" cy="53" r="1" fill="white"/>
+      <circle cx="61" cy="53" r="1" fill="white"/>
+      <ellipse cx="50" cy="64" rx="3" ry="2.2" fill="#2D2A4A"/>
+      <path d="M 44 70 Q 50 75 56 70" stroke="#2D2A4A" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="av-bunny" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#DBEFFB"/>
+      <ellipse cx="38" cy="22" rx="6" ry="16" fill="#6EC9F4"/>
+      <ellipse cx="62" cy="22" rx="6" ry="16" fill="#6EC9F4"/>
+      <ellipse cx="38" cy="24" rx="3" ry="11" fill="#A6DFFA"/>
+      <ellipse cx="62" cy="24" rx="3" ry="11" fill="#A6DFFA"/>
+      <ellipse cx="50" cy="56" rx="28" ry="26" fill="#6EC9F4"/>
+      <ellipse cx="33" cy="62" rx="6" ry="4" fill="#FF9F7A" opacity=".4"/>
+      <ellipse cx="67" cy="62" rx="6" ry="4" fill="#FF9F7A" opacity=".4"/>
+      <ellipse cx="40" cy="53" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <ellipse cx="60" cy="53" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <circle cx="41" cy="51" r="1" fill="white"/>
+      <circle cx="61" cy="51" r="1" fill="white"/>
+      <path d="M 47 62 L 53 62 L 50 66 Z" fill="#FF6B9D"/>
+      <path d="M 50 66 L 50 69" stroke="#2D2A4A" stroke-width="1.8"/>
+      <path d="M 50 69 Q 46 72 43 70" stroke="#2D2A4A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M 50 69 Q 54 72 57 70" stroke="#2D2A4A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- KEPT FROM v2: Coin -->
+    <symbol id="ic-coin" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="14" fill="#FFD75E" stroke="#E8B927" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="10" fill="#FFE99A" stroke="#E8B927" stroke-width=".8"/>
+      <text x="16" y="21" text-anchor="middle" fill="#9C7400" font-family="Fredoka" font-weight="700" font-size="13">¢</text>
+    </symbol>
+
+    <!-- KEPT FROM v2: Task icons (bed, tooth, food, shirt, cam) -->
+    <symbol id="ic-bed" viewBox="0 0 40 40">
+      <path d="M 4 30 L 4 22 Q 4 18 8 18 L 32 18 Q 36 18 36 22 L 36 30" stroke="#2D2A4A" stroke-width="2.5" fill="white" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="8" y="22" width="10" height="4" rx="2" fill="#FF9F7A"/>
+      <line x1="4" y1="30" x2="4" y2="34" stroke="#2D2A4A" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="36" y1="30" x2="36" y2="34" stroke="#2D2A4A" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="4" y1="30" x2="36" y2="30" stroke="#2D2A4A" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-tooth" viewBox="0 0 40 40">
+      <rect x="6" y="22" width="14" height="6" rx="1" fill="#6EC9F4" stroke="#2D2A4A" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="8" y1="22" x2="8" y2="19" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="11" y1="22" x2="11" y2="18" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="14" y1="22" x2="14" y2="19" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="17" y1="22" x2="17" y2="18" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="20" y="23" width="14" height="4" rx="2" fill="white" stroke="#2D2A4A" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-food" viewBox="0 0 40 40">
+      <path d="M 8 24 Q 4 18 10 14 Q 16 11 20 14 Q 24 11 30 14 Q 36 18 32 24 Q 28 28 24 26 Q 20 28 16 26 Q 12 28 8 24 Z" fill="#FFD75E" stroke="#9C7400" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M 12 22 Q 14 19 17 20" stroke="#9C7400" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M 19 22 Q 21 19 23 20" stroke="#9C7400" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-shirt" viewBox="0 0 40 40">
+      <path d="M 14 8 L 8 12 L 4 20 L 10 24 L 12 22 L 12 34 L 28 34 L 28 22 L 30 24 L 36 20 L 32 12 L 26 8 L 22 12 Q 20 14 18 12 Z" fill="#FF6B9D" stroke="#2D2A4A" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M 14 8 L 20 14 L 26 8" stroke="#2D2A4A" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-cam" viewBox="0 0 40 40">
+      <rect x="4" y="12" width="32" height="22" rx="3" fill="white" stroke="#2D2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M 13 12 L 15 8 L 25 8 L 27 12" fill="white" stroke="#2D2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="20" cy="22" r="6" fill="#6EC9F4" stroke="#2D2A4A" stroke-width="2"/>
+      <circle cx="20" cy="22" r="3" fill="white"/>
+    </symbol>
+
+    <!-- ====== NEW v3: Flat-illustrated BADGE emblems (reward-pack style) ====== -->
+    <symbol id="em3-crown" viewBox="0 0 60 60">
+      <path d="M 8 22 L 16 36 L 22 22 L 30 38 L 38 22 L 44 36 L 52 22 L 50 50 L 10 50 Z" fill="#FFD75E"/>
+      <rect x="10" y="48" width="40" height="4" fill="#E8B927"/>
+      <circle cx="16" cy="36" r="3" fill="#FF6B9D"/>
+      <circle cx="30" cy="38" r="3.5" fill="#FF6B9D"/>
+      <circle cx="44" cy="36" r="3" fill="#FF6B9D"/>
+      <circle cx="14" cy="22" r="2" fill="#FFE99A"/>
+      <circle cx="30" cy="22" r="2" fill="#FFE99A"/>
+      <circle cx="46" cy="22" r="2" fill="#FFE99A"/>
+    </symbol>
+    <symbol id="em3-trophy" viewBox="0 0 60 60">
+      <path d="M 12 14 Q 4 18 8 28 Q 10 32 14 32" stroke="#FFD75E" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 48 14 Q 56 18 52 28 Q 50 32 46 32" stroke="#FFD75E" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 12 10 L 48 10 L 46 36 Q 44 42 30 42 Q 16 42 14 36 Z" fill="#FFD75E"/>
+      <path d="M 30 16 L 33 24 L 41 24 L 35 29 L 37 38 L 30 33 L 23 38 L 25 29 L 19 24 L 27 24 Z" fill="#E8B927"/>
+      <rect x="26" y="42" width="8" height="6" fill="#FFD75E"/>
+      <rect x="18" y="48" width="24" height="6" rx="1" fill="#8B5E3C"/>
+    </symbol>
+    <symbol id="em3-medal" viewBox="0 0 60 60">
+      <path d="M 22 4 L 18 24 L 26 26 L 30 8 Z" fill="#FF6B9D"/>
+      <path d="M 38 4 L 42 24 L 34 26 L 30 8 Z" fill="#6EC9F4"/>
+      <circle cx="30" cy="38" r="15" fill="#FFD75E"/>
+      <circle cx="30" cy="38" r="11" fill="#FFE99A"/>
+      <path d="M 30 30 L 32 36 L 38 36 L 33 40 L 35 46 L 30 42 L 25 46 L 27 40 L 22 36 L 28 36 Z" fill="#E8B927"/>
+    </symbol>
+    <symbol id="em3-diamond" viewBox="0 0 60 60">
+      <path d="M 18 18 L 42 18 L 50 28 L 30 52 L 10 28 Z" fill="#6EC9F4"/>
+      <path d="M 18 18 L 30 28 L 42 18" fill="#A6DFFA"/>
+      <path d="M 10 28 L 30 28 L 30 52" fill="#3DA8DD"/>
+      <path d="M 30 28 L 30 52 L 50 28" fill="#6EC9F4"/>
+      <polygon points="20,22 24,18 28,22 24,26" fill="#DBEFFB" opacity=".8"/>
+      <line x1="18" y1="18" x2="42" y2="18" stroke="white" stroke-width="1.5" opacity=".5"/>
+    </symbol>
+    <symbol id="em3-cert" viewBox="0 0 60 60">
+      <rect x="14" y="6" width="32" height="44" rx="2" fill="white" stroke="#D6D4DC" stroke-width="1.5"/>
+      <line x1="20" y1="14" x2="40" y2="14" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="19" x2="36" y2="19" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="24" x2="38" y2="24" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="29" x2="32" y2="29" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="36" cy="40" r="7" fill="#FFD75E" stroke="#E8B927" stroke-width="1"/>
+      <circle cx="36" cy="40" r="4" fill="#FFE99A"/>
+      <path d="M 30 40 L 27 56 L 32 52 L 36 56 L 40 52 L 45 56 L 42 40 Z" fill="#E94B7F"/>
+    </symbol>
+    <symbol id="em3-gift" viewBox="0 0 60 60">
+      <rect x="8" y="24" width="44" height="28" rx="2" fill="#FFD75E"/>
+      <rect x="27" y="24" width="6" height="28" fill="#E94B7F"/>
+      <rect x="8" y="34" width="44" height="6" fill="#E94B7F"/>
+      <!-- bow loops -->
+      <path d="M 30 24 Q 18 14 22 8 Q 28 6 30 18 Q 32 6 38 8 Q 42 14 30 24 Z" fill="#E94B7F"/>
+      <path d="M 30 22 Q 22 14 25 11" fill="none" stroke="#FF6B9D" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M 30 22 Q 38 14 35 11" fill="none" stroke="#FF6B9D" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="30" cy="22" r="3" fill="#FF6B9D"/>
+      <rect x="8" y="38" width="44" height="2" fill="#C8295F" opacity=".5"/>
+    </symbol>
+    <symbol id="em3-star" viewBox="0 0 60 60">
+      <path d="M 30 6 L 37 22 L 54 24 L 41 35 L 45 52 L 30 43 L 15 52 L 19 35 L 6 24 L 23 22 Z" fill="#FFD75E"/>
+      <path d="M 30 16 L 34 26 L 44 27 L 36 33 L 38 42 L 30 37 L 22 42 L 24 33 L 16 27 L 26 26 Z" fill="#FFE99A" opacity=".7"/>
+      <circle cx="30" cy="29" r="3" fill="white" opacity=".7"/>
+    </symbol>
+    <symbol id="em3-torch" viewBox="0 0 60 60">
+      <!-- handle -->
+      <rect x="26" y="32" width="8" height="22" rx="1" fill="#8B5E3C"/>
+      <rect x="24" y="52" width="12" height="4" rx="1" fill="#5C3F25"/>
+      <!-- cup holder -->
+      <path d="M 20 22 L 40 22 L 38 34 L 22 34 Z" fill="#B5C0CC"/>
+      <rect x="20" y="22" width="20" height="2" fill="#8C9BA8"/>
+      <!-- multi-color flame -->
+      <path d="M 30 2 Q 18 14 18 22 Q 18 30 24 30 Q 20 22 26 16 Q 22 28 30 28 Q 38 28 34 16 Q 40 22 36 30 Q 42 30 42 22 Q 42 14 30 2 Z" fill="#FF6B9D"/>
+      <path d="M 30 10 Q 24 16 26 22 Q 30 24 30 22 Q 32 16 30 10 Z" fill="#FFD75E"/>
+      <path d="M 30 16 Q 28 22 30 24 Q 32 22 30 16 Z" fill="white" opacity=".8"/>
+    </symbol>
+
+    <!-- ====== NEW v3: Flat-illustrated REWARD icons ====== -->
+    <symbol id="rw3-candy" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="20" fill="#FF6B9D"/>
+      <path d="M 28 32 Q 40 36 52 32" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M 26 40 Q 40 44 54 40" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M 28 48 Q 40 52 52 48" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M 20 32 L 12 24 L 16 36 L 8 44 L 18 40 L 20 48 Z" fill="#FF6B9D"/>
+      <path d="M 60 32 L 68 24 L 64 36 L 72 44 L 62 40 L 60 48 Z" fill="#FF6B9D"/>
+      <circle cx="34" cy="36" r="3" fill="white" opacity=".8"/>
+    </symbol>
+    <symbol id="rw3-phone" viewBox="0 0 80 80">
+      <rect x="22" y="10" width="36" height="60" rx="6" fill="#6EC9F4"/>
+      <rect x="25" y="16" width="30" height="46" rx="2" fill="white"/>
+      <!-- play icon -->
+      <circle cx="40" cy="38" r="14" fill="#FF6B9D"/>
+      <path d="M 36 30 L 36 46 L 50 38 Z" fill="white"/>
+      <circle cx="40" cy="66" r="2.5" fill="white"/>
+      <rect x="36" y="12" width="8" height="2" rx="1" fill="white" opacity=".5"/>
+    </symbol>
+    <symbol id="rw3-ice" viewBox="0 0 80 80">
+      <circle cx="40" cy="8" r="3" fill="#E94B7F"/>
+      <path d="M 40 6 Q 43 2 46 4" stroke="#2EB683" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="22" r="14" fill="#FF6B9D"/>
+      <circle cx="40" cy="35" r="15" fill="#4ED9A5"/>
+      <path d="M 24 42 L 40 74 L 56 42 Z" fill="#FFD75E"/>
+      <path d="M 28 50 L 52 50" stroke="#E8B927" stroke-width="2" stroke-linecap="round"/>
+      <path d="M 32 58 L 48 58" stroke="#E8B927" stroke-width="2" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="rw3-pillow" viewBox="0 0 80 80">
+      <path d="M 56 10 Q 64 18 58 30 Q 50 22 56 10 Z" fill="#FFD75E"/>
+      <path d="M 14 18 L 16 22 L 20 22 L 17 25 L 18 29 L 14 27 L 10 29 L 11 25 L 8 22 L 12 22 Z" fill="#FFD75E"/>
+      <circle cx="68" cy="34" r="2" fill="#FFD75E"/>
+      <rect x="10" y="44" width="60" height="26" rx="13" fill="#B59FE5"/>
+      <path d="M 20 50 Q 26 58 20 64" stroke="#ECE4F8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M 60 50 Q 54 58 60 64" stroke="#ECE4F8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <text x="38" y="60" font-family="Fredoka" font-size="18" font-weight="700" fill="white">Z</text>
+      <text x="50" y="56" font-family="Fredoka" font-size="12" font-weight="700" fill="white">z</text>
+    </symbol>
+    <symbol id="rw3-movie" viewBox="0 0 80 80">
+      <path d="M 12 18 L 68 18 L 68 34 Q 62 36 62 40 Q 62 44 68 46 L 68 62 L 12 62 L 12 46 Q 18 44 18 40 Q 18 36 12 34 Z" fill="#FF6B9D"/>
+      <line x1="40" y1="18" x2="40" y2="62" stroke="white" stroke-width="2" stroke-dasharray="3 3"/>
+      <path d="M 26 28 L 28 34 L 34 34 L 29 38 L 31 44 L 26 40 L 21 44 L 23 38 L 18 34 L 24 34 Z" fill="white"/>
+      <text x="54" y="44" text-anchor="middle" font-family="Fredoka" font-size="10" font-weight="700" fill="white">FILM</text>
+      <text x="54" y="56" text-anchor="middle" font-family="Fredoka" font-size="16" font-weight="700" fill="white">B7</text>
+    </symbol>
+    <symbol id="rw3-game" viewBox="0 0 80 80">
+      <path d="M 6 38 Q 6 22 22 22 L 58 22 Q 74 22 74 38 L 72 58 Q 70 66 60 66 Q 54 66 52 60 L 50 54 L 30 54 L 28 60 Q 26 66 20 66 Q 10 66 8 58 Z" fill="#9D5BD4"/>
+      <rect x="14" y="36" width="14" height="4" rx="1" fill="#2D2A4A"/>
+      <rect x="19" y="31" width="4" height="14" rx="1" fill="#2D2A4A"/>
+      <circle cx="58" cy="32" r="3.5" fill="#FFD75E"/>
+      <circle cx="64" cy="40" r="3.5" fill="#FF6B9D"/>
+      <circle cx="58" cy="48" r="3.5" fill="#4ED9A5"/>
+      <circle cx="52" cy="40" r="3.5" fill="#6EC9F4"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- =================== INTRO =================== -->
+<section class="relative max-w-6xl mx-auto px-6 pt-20 pb-8" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="display-en text-[12px] font-bold text-[var(--pink)] uppercase tracking-widest">Concept 05 · v3</span>
+    <span class="body-en text-[12px] text-[var(--ink-soft)]">— selective icon upgrade</span>
+  </div>
+  <h1 class="display-en-bold text-[60px] leading-[.95] text-[var(--ink)] mb-4">Plush <em style="color: var(--pink);">v3</em></h1>
+  <p class="body-en text-[var(--ink-soft)] text-[18px] max-w-2xl leading-relaxed">
+    Targeted change. Keep the icons that earned their place (character avatars, task icons, coin, tab bar). Upgrade only the two surfaces where the kid is actively <em>looking at</em> and <em>collecting</em> things: <strong>badges</strong> and <strong>rewards</strong>. Those get the full flat-illustrated reward-pack treatment.
+  </p>
+</section>
+
+<!-- =================== STRATEGY GRID =================== -->
+<section class="max-w-6xl mx-auto px-6 mb-8" dir="ltr">
+  <div class="grid grid-cols-2 gap-6">
+    <!-- KEEP -->
+    <div class="card-soft p-6">
+      <div class="display-en text-[10px] text-[var(--mint-dark)] uppercase tracking-widest font-bold mb-3">▲ Keep · these earned it</div>
+      <h3 class="display-en-bold text-[22px] text-[var(--ink)] mb-4">Avatars, tasks, coin, tabs</h3>
+      <div class="grid grid-cols-5 gap-3 mb-4">
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-full overflow-hidden"><svg viewBox="0 0 100 100"><use href="#av-fox"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Fox</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-full overflow-hidden"><svg viewBox="0 0 100 100"><use href="#av-bunny"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Bunny</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center" style="background: var(--mint-soft);"><svg width="60%" viewBox="0 0 40 40"><use href="#ic-bed"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Bed</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center" style="background: var(--sky-soft);"><svg width="60%" viewBox="0 0 40 40"><use href="#ic-tooth"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Tooth</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-full flex items-center justify-center"><svg width="44" height="44" viewBox="0 0 32 32"><use href="#ic-coin"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Coin</div></div>
+      </div>
+      <p class="body-en text-[13px] text-[var(--ink-soft)] leading-relaxed">
+        Avatars carry personality. Task icons are utility. The coin is already in the right family. Tab icons are quiet line work. None of these benefit from being "more flat-illustrated" — they'd lose function or warmth.
+      </p>
+    </div>
+    <!-- UPGRADE -->
+    <div class="card-soft p-6" style="background: linear-gradient(135deg, var(--pink-soft), white); border-color: var(--pink-pale);">
+      <div class="display-en text-[10px] text-[var(--pink-dark)] uppercase tracking-widest font-bold mb-3">★ Upgrade · these are HERO objects</div>
+      <h3 class="display-en-bold text-[22px] text-[var(--ink)] mb-4">Badges & rewards</h3>
+      <div class="grid grid-cols-5 gap-3 mb-4">
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em3-crown"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Crown</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em3-medal"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Medal</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em3-trophy"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Trophy</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center" style="background: var(--pink-pale);"><svg width="40" height="40" viewBox="0 0 80 80"><use href="#rw3-candy"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Candy</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-2xl flex items-center justify-center" style="background: var(--sky-pale);"><svg width="36" height="36" viewBox="0 0 80 80"><use href="#rw3-phone"/></svg></div><div class="display-en text-[9px] mt-1 text-[var(--ink-soft)]">Phone</div></div>
+      </div>
+      <p class="body-en text-[13px] text-[var(--ink-soft)] leading-relaxed">
+        These are the things the kid <em>collects</em> and <em>aims for</em>. They get full design investment — saturated colors, ribbons, sparkles, the works. Production sources these from a real licensed icon pack (Flaticon "Reward" set or similar).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =================== BEFORE/AFTER COMPARISON =================== -->
+<section class="max-w-6xl mx-auto px-6 mb-12" dir="ltr">
+  <div class="text-center mb-6">
+    <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest">Side-by-side · badge emblem inside the shield</div>
+  </div>
+  <div class="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
+    <!-- old style placeholder, label only -->
+    <div class="text-center">
+      <div class="text-[10px] uppercase tracking-widest text-[var(--ink-faded)] font-bold mb-2">v2 — dark silhouette</div>
+      <svg width="120" height="144" viewBox="0 0 100 120" style="margin: 0 auto; display: block;">
+        <defs><linearGradient id="bs-old" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#F0F7FB"/><stop offset="50%" stop-color="#B8CEDC"/><stop offset="100%" stop-color="#5D7088"/></linearGradient></defs>
+        <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#bs-old)" stroke="#5D7088" stroke-width="1.5"/>
+        <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#3D506A"/>
+        <!-- single-color silhouette emblem -->
+        <ellipse cx="50" cy="68" rx="14" ry="13" fill="#FFD75E"/>
+        <rect x="36" y="60" width="28" height="3" fill="#3D506A"/>
+        <rect x="36" y="67" width="28" height="3" fill="#3D506A"/>
+        <rect x="36" y="74" width="28" height="3" fill="#3D506A"/>
+        <rect x="32" y="2" width="36" height="18" rx="3" fill="#5D7088"/>
+        <text x="50" y="15" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="700" fill="white">x12</text>
+        <ellipse cx="38" cy="28" rx="14" ry="3" fill="white" opacity=".3"/>
+      </svg>
+      <div class="display-en-bold text-[12px] text-[var(--ink)] mt-2">Busy Bee · single-color</div>
+    </div>
+
+    <div class="text-center">
+      <div class="text-[10px] uppercase tracking-widest text-[var(--pink-dark)] font-bold mb-2">v3 — flat illustrated</div>
+      <svg width="120" height="144" viewBox="0 0 100 120" style="margin: 0 auto; display: block;">
+        <defs><linearGradient id="bs-new1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#F0F7FB"/><stop offset="50%" stop-color="#B8CEDC"/><stop offset="100%" stop-color="#5D7088"/></linearGradient></defs>
+        <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#bs-new1)" stroke="#5D7088" stroke-width="1.5"/>
+        <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#FFE5D8"/>
+        <g transform="translate(20 38)"><use href="#em3-crown"/></g>
+        <rect x="32" y="2" width="36" height="18" rx="3" fill="#FF6B9D"/>
+        <text x="50" y="15" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="700" fill="white">x12</text>
+        <ellipse cx="38" cy="28" rx="14" ry="3" fill="white" opacity=".3"/>
+      </svg>
+      <div class="display-en-bold text-[12px] text-[var(--ink)] mt-2">King of Tasks · multi-color</div>
+    </div>
+
+    <div class="text-center">
+      <div class="text-[10px] uppercase tracking-widest text-[var(--pink-dark)] font-bold mb-2">v3 — alt color shield</div>
+      <svg width="120" height="144" viewBox="0 0 100 120" style="margin: 0 auto; display: block;">
+        <defs><linearGradient id="bs-new2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FFE5D8"/><stop offset="50%" stop-color="#FF9F7A"/><stop offset="100%" stop-color="#D86A45"/></linearGradient></defs>
+        <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#bs-new2)" stroke="#D86A45" stroke-width="1.5"/>
+        <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#FFEDD5"/>
+        <g transform="translate(20 38)"><use href="#em3-trophy"/></g>
+        <rect x="32" y="2" width="36" height="18" rx="3" fill="#E94B7F"/>
+        <text x="50" y="15" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="700" fill="white">x4</text>
+      </svg>
+      <div class="display-en-bold text-[12px] text-[var(--ink)] mt-2">Champion · trophy</div>
+    </div>
+  </div>
+  <p class="body-en text-center text-[14px] text-[var(--ink-soft)] mt-6 max-w-2xl mx-auto leading-relaxed">
+    Two changes from v2: (1) the inner shield panel becomes light/pastel so the colorful emblem reads, instead of dark; (2) the ribbon banner on top tints to match the badge's primary color. The 3D silver-shield frame stays — it's still the architectural signature of Plush.
+  </p>
+</section>
+
+<!-- =================== SCREEN PREVIEWS =================== -->
+<main class="max-w-6xl mx-auto px-6 pb-32">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-20 gap-x-12 justify-items-center">
+
+<!-- ===== UPGRADED SHOP ===== -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--pink)] uppercase tracking-widest mb-1">Shop · v3</div>
+    <div class="frame-h2">Reward tiles with new flat-illustrated icons</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">All rewards upgraded · tab bar + coin unchanged</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--pink)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-sm" style="border: 1px solid var(--rule);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">החנות</div>
+        <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-sm" style="border: 1px solid var(--rule);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 8 12 12 14 14"/></svg>
+        </button>
+      </div>
+
+      <!-- Wallet header — coin stays the same from v2 -->
+      <div class="mx-5 mt-3 card-mint p-4 flex items-center gap-4" style="background: linear-gradient(135deg, var(--mint-soft), white); border-color: var(--mint-pale);">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0">
+          <svg width="52" height="52" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+        </div>
+        <div class="flex-1 text-right">
+          <div class="body-he text-[11px] text-[var(--mint-dark)] font-bold uppercase tracking-widest">היתרה שלי</div>
+          <div class="num text-[34px] text-[var(--mint-dark)] leading-none">350</div>
+        </div>
+        <span class="pill pill-mint">4 שווים</span>
+      </div>
+
+      <!-- Grid - rewards use NEW v3 icons -->
+      <div class="px-5 mt-4 grid grid-cols-2 gap-3">
+        <div class="card-soft p-3">
+          <div class="aspect-square rounded-2xl flex items-center justify-center" style="background: var(--pink-soft);">
+            <svg width="72%" viewBox="0 0 80 80"><use href="#rw3-candy"/></svg>
+          </div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mb-1 mt-2">סוכריה</div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+              <span class="num text-[14px] text-[var(--ink)]">2</span>
+            </div>
+            <button class="btn-pink text-[11px] px-3 py-1.5 text-white">פדי</button>
+          </div>
+        </div>
+        <div class="card-soft p-3">
+          <div class="aspect-square rounded-2xl flex items-center justify-center" style="background: var(--sky-soft);">
+            <svg width="62%" viewBox="0 0 80 80"><use href="#rw3-phone"/></svg>
+          </div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mb-1 mt-2">חצי שעה מסך</div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+              <span class="num text-[14px] text-[var(--ink)]">5</span>
+            </div>
+            <button class="btn-pink text-[11px] px-3 py-1.5 text-white">פדי</button>
+          </div>
+        </div>
+        <div class="card-soft p-3">
+          <div class="aspect-square rounded-2xl flex items-center justify-center" style="background: var(--mint-soft);">
+            <svg width="68%" viewBox="0 0 80 80"><use href="#rw3-ice"/></svg>
+          </div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mb-1 mt-2">גלידה</div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+              <span class="num text-[14px] text-[var(--ink)]">8</span>
+            </div>
+            <button class="btn-pink text-[11px] px-3 py-1.5 text-white">פדי</button>
+          </div>
+        </div>
+        <div class="card-soft p-3">
+          <div class="aspect-square rounded-2xl flex items-center justify-center" style="background: var(--lavender-soft);">
+            <svg width="72%" viewBox="0 0 80 80"><use href="#rw3-pillow"/></svg>
+          </div>
+          <div class="display-he-bold text-[14px] text-[var(--ink)] mb-1 mt-2">לינה בחוץ</div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1">
+              <svg width="14" height="14" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+              <span class="num text-[14px] text-[var(--ink)]">50</span>
+            </div>
+            <button class="btn-pink text-[11px] px-3 py-1.5 text-white">פדי</button>
+          </div>
+        </div>
+        <div class="card-soft p-3 relative opacity-65">
+          <div class="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center z-10" style="background: rgba(45,42,74,.7);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+          </div>
+          <div class="aspect-square rounded-2xl flex items-center justify-center grayscale" style="background: var(--yellow-pale);">
+            <svg width="68%" viewBox="0 0 80 80"><use href="#rw3-movie"/></svg>
+          </div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mb-1 mt-2">סרט בקולנוע</div>
+          <div class="text-center body-he text-[11px] text-[var(--ink-soft)]">חסר <span class="num text-[13px] text-[var(--pink)]">100</span> ¢</div>
+        </div>
+        <div class="card-soft p-3 relative opacity-70" style="background: linear-gradient(135deg, var(--peach-pale), white);">
+          <div class="absolute -top-1.5 -right-1.5 pill pill-lavender text-[9px] z-10" style="background: var(--lavender-dark); color: white;">חלום</div>
+          <div class="absolute top-2 left-2 w-7 h-7 rounded-full flex items-center justify-center z-10" style="background: rgba(45,42,74,.7);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+          </div>
+          <div class="aspect-square rounded-2xl flex items-center justify-center grayscale" style="background: var(--peach-pale);">
+            <svg width="72%" viewBox="0 0 80 80"><use href="#rw3-game"/></svg>
+          </div>
+          <div class="display-he-bold text-[14px] text-[var(--ink-soft)] mb-1 mt-2">משחק נינטנדו</div>
+          <div class="text-center body-he text-[11px] text-[var(--ink-soft)]">חסר <span class="num text-[13px] text-[var(--lavender-dark)]">300</span> ¢</div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[10px]"></div>
+      <div class="tabbar">
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>בית</div>
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>משימות</div>
+        <div class="tab active"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>חנות</div>
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div>מסעות</div>
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 L18 8 L18 14 Q18 18 12 21 Q6 18 6 14 L6 8 Z"/></svg></div>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== UPGRADED BADGES ===== -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="display-en text-[12px] font-bold text-[var(--pink)] uppercase tracking-widest mb-1">Badges · v3</div>
+    <div class="frame-h2">Shields with flat-illustrated emblems</div>
+    <div class="body-en italic text-[13px] text-[var(--ink-soft)] mt-1">Crown, trophy, medal, diamond, certificate, gift, star, torch</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--pink)]">Reco</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center shadow-sm" style="border: 1px solid var(--rule);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he-bold text-[22px] text-[var(--ink)]">אוסף התגים</div>
+        <div class="w-11"></div>
+      </div>
+
+      <!-- Hero card with fox avatar (kept from v2) -->
+      <div class="mx-5 mt-3 card-soft p-4 flex items-center gap-3" style="background: linear-gradient(135deg, var(--peach-pale), white); border-color: #FFE0CB;">
+        <div class="w-14 h-14 rounded-full overflow-hidden flex-shrink-0"><svg viewBox="0 0 100 100"><use href="#av-fox"/></svg></div>
+        <div class="flex-1 text-right">
+          <div class="display-he-bold text-[18px] text-[var(--ink)] leading-tight">ליה</div>
+          <div class="grid grid-cols-3 gap-2 mt-2 text-center">
+            <div><div class="num text-[18px] text-[var(--peach)] leading-none">3</div><div class="body-he text-[10px] text-[var(--ink-soft)]">קיבלתי</div></div>
+            <div class="border-r border-l border-[var(--rule)]"><div class="num text-[18px] text-[var(--ink)] leading-none">8</div><div class="body-he text-[10px] text-[var(--ink-soft)]">סך הכל</div></div>
+            <div><div class="num text-[18px] text-[var(--mint-dark)] leading-none">38%</div><div class="body-he text-[10px] text-[var(--ink-soft)]">השלמתי</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 mt-3 flex gap-2">
+        <button class="btn-pink text-white text-[12px] px-4 py-2">שלי</button>
+        <button class="btn-white text-[12px] px-4 py-2">של יעל</button>
+      </div>
+
+      <!-- Shield grid with NEW v3 emblems -->
+      <div class="px-5 mt-4 grid grid-cols-3 gap-3">
+        <!-- Earned: Crown -->
+        <div class="text-center">
+          <svg width="100%" viewBox="0 0 100 120">
+            <defs><linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#F0F7FB"/><stop offset="50%" stop-color="#B8CEDC"/><stop offset="100%" stop-color="#5D7088"/></linearGradient></defs>
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g1)" stroke="#5D7088" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#FFEDD5"/>
+            <g transform="translate(20 38)"><use href="#em3-crown"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#FF6B9D"/>
+            <text x="50" y="15" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="700" fill="white">x12</text>
+            <ellipse cx="38" cy="28" rx="14" ry="3" fill="white" opacity=".3"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink)] mt-1">מלכת משימות</div>
+        </div>
+        <!-- Earned: Medal -->
+        <div class="text-center">
+          <svg width="100%" viewBox="0 0 100 120">
+            <defs><linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#DBEFFB"/><stop offset="50%" stop-color="#6EC9F4"/><stop offset="100%" stop-color="#0A86CA"/></linearGradient></defs>
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g2)" stroke="#0A86CA" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#EDF6FD"/>
+            <g transform="translate(20 38)"><use href="#em3-medal"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#0A86CA"/>
+            <text x="50" y="15" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="700" fill="white">x4</text>
+            <ellipse cx="38" cy="28" rx="14" ry="3" fill="white" opacity=".3"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink)] mt-1">תולעת ספרים</div>
+        </div>
+        <!-- Earned: Trophy -->
+        <div class="text-center">
+          <svg width="100%" viewBox="0 0 100 120">
+            <defs><linearGradient id="g3" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FFF3D6"/><stop offset="50%" stop-color="#FFD75E"/><stop offset="100%" stop-color="#B58820"/></linearGradient></defs>
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g3)" stroke="#B58820" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#FFF9E5"/>
+            <g transform="translate(20 38)"><use href="#em3-trophy"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#B58820"/>
+            <text x="50" y="15" text-anchor="middle" font-size="11" font-family="Fredoka" font-weight="700" fill="white">x2</text>
+            <ellipse cx="38" cy="28" rx="14" ry="3" fill="white" opacity=".3"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink)] mt-1">אלופת 100</div>
+        </div>
+        <!-- Locked: Diamond -->
+        <div class="text-center opacity-60 relative">
+          <svg width="100%" viewBox="0 0 100 120">
+            <defs><linearGradient id="g4" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#E5E5E5"/><stop offset="50%" stop-color="#B0B0B0"/><stop offset="100%" stop-color="#707070"/></linearGradient></defs>
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g4)" stroke="#707070" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#E8E8E8"/>
+            <g transform="translate(20 38)" opacity=".5"><use href="#em3-diamond"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#707070"/>
+            <text x="50" y="15" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="700" fill="white">לוק</text>
+            <circle cx="50" cy="68" r="14" fill="rgba(0,0,0,.7)"/>
+            <path d="M 44 64 L 44 60 Q 44 54 50 54 Q 56 54 56 60 L 56 64 M 42 64 L 58 64 L 58 76 L 42 76 Z" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink-soft)] mt-1">יהלום</div>
+        </div>
+        <!-- Locked: Certificate -->
+        <div class="text-center opacity-60 relative">
+          <svg width="100%" viewBox="0 0 100 120">
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g4)" stroke="#707070" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#E8E8E8"/>
+            <g transform="translate(20 38)" opacity=".5"><use href="#em3-cert"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#707070"/>
+            <text x="50" y="15" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="700" fill="white">לוק</text>
+            <circle cx="50" cy="68" r="14" fill="rgba(0,0,0,.7)"/>
+            <path d="M 44 64 L 44 60 Q 44 54 50 54 Q 56 54 56 60 L 56 64 M 42 64 L 58 64 L 58 76 L 42 76 Z" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink-soft)] mt-1">מסיימת שנה</div>
+        </div>
+        <!-- Locked: Gift -->
+        <div class="text-center opacity-60 relative">
+          <svg width="100%" viewBox="0 0 100 120">
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g4)" stroke="#707070" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#E8E8E8"/>
+            <g transform="translate(20 38)" opacity=".5"><use href="#em3-gift"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#707070"/>
+            <text x="50" y="15" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="700" fill="white">לוק</text>
+            <circle cx="50" cy="68" r="14" fill="rgba(0,0,0,.7)"/>
+            <path d="M 44 64 L 44 60 Q 44 54 50 54 Q 56 54 56 60 L 56 64 M 42 64 L 58 64 L 58 76 L 42 76 Z" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink-soft)] mt-1">יום הולדת '26</div>
+        </div>
+        <!-- Locked: Star -->
+        <div class="text-center opacity-60 relative">
+          <svg width="100%" viewBox="0 0 100 120">
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g4)" stroke="#707070" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#E8E8E8"/>
+            <g transform="translate(20 38)" opacity=".5"><use href="#em3-star"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#707070"/>
+            <text x="50" y="15" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="700" fill="white">לוק</text>
+            <circle cx="50" cy="68" r="14" fill="rgba(0,0,0,.7)"/>
+            <path d="M 44 64 L 44 60 Q 44 54 50 54 Q 56 54 56 60 L 56 64 M 42 64 L 58 64 L 58 76 L 42 76 Z" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink-soft)] mt-1">500 משימות</div>
+        </div>
+        <!-- Locked: Torch -->
+        <div class="text-center opacity-60 relative">
+          <svg width="100%" viewBox="0 0 100 120">
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#g4)" stroke="#707070" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#E8E8E8"/>
+            <g transform="translate(20 38)" opacity=".5"><use href="#em3-torch"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#707070"/>
+            <text x="50" y="15" text-anchor="middle" font-size="10" font-family="Fredoka" font-weight="700" fill="white">לוק</text>
+            <circle cx="50" cy="68" r="14" fill="rgba(0,0,0,.7)"/>
+            <path d="M 44 64 L 44 60 Q 44 54 50 54 Q 56 54 56 60 L 56 64 M 42 64 L 58 64 L 58 76 L 42 76 Z" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+          <div class="display-he-bold text-[11px] text-[var(--ink-soft)] mt-1">10 קמפיינים</div>
+        </div>
+      </div>
+
+      <!-- Sibling activity card (avatar + task icon UNCHANGED from v2) -->
+      <div class="mx-5 mt-5 card-sky p-3 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full overflow-hidden"><svg viewBox="0 0 100 100"><use href="#av-bunny"/></svg></div>
+        <div class="flex-1 text-right">
+          <div class="display-he-bold text-[12px] text-[var(--ink)]">יעל זכתה ב<span class="text-[var(--sky-dark)]">מדליית קריאה!</span></div>
+          <div class="body-he text-[10px] text-[var(--ink-soft)] mt-0.5">לפני 12 דקות</div>
+        </div>
+        <!-- new medal icon for the sibling-earned reference -->
+        <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--sky-pale);">
+          <svg width="28" height="28" viewBox="0 0 60 60"><use href="#em3-medal"/></svg>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>בית</div>
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>משימות</div>
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>חנות</div>
+        <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div>מסעות</div>
+        <div class="tab active"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 L18 8 L18 14 Q18 18 12 21 Q6 18 6 14 L6 8 Z"/></svg></div>תגים</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- /screens -->
+
+<!-- =================== HOME SCREEN CAMEO (showing icons in context) =================== -->
+<section class="mt-24 max-w-6xl mx-auto px-6" dir="ltr">
+  <div class="text-center mb-8">
+    <div class="display-en text-[12px] font-bold text-[var(--pink)] uppercase tracking-widest mb-1">Home · v3</div>
+    <h2 class="frame-h2">How the new icons live alongside the kept ones</h2>
+    <p class="body-en italic text-[13px] text-[var(--ink-soft)] mt-2 max-w-2xl mx-auto">Top of home shows the fox avatar (kept v2). Tasks below use the kept task icons. The campaign banner and sibling card now show the new flat-illustrated badge emblems. Coexistence works because the new icons are reserved for badge/reward surfaces and the kept icons cover utility/navigation.</p>
+  </div>
+
+  <div class="flex justify-center">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="statusbar"><span>9:41</span><span class="display-en-bold text-[14px] text-[var(--pink)]">Reco</span></div>
+
+        <div class="px-5 pt-3 pb-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full overflow-hidden"><svg viewBox="0 0 100 100"><use href="#av-fox"/></svg></div>
+            <div>
+              <div class="body-he text-[12px] text-[var(--ink-soft)]">בוקר טוב,</div>
+              <div class="display-he-bold text-[20px] text-[var(--ink)] leading-none">ליה</div>
+            </div>
+          </div>
+          <button class="w-11 h-11 rounded-full bg-white flex items-center justify-center relative shadow-sm" style="border: 1px solid var(--rule);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/></svg>
+            <span class="absolute -top-1 -right-1 w-5 h-5 rounded-full text-[10px] font-black text-white flex items-center justify-center" style="background: var(--pink);">2</span>
+          </button>
+        </div>
+
+        <!-- Stats cards (kept from v2) -->
+        <div class="px-5 grid grid-cols-2 gap-3">
+          <div class="card-soft p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="body-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold">משימות</div>
+              <div class="w-5 h-5 rounded flex items-center justify-center" style="background: var(--pink-pale);"><svg width="11" height="11" viewBox="0 0 60 60"><use href="#em3-star"/></svg></div>
+            </div>
+            <div class="num text-[28px] text-[var(--ink)] leading-none">65%</div>
+            <div class="body-he text-[10px] text-[var(--mint-dark)] mt-1 font-bold">▲ 12% מאתמול</div>
+          </div>
+          <div class="card-soft p-3">
+            <div class="flex items-center justify-between mb-1">
+              <div class="body-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold">מטבעות</div>
+              <svg width="16" height="16" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+            </div>
+            <div class="num text-[28px] text-[var(--ink)] leading-none">350</div>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] mt-1">150 להישג הבא</div>
+          </div>
+        </div>
+
+        <!-- Tasks timeline (task icons kept) -->
+        <div class="px-5 mt-5">
+          <div class="display-he-bold text-[16px] text-[var(--ink)] mb-3">המשימות של היום</div>
+          <div class="space-y-2">
+            <div class="card-mint p-3 flex items-center gap-3" style="background: var(--mint-soft); border-color: var(--mint-pale);">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: white;"><svg width="22" height="22" viewBox="0 0 40 40"><use href="#ic-bed"/></svg></div>
+              <div class="flex-1">
+                <div class="display-he-bold text-[14px] text-[var(--mint-dark)] line-through">לקום והציע מיטה</div>
+              </div>
+              <span class="pill pill-mint">+1 ¢</span>
+            </div>
+            <div class="card-soft p-3 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--yellow-pale);"><svg width="22" height="22" viewBox="0 0 40 40"><use href="#ic-food"/></svg></div>
+              <div class="flex-1">
+                <div class="display-he-bold text-[14px] text-[var(--ink)]">לאכול ארוחת בוקר</div>
+              </div>
+              <span class="pill pill-yellow">+5 ¢</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campaign banner with NEW v3 trophy emblem inside shield -->
+        <div class="mx-5 mt-5 card-yellow p-3 flex items-center gap-3" style="background: linear-gradient(135deg, var(--yellow-pale), white);">
+          <svg width="56" height="68" viewBox="0 0 100 120" class="flex-shrink-0">
+            <defs><linearGradient id="ch1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#FFF3D6"/><stop offset="50%" stop-color="#FFD75E"/><stop offset="100%" stop-color="#B58820"/></linearGradient></defs>
+            <path d="M 10 22 Q 10 14 18 14 L 82 14 Q 90 14 90 22 L 90 70 Q 90 92 50 113 Q 10 92 10 70 Z" fill="url(#ch1)" stroke="#B58820" stroke-width="1.5"/>
+            <path d="M 18 28 L 82 28 L 82 68 Q 82 82 50 99 Q 18 82 18 68 Z" fill="#FFF9E5"/>
+            <g transform="translate(20 38)"><use href="#em3-trophy"/></g>
+            <rect x="32" y="2" width="36" height="18" rx="3" fill="#B58820"/>
+            <text x="50" y="15" text-anchor="middle" font-size="9" font-family="Fredoka" font-weight="700" fill="white">2/3</text>
+          </svg>
+          <div class="flex-1 min-w-0 text-right">
+            <div class="display-en text-[10px] text-[var(--yellow-dark)] uppercase tracking-widest font-bold">קמפיין · אלופה</div>
+            <div class="display-he-bold text-[13px] text-[var(--ink)] leading-tight mt-0.5">3 ימים של מיטה ברצף</div>
+            <div class="body-he text-[11px] text-[var(--yellow-dark)] mt-0.5">תיכף תקבלי את הגביע!</div>
+          </div>
+        </div>
+
+        <!-- Sibling feed with NEW v3 medal emblem -->
+        <div class="mx-5 mt-3 mb-4 card-sky p-3 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full overflow-hidden"><svg viewBox="0 0 100 100"><use href="#av-bunny"/></svg></div>
+          <div class="flex-1 text-xs text-right">
+            <span class="display-he-bold text-[12px] text-[var(--ink)]">יעל</span>
+            <span class="body-he text-[var(--ink-soft)]"> זכתה ב</span>
+            <span class="display-he-bold text-[12px] text-[var(--sky-dark)]">מדליית קריאה!</span>
+            <div class="body-he text-[10px] text-[var(--ink-soft)] mt-0.5">לפני 12 דקות</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--sky-pale);">
+            <svg width="28" height="28" viewBox="0 0 60 60"><use href="#em3-medal"/></svg>
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+
+        <div class="tabbar">
+          <div class="tab active"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div>בית</div>
+          <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg></div>משימות</div>
+          <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/></svg></div>חנות</div>
+          <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div>מסעות</div>
+          <div class="tab"><div class="tab-icon-bg"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 L18 8 L18 14 Q18 18 12 21 Q6 18 6 14 L6 8 Z"/></svg></div>תגים</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =================== FOOTER =================== -->
+<footer class="mt-32 max-w-3xl mx-auto px-6 pb-16" dir="ltr">
+  <hr class="border-[var(--rule)] mb-12" />
+  <div class="display-en text-[12px] font-bold text-[var(--ink-soft)] uppercase tracking-widest mb-3">— concept 05 v3 notes —</div>
+  <h3 class="display-en-bold text-[28px] text-[var(--ink)] mb-6 leading-snug">The icon split, explicitly</h3>
+  <div class="grid grid-cols-2 gap-6 text-[15px]">
+    <div>
+      <div class="display-en-bold text-[15px] text-[var(--mint-dark)] mb-2">▲ KEPT (v2)</div>
+      <ul class="body-en text-[var(--ink-soft)] space-y-1.5 leading-relaxed list-none">
+        <li>· Fox + bunny character avatars</li>
+        <li>· Task icons (bed, tooth, food, shirt, camera)</li>
+        <li>· Gold coin icon (already in the right family)</li>
+        <li>· Tab bar line icons (utility, quiet)</li>
+        <li>· Status pills, progress bars, layout primitives</li>
+      </ul>
+    </div>
+    <div>
+      <div class="display-en-bold text-[15px] text-[var(--pink-dark)] mb-2">★ UPGRADED (v3)</div>
+      <ul class="body-en text-[var(--ink-soft)] space-y-1.5 leading-relaxed list-none">
+        <li>· 8 badge emblems → flat-illustrated multi-color</li>
+        <li>· 6 reward icons → flat-illustrated reward-pack style</li>
+        <li>· Shield inner panel → light pastel (was dark)</li>
+        <li>· Ribbon banner color → tints to badge's primary color</li>
+        <li>· Sibling-earned chip → uses the same upgraded emblems</li>
+      </ul>
+    </div>
+  </div>
+  <p class="body-en text-[16px] text-[var(--ink-soft)] leading-relaxed mt-6">
+    The principle is "spend illustration budget where the kid is staring." Tasks and avatars are part of daily flow — they should feel familiar and fast. Badges and rewards are <em>destinations</em> — the kid wants to look at them, show them, plan toward them. Those earn the production-grade flat-illustrated treatment.
+  </p>
+</footer>
+
+</main>
+
+</body>
+</html>

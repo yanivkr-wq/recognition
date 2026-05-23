@@ -1,0 +1,4 @@
+# Raw SQL migrations live in this directory.
+# 0001_init.sql lands here in sub-milestone 1b (the full 23-table schema).
+# 0002_seed_household.sql lands here too (install seed: household + parents + kids + 6 sample tasks + 6 sample rewards + 8 badges).
+# Each migration filename uses the pattern NNNN_short_description.sql and is tracked in __migrations.

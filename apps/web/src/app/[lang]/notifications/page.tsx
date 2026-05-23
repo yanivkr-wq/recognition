@@ -1,0 +1,211 @@
+/**
+ * Kid notifications surface (Lily's Fix 12b shell).
+ *
+ * Shows every bell-channel `notification_event` row targeting this kid,
+ * newest first, separated into "unread" (state='pending') and "earlier"
+ * (state='sent'). Each row gets a localized headline based on event_kind.
+ *
+ * Phase 8 will:
+ *   - Add the actual WhatsApp dispatcher tick.
+ *   - Add bell-polling endpoint for live counts.
+ *   - Add per-task-assignment reminders.
+ *   - Add quiet hours + rate limits.
+ *
+ * For now the bell already works end-to-end: Phase 7's hooks write the
+ * events, this page reads them, the "mark all read" action flips state.
+ */
+
+import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { and, desc, eq } from 'drizzle-orm';
+import { getDictionary, type Locale } from '@reco/shared/i18n';
+import { getDb, notificationEvent, kid as kidTable } from '@reco/db';
+import { isNull } from 'drizzle-orm';
+import { markAllReadAction } from '../../../lib/notifications/actions';
+import { BottomNav } from '../_components/bottom-nav';
+import { Avatar } from '../../../components/avatar';
+import { arrowBack } from '../../../lib/rtl';
+
+export const dynamic = 'force-dynamic';
+
+interface Row {
+  id: string;
+  eventKind: string;
+  state: string;
+  createdAt: Date;
+}
+
+export default async function NotificationsPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = await params;
+  const t = getDictionary(lang as Locale);
+  const hdrs = await headers();
+  const principal = hdrs.get('x-reco-principal');
+  if (principal !== 'kid') redirect(`/${lang}`);
+  const kidId = hdrs.get('x-reco-kid-id');
+  if (!kidId) redirect(`/${lang}/pick`);
+
+  const db = getDb();
+  const kRows = await db
+    .select({ name: kidTable.name, color: kidTable.color, avatarKey: kidTable.avatarKey })
+    .from(kidTable)
+    .where(and(eq(kidTable.id, kidId), isNull(kidTable.archivedAt)))
+    .limit(1);
+  const k = kRows[0];
+  if (!k) redirect(`/${lang}/pick`);
+
+  const rows: Row[] = (
+    await db
+      .select({
+        id: notificationEvent.id,
+        eventKind: notificationEvent.eventKind,
+        state: notificationEvent.state,
+        createdAt: notificationEvent.createdAt,
+      })
+      .from(notificationEvent)
+      .where(
+        and(
+          eq(notificationEvent.recipientKidId, kidId),
+          eq(notificationEvent.channel, 'bell'),
+        ),
+      )
+      .orderBy(desc(notificationEvent.createdAt))
+      .limit(100)
+  ).map((r) => ({
+    id: r.id,
+    eventKind: r.eventKind,
+    state: r.state,
+    createdAt: r.createdAt,
+  }));
+
+  const unread = rows.filter((r) => r.state === 'pending');
+  const earlier = rows.filter((r) => r.state !== 'pending');
+
+  const dateFmt = new Intl.DateTimeFormat(lang === 'he' ? 'he-IL' : 'en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'Asia/Jerusalem',
+  });
+
+  return (
+    <>
+    <main className="min-h-screen bg-bg pb-28">
+      <header className="px-5 pt-10 pb-3 flex items-center justify-between">
+        <a
+          href={`/${lang}/`}
+          className="text-sm text-ink-soft underline-offset-4 hover:underline"
+        >
+          {arrowBack(lang as 'he' | 'en')} {t.common.back}
+        </a>
+        <div className="flex items-center gap-2">
+          <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={32} />
+          <h1 className="text-base font-bold text-ink">{t.notifications.title}</h1>
+        </div>
+        <span className="w-12" aria-hidden />
+      </header>
+
+      {rows.length === 0 ? (
+        <section className="mx-5 mt-8 bg-card rounded-2xl border border-rule p-8 text-center">
+          <p className="font-bold text-ink">{t.notifications.empty}</p>
+          <p className="text-sm text-ink-soft mt-1">{t.notifications.emptyHint}</p>
+        </section>
+      ) : (
+        <>
+          {unread.length > 0 && (
+            <section className="mx-5 mt-4">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-xs uppercase tracking-wider text-pink-dark font-bold">
+                  {unread.length}
+                </h2>
+                <form action={markAllReadAction}>
+                  <button
+                    type="submit"
+                    className="text-xs text-pink-dark underline-offset-4 hover:underline font-bold"
+                  >
+                    {t.notifications.markAllRead}
+                  </button>
+                </form>
+              </div>
+              <ul className="space-y-2">
+                {unread.map((r) => (
+                  <EventRow key={r.id} row={r} t={t} dateFmt={dateFmt} unread />
+                ))}
+              </ul>
+            </section>
+          )}
+          {earlier.length > 0 && (
+            <section className="mx-5 mt-6">
+              <h2 className="text-xs uppercase tracking-wider text-ink-faded font-bold mb-2">
+                {earlier.length}
+              </h2>
+              <ul className="space-y-2">
+                {earlier.map((r) => (
+                  <EventRow key={r.id} row={r} t={t} dateFmt={dateFmt} unread={false} />
+                ))}
+              </ul>
+            </section>
+          )}
+        </>
+      )}
+    </main>
+    <BottomNav lang={lang as 'he' | 'en'} t={t} />
+    </>
+  );
+}
+
+function eventLabel(eventKind: string, t: ReturnType<typeof getDictionary>): string {
+  switch (eventKind) {
+    case 'campaign_completed':
+      return t.notifications.campaignCompleted;
+    case 'sibling_badge_earned':
+      return t.notifications.siblingBadge;
+    case 'streak_broken':
+      return t.notifications.streakBroken;
+    case 'streak_freeze_used':
+      return t.notifications.streakFreezeUsed;
+    case 'submission_approved':
+      return t.notifications.submissionApproved;
+    case 'submission_denied':
+      return t.notifications.submissionDenied;
+    case 'redemption_received':
+      return t.notifications.redemptionReceived;
+    case 'redemption_refunded':
+      return t.notifications.redemptionRefunded;
+    case 'admin_wallet_adjustment':
+      return t.notifications.adminWalletAdjustment;
+    default:
+      return eventKind;
+  }
+}
+
+function EventRow({
+  row,
+  t,
+  dateFmt,
+  unread,
+}: {
+  row: Row;
+  t: ReturnType<typeof getDictionary>;
+  dateFmt: Intl.DateTimeFormat;
+  unread: boolean;
+}) {
+  return (
+    <li
+      className={`rounded-2xl border p-3 flex items-center justify-between gap-3 ${
+        unread ? 'bg-pink-soft border-pink-pale' : 'bg-card border-rule'
+      }`}
+    >
+      <p className={`text-sm ${unread ? 'font-bold text-ink' : 'text-ink-soft'} truncate`}>
+        {eventLabel(row.eventKind, t)}
+      </p>
+      <span className="text-[11px] text-ink-faded num shrink-0" dir="ltr">
+        {dateFmt.format(new Date(row.createdAt))}
+      </span>
+    </li>
+  );
+}

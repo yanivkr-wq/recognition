@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Brandbook v1 · Visual Companion</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Heebo:wght@300;400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #FF6B9D; --pink-dark: #E94B7F; --pink-pale: #FFE0EB; --pink-soft: #FFF0F6;
+    --mint: #4ED9A5; --mint-dark: #2EB683; --mint-pale: #D6F5E8; --mint-soft: #EBFAF3;
+    --sky: #6EC9F4; --sky-dark: #3DA8DD; --sky-pale: #DBEFFB; --sky-soft: #EDF6FD;
+    --lavender: #B59FE5; --lavender-dark: #8B72CE; --lavender-pale: #ECE4F8; --lavender-soft: #F6F1FC;
+    --yellow: #FFD75E; --yellow-dark: #E8B927; --yellow-pale: #FFF3D6;
+    --peach: #FF9F7A; --peach-pale: #FFE5D8;
+    --ink: #2D2A4A; --ink-soft: #6E6B89; --ink-faded: #A8A6BB;
+    --rule: #EFEDF5; --rule-soft: #F7F5FA;
+    --bg: #FAF8F5; --card: #FFFFFF;
+  }
+  html, body { background: var(--bg); color: var(--ink); font-family: 'Quicksand', 'Heebo', sans-serif; min-height: 100vh; }
+  .display-en-bold { font-family: 'Fredoka', sans-serif; font-weight: 700; letter-spacing: -.02em; }
+  .display-en { font-family: 'Fredoka', sans-serif; font-weight: 600; letter-spacing: -.01em; }
+  .display-he-bold { font-family: 'Heebo', sans-serif; font-weight: 900; letter-spacing: -.02em; }
+  .display-he { font-family: 'Heebo', sans-serif; font-weight: 800; }
+  .body-he { font-family: 'Heebo', sans-serif; font-weight: 500; }
+  .body-en { font-family: 'Quicksand', sans-serif; font-weight: 600; }
+  .num { font-family: 'Heebo', sans-serif; font-weight: 800; font-feature-settings: "tnum"; }
+
+  .section-card { background: white; border-radius: 24px; padding: 32px; border: 1px solid var(--rule); box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 4px 12px rgba(45,42,74,.04); }
+  .section-h { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -.02em; color: var(--ink); }
+  .section-sub { font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 14px; color: var(--ink-soft); letter-spacing: .02em; text-transform: uppercase; }
+
+  .swatch-card { border-radius: 16px; padding: 16px; background: white; border: 1px solid var(--rule); }
+  .swatch-chip { width: 100%; aspect-ratio: 2/1; border-radius: 12px; box-shadow: 0 2px 6px rgba(45,42,74,.1); margin-bottom: 12px; }
+  .swatch-name { font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 13px; color: var(--ink); }
+  .swatch-hex { font-family: 'Heebo', sans-serif; font-weight: 600; font-size: 11px; color: var(--ink-soft); letter-spacing: .04em; }
+  .swatch-token { font-family: monospace; font-size: 10px; color: var(--ink-faded); margin-top: 2px; }
+  .swatch-use { font-family: 'Quicksand', sans-serif; font-weight: 500; font-size: 11px; color: var(--ink-soft); margin-top: 8px; line-height: 1.4; }
+
+  /* Components */
+  .card-soft { background: white; border-radius: 20px; box-shadow: 0 1px 0 rgba(255,255,255,.5) inset, 0 4px 12px rgba(45,42,74,.06); border: 1px solid var(--rule); }
+  .card-pink-soft { background: var(--pink-soft); border: 1px solid var(--pink-pale); border-radius: 20px; }
+  .card-mint-soft { background: var(--mint-soft); border: 1px solid var(--mint-pale); border-radius: 20px; }
+  .card-sky-soft { background: var(--sky-soft); border: 1px solid var(--sky-pale); border-radius: 20px; }
+  .card-yellow-soft { background: var(--yellow-pale); border: 1px solid #FFE9A8; border-radius: 20px; }
+  .card-lavender-soft { background: var(--lavender-soft); border: 1px solid var(--lavender-pale); border-radius: 20px; }
+
+  .btn-pink { background: var(--pink); color: white; border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 800; box-shadow: 0 4px 12px rgba(255,107,157,.35); border: none; padding: 10px 20px; font-size: 14px; transition: transform .15s; }
+  .btn-pink:hover { transform: translateY(-1px); }
+  .btn-mint { background: var(--mint); color: white; border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 800; box-shadow: 0 4px 12px rgba(78,217,165,.3); border: none; padding: 10px 20px; font-size: 14px; }
+  .btn-white { background: white; color: var(--ink); border: 1.5px solid var(--rule); border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 700; padding: 10px 20px; font-size: 14px; box-shadow: 0 1px 2px rgba(45,42,74,.05); }
+  .btn-ink { background: var(--ink); color: white; border-radius: 999px; font-family: 'Heebo', sans-serif; font-weight: 700; padding: 10px 20px; font-size: 14px; border: none; }
+
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 999px; font-family: 'Heebo', sans-serif; font-size: 11px; font-weight: 700; }
+  .pill-mint { background: var(--mint-pale); color: var(--mint-dark); }
+  .pill-pink { background: var(--pink-pale); color: var(--pink-dark); }
+  .pill-sky { background: var(--sky-pale); color: var(--sky-dark); }
+  .pill-yellow { background: var(--yellow-pale); color: var(--yellow-dark); }
+  .pill-lavender { background: var(--lavender-pale); color: var(--lavender-dark); }
+  .pill-grey { background: var(--rule); color: var(--ink-soft); }
+
+  /* Embroidered patch */
+  .patch { position: relative; display: flex; align-items: center; justify-content: center; }
+  .patch-bg { position: absolute; inset: 0; border-radius: 50%; }
+  .patch-emblem { position: relative; z-index: 2; width: 56%; }
+  .patch-count {
+    position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+    background: white; border-radius: 999px; padding: 3px 12px;
+    font-family: 'Fredoka', sans-serif; font-weight: 700; font-size: 11px; color: var(--ink);
+    box-shadow: 0 2px 6px rgba(45,42,74,.15); z-index: 3;
+  }
+
+  .anatomy-label {
+    font-family: 'Quicksand', sans-serif; font-weight: 600; font-size: 11px; color: var(--ink-soft);
+    background: white; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--rule);
+  }
+
+  .code-block {
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    background: #1a1a2e; color: #e0e0e0;
+    padding: 12px 16px; border-radius: 12px; font-size: 12px;
+    overflow-x: auto;
+  }
+
+  .do-card { background: var(--mint-soft); border: 1px solid var(--mint-pale); border-radius: 16px; padding: 16px; }
+  .dont-card { background: var(--pink-soft); border: 1px solid var(--pink-pale); border-radius: 16px; padding: 16px; }
+  .check { color: var(--mint-dark); font-weight: 900; }
+  .cross { color: var(--pink-dark); font-weight: 900; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- ================== SVG ICON LIBRARY ================== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Avatars -->
+    <symbol id="av-fox" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#FFE5D8"/>
+      <path d="M 22 38 L 30 18 L 42 36 Z" fill="#FF9F7A"/>
+      <path d="M 58 36 L 70 18 L 78 38 Z" fill="#FF9F7A"/>
+      <path d="M 27 33 L 32 23 L 37 33 Z" fill="#FFCCB0"/>
+      <path d="M 63 33 L 68 23 L 73 33 Z" fill="#FFCCB0"/>
+      <ellipse cx="50" cy="58" rx="30" ry="28" fill="#FF9F7A"/>
+      <ellipse cx="50" cy="68" rx="20" ry="15" fill="#FFE5D8"/>
+      <ellipse cx="32" cy="63" rx="5" ry="3" fill="#FFB89A" opacity=".6"/>
+      <ellipse cx="68" cy="63" rx="5" ry="3" fill="#FFB89A" opacity=".6"/>
+      <ellipse cx="40" cy="55" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <ellipse cx="60" cy="55" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <circle cx="41" cy="53" r="1" fill="white"/>
+      <circle cx="61" cy="53" r="1" fill="white"/>
+      <ellipse cx="50" cy="64" rx="3" ry="2.2" fill="#2D2A4A"/>
+      <path d="M 44 70 Q 50 75 56 70" stroke="#2D2A4A" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="av-bunny" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="50" fill="#DBEFFB"/>
+      <ellipse cx="38" cy="22" rx="6" ry="16" fill="#6EC9F4"/>
+      <ellipse cx="62" cy="22" rx="6" ry="16" fill="#6EC9F4"/>
+      <ellipse cx="38" cy="24" rx="3" ry="11" fill="#A6DFFA"/>
+      <ellipse cx="62" cy="24" rx="3" ry="11" fill="#A6DFFA"/>
+      <ellipse cx="50" cy="56" rx="28" ry="26" fill="#6EC9F4"/>
+      <ellipse cx="33" cy="62" rx="6" ry="4" fill="#FF9F7A" opacity=".4"/>
+      <ellipse cx="67" cy="62" rx="6" ry="4" fill="#FF9F7A" opacity=".4"/>
+      <ellipse cx="40" cy="53" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <ellipse cx="60" cy="53" rx="3.5" ry="4.5" fill="#2D2A4A"/>
+      <circle cx="41" cy="51" r="1" fill="white"/>
+      <circle cx="61" cy="51" r="1" fill="white"/>
+      <path d="M 47 62 L 53 62 L 50 66 Z" fill="#FF6B9D"/>
+      <path d="M 50 66 L 50 69" stroke="#2D2A4A" stroke-width="1.8"/>
+      <path d="M 50 69 Q 46 72 43 70" stroke="#2D2A4A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M 50 69 Q 54 72 57 70" stroke="#2D2A4A" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- Coin -->
+    <symbol id="ic-coin" viewBox="0 0 32 32">
+      <circle cx="16" cy="16" r="14" fill="#FFD75E" stroke="#E8B927" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="10" fill="#FFE99A" stroke="#E8B927" stroke-width=".8"/>
+      <text x="16" y="21" text-anchor="middle" fill="#9C7400" font-family="Fredoka" font-weight="700" font-size="13">¢</text>
+    </symbol>
+
+    <!-- Task icons -->
+    <symbol id="ic-bed" viewBox="0 0 40 40">
+      <path d="M 4 30 L 4 22 Q 4 18 8 18 L 32 18 Q 36 18 36 22 L 36 30" stroke="#2D2A4A" stroke-width="2.5" fill="white" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="8" y="22" width="10" height="4" rx="2" fill="#FF9F7A"/>
+      <line x1="4" y1="30" x2="4" y2="34" stroke="#2D2A4A" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="36" y1="30" x2="36" y2="34" stroke="#2D2A4A" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="4" y1="30" x2="36" y2="30" stroke="#2D2A4A" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="ic-tooth" viewBox="0 0 40 40">
+      <rect x="6" y="22" width="14" height="6" rx="1" fill="#6EC9F4" stroke="#2D2A4A" stroke-width="2" stroke-linejoin="round"/>
+      <line x1="8" y1="22" x2="8" y2="19" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="11" y1="22" x2="11" y2="18" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="14" y1="22" x2="14" y2="19" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="17" y1="22" x2="17" y2="18" stroke="#2D2A4A" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="20" y="23" width="14" height="4" rx="2" fill="white" stroke="#2D2A4A" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-food" viewBox="0 0 40 40">
+      <path d="M 8 24 Q 4 18 10 14 Q 16 11 20 14 Q 24 11 30 14 Q 36 18 32 24 Q 28 28 24 26 Q 20 28 16 26 Q 12 28 8 24 Z" fill="#FFD75E" stroke="#9C7400" stroke-width="2" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-shirt" viewBox="0 0 40 40">
+      <path d="M 14 8 L 8 12 L 4 20 L 10 24 L 12 22 L 12 34 L 28 34 L 28 22 L 30 24 L 36 20 L 32 12 L 26 8 L 22 12 Q 20 14 18 12 Z" fill="#FF6B9D" stroke="#2D2A4A" stroke-width="2" stroke-linejoin="round"/>
+      <path d="M 14 8 L 20 14 L 26 8" stroke="#2D2A4A" stroke-width="2" fill="none" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="ic-cam" viewBox="0 0 40 40">
+      <rect x="4" y="12" width="32" height="22" rx="3" fill="white" stroke="#2D2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="M 13 12 L 15 8 L 25 8 L 27 12" fill="white" stroke="#2D2A4A" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="20" cy="22" r="6" fill="#6EC9F4" stroke="#2D2A4A" stroke-width="2"/>
+      <circle cx="20" cy="22" r="3" fill="white"/>
+    </symbol>
+
+    <!-- Badge emblems -->
+    <symbol id="em-crown" viewBox="0 0 60 60">
+      <path d="M 8 22 L 16 36 L 22 22 L 30 38 L 38 22 L 44 36 L 52 22 L 50 50 L 10 50 Z" fill="#FFD75E"/>
+      <rect x="10" y="48" width="40" height="4" fill="#E8B927"/>
+      <circle cx="16" cy="36" r="3" fill="#FF6B9D"/>
+      <circle cx="30" cy="38" r="3.5" fill="#FF6B9D"/>
+      <circle cx="44" cy="36" r="3" fill="#FF6B9D"/>
+      <circle cx="14" cy="22" r="2" fill="#FFE99A"/>
+      <circle cx="30" cy="22" r="2" fill="#FFE99A"/>
+      <circle cx="46" cy="22" r="2" fill="#FFE99A"/>
+    </symbol>
+    <symbol id="em-trophy" viewBox="0 0 60 60">
+      <path d="M 12 14 Q 4 18 8 28 Q 10 32 14 32" stroke="#FFD75E" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 48 14 Q 56 18 52 28 Q 50 32 46 32" stroke="#FFD75E" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M 12 10 L 48 10 L 46 36 Q 44 42 30 42 Q 16 42 14 36 Z" fill="#FFD75E"/>
+      <path d="M 30 16 L 33 24 L 41 24 L 35 29 L 37 38 L 30 33 L 23 38 L 25 29 L 19 24 L 27 24 Z" fill="#E8B927"/>
+      <rect x="26" y="42" width="8" height="6" fill="#FFD75E"/>
+      <rect x="18" y="48" width="24" height="6" rx="1" fill="#8B5E3C"/>
+    </symbol>
+    <symbol id="em-medal" viewBox="0 0 60 60">
+      <path d="M 22 4 L 18 24 L 26 26 L 30 8 Z" fill="#FF6B9D"/>
+      <path d="M 38 4 L 42 24 L 34 26 L 30 8 Z" fill="#6EC9F4"/>
+      <circle cx="30" cy="38" r="15" fill="#FFD75E"/>
+      <circle cx="30" cy="38" r="11" fill="#FFE99A"/>
+      <path d="M 30 30 L 32 36 L 38 36 L 33 40 L 35 46 L 30 42 L 25 46 L 27 40 L 22 36 L 28 36 Z" fill="#E8B927"/>
+    </symbol>
+    <symbol id="em-diamond" viewBox="0 0 60 60">
+      <path d="M 18 18 L 42 18 L 50 28 L 30 52 L 10 28 Z" fill="#6EC9F4"/>
+      <path d="M 18 18 L 30 28 L 42 18" fill="#A6DFFA"/>
+      <path d="M 10 28 L 30 28 L 30 52" fill="#3DA8DD"/>
+      <path d="M 30 28 L 30 52 L 50 28" fill="#6EC9F4"/>
+    </symbol>
+    <symbol id="em-cert" viewBox="0 0 60 60">
+      <rect x="14" y="6" width="32" height="44" rx="2" fill="white" stroke="#D6D4DC" stroke-width="1.5"/>
+      <line x1="20" y1="14" x2="40" y2="14" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="19" x2="36" y2="19" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <line x1="20" y1="24" x2="38" y2="24" stroke="#D6D4DC" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="36" cy="40" r="7" fill="#FFD75E" stroke="#E8B927" stroke-width="1"/>
+      <circle cx="36" cy="40" r="4" fill="#FFE99A"/>
+      <path d="M 30 40 L 27 56 L 32 52 L 36 56 L 40 52 L 45 56 L 42 40 Z" fill="#E94B7F"/>
+    </symbol>
+    <symbol id="em-gift" viewBox="0 0 60 60">
+      <rect x="8" y="24" width="44" height="28" rx="2" fill="#FFD75E"/>
+      <rect x="27" y="24" width="6" height="28" fill="#E94B7F"/>
+      <rect x="8" y="34" width="44" height="6" fill="#E94B7F"/>
+      <path d="M 30 24 Q 18 14 22 8 Q 28 6 30 18 Q 32 6 38 8 Q 42 14 30 24 Z" fill="#E94B7F"/>
+      <circle cx="30" cy="22" r="3" fill="#FF6B9D"/>
+    </symbol>
+    <symbol id="em-star" viewBox="0 0 60 60">
+      <path d="M 30 6 L 37 22 L 54 24 L 41 35 L 45 52 L 30 43 L 15 52 L 19 35 L 6 24 L 23 22 Z" fill="#FFD75E"/>
+      <path d="M 30 16 L 34 26 L 44 27 L 36 33 L 38 42 L 30 37 L 22 42 L 24 33 L 16 27 L 26 26 Z" fill="#FFE99A" opacity=".7"/>
+    </symbol>
+    <symbol id="em-torch" viewBox="0 0 60 60">
+      <rect x="26" y="32" width="8" height="22" rx="1" fill="#8B5E3C"/>
+      <rect x="24" y="52" width="12" height="4" rx="1" fill="#5C3F25"/>
+      <path d="M 20 22 L 40 22 L 38 34 L 22 34 Z" fill="#B5C0CC"/>
+      <path d="M 30 2 Q 18 14 18 22 Q 18 30 24 30 Q 20 22 26 16 Q 22 28 30 28 Q 38 28 34 16 Q 40 22 36 30 Q 42 30 42 22 Q 42 14 30 2 Z" fill="#FF6B9D"/>
+      <path d="M 30 10 Q 24 16 26 22 Q 30 24 30 22 Q 32 16 30 10 Z" fill="#FFD75E"/>
+    </symbol>
+
+    <!-- Reward icons -->
+    <symbol id="rw-candy" viewBox="0 0 80 80">
+      <circle cx="40" cy="40" r="20" fill="#FF6B9D"/>
+      <path d="M 28 32 Q 40 36 52 32" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M 26 40 Q 40 44 54 40" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M 28 48 Q 40 52 52 48" stroke="white" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <path d="M 20 32 L 12 24 L 16 36 L 8 44 L 18 40 L 20 48 Z" fill="#FF6B9D"/>
+      <path d="M 60 32 L 68 24 L 64 36 L 72 44 L 62 40 L 60 48 Z" fill="#FF6B9D"/>
+    </symbol>
+    <symbol id="rw-phone" viewBox="0 0 80 80">
+      <rect x="22" y="10" width="36" height="60" rx="6" fill="#6EC9F4"/>
+      <rect x="25" y="16" width="30" height="46" rx="2" fill="white"/>
+      <circle cx="40" cy="38" r="14" fill="#FF6B9D"/>
+      <path d="M 36 30 L 36 46 L 50 38 Z" fill="white"/>
+    </symbol>
+    <symbol id="rw-ice" viewBox="0 0 80 80">
+      <circle cx="40" cy="8" r="3" fill="#E94B7F"/>
+      <path d="M 40 6 Q 43 2 46 4" stroke="#2EB683" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <circle cx="40" cy="22" r="14" fill="#FF6B9D"/>
+      <circle cx="40" cy="35" r="15" fill="#4ED9A5"/>
+      <path d="M 24 42 L 40 74 L 56 42 Z" fill="#FFD75E"/>
+    </symbol>
+    <symbol id="rw-pillow" viewBox="0 0 80 80">
+      <path d="M 56 10 Q 64 18 58 30 Q 50 22 56 10 Z" fill="#FFD75E"/>
+      <rect x="10" y="44" width="60" height="26" rx="13" fill="#B59FE5"/>
+      <text x="38" y="60" font-family="Fredoka" font-size="18" font-weight="700" fill="white">Z</text>
+    </symbol>
+    <symbol id="rw-movie" viewBox="0 0 80 80">
+      <path d="M 12 18 L 68 18 L 68 34 Q 62 36 62 40 Q 62 44 68 46 L 68 62 L 12 62 L 12 46 Q 18 44 18 40 Q 18 36 12 34 Z" fill="#FF6B9D"/>
+      <line x1="40" y1="18" x2="40" y2="62" stroke="white" stroke-width="2" stroke-dasharray="3 3"/>
+      <path d="M 26 28 L 28 34 L 34 34 L 29 38 L 31 44 L 26 40 L 21 44 L 23 38 L 18 34 L 24 34 Z" fill="white"/>
+    </symbol>
+    <symbol id="rw-game" viewBox="0 0 80 80">
+      <path d="M 6 38 Q 6 22 22 22 L 58 22 Q 74 22 74 38 L 72 58 Q 70 66 60 66 Q 54 66 52 60 L 50 54 L 30 54 L 28 60 Q 26 66 20 66 Q 10 66 8 58 Z" fill="#9D5BD4"/>
+      <rect x="14" y="36" width="14" height="4" rx="1" fill="#2D2A4A"/>
+      <rect x="19" y="31" width="4" height="14" rx="1" fill="#2D2A4A"/>
+      <circle cx="58" cy="32" r="3.5" fill="#FFD75E"/>
+      <circle cx="64" cy="40" r="3.5" fill="#FF6B9D"/>
+      <circle cx="58" cy="48" r="3.5" fill="#4ED9A5"/>
+      <circle cx="52" cy="40" r="3.5" fill="#6EC9F4"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- =============================================================== -->
+<!-- HEADER -->
+<!-- =============================================================== -->
+<header class="max-w-6xl mx-auto px-6 pt-20 pb-12" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="display-en text-[12px] font-bold text-[var(--pink)] uppercase tracking-widest">Brandbook · v1.0</span>
+    <span class="body-en text-[12px] text-[var(--ink-soft)]">— locked 2026-05-21 · visual companion to BRANDBOOK.md</span>
+  </div>
+  <h1 class="display-en-bold text-[88px] leading-[0.9] text-[var(--ink)] mb-6">Reco<span class="text-[var(--pink)]">.</span></h1>
+  <p class="body-en text-[18px] text-[var(--ink-soft)] max-w-3xl leading-relaxed">
+    The locked design system for Reco. Plush concept. Embroidered Patch badge architecture. Every component, color, font, icon, and rule on a single scroll. Read <a href="./BRANDBOOK.md" class="text-[var(--pink)] underline">BRANDBOOK.md</a> for the canonical specifications — this page is the showroom.
+  </p>
+</header>
+
+<!-- =============================================================== -->
+<!-- COLOR SYSTEM -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card">
+    <div class="mb-2"><span class="section-sub">§2 · Color system</span></div>
+    <h2 class="section-h mb-8">Palette</h2>
+
+    <!-- Brand row -->
+    <div class="mb-8">
+      <h3 class="display-en-bold text-[18px] text-[var(--pink)] uppercase tracking-widest mb-4">Brand · Pink</h3>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FF6B9D"></div><div class="swatch-name">Pink</div><div class="swatch-hex">#FF6B9D</div><div class="swatch-token">--pink</div><div class="swatch-use">Primary CTA, brand mark</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#E94B7F"></div><div class="swatch-name">Pink dark</div><div class="swatch-hex">#E94B7F</div><div class="swatch-token">--pink-dark</div><div class="swatch-use">Hover, shadow, denial</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FFE0EB"></div><div class="swatch-name">Pink pale</div><div class="swatch-hex">#FFE0EB</div><div class="swatch-token">--pink-pale</div><div class="swatch-use">Container background</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FFF0F6"></div><div class="swatch-name">Pink soft</div><div class="swatch-hex">#FFF0F6</div><div class="swatch-token">--pink-soft</div><div class="swatch-use">Card tint</div></div>
+      </div>
+    </div>
+
+    <!-- Kid identity -->
+    <div class="mb-8">
+      <h3 class="display-en-bold text-[18px] text-[var(--peach)] uppercase tracking-widest mb-4">Kid identity</h3>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FF9F7A"></div><div class="swatch-name">Peach · Lia</div><div class="swatch-hex">#FF9F7A</div><div class="swatch-token">--peach</div><div class="swatch-use">Lia's identity color</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FFE5D8"></div><div class="swatch-name">Peach pale</div><div class="swatch-hex">#FFE5D8</div><div class="swatch-token">--peach-pale</div><div class="swatch-use">Lia avatar bg, soft tint</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#6EC9F4"></div><div class="swatch-name">Sky · Yael</div><div class="swatch-hex">#6EC9F4</div><div class="swatch-token">--sky</div><div class="swatch-use">Yael's identity color</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#DBEFFB"></div><div class="swatch-name">Sky pale</div><div class="swatch-hex">#DBEFFB</div><div class="swatch-token">--sky-pale</div><div class="swatch-use">Yael avatar bg, soft tint</div></div>
+      </div>
+    </div>
+
+    <!-- Semantic row -->
+    <div class="mb-8">
+      <h3 class="display-en-bold text-[18px] text-[var(--mint-dark)] uppercase tracking-widest mb-4">Semantic</h3>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="swatch-card"><div class="swatch-chip" style="background:#4ED9A5"></div><div class="swatch-name">Mint · Success</div><div class="swatch-hex">#4ED9A5</div><div class="swatch-token">--mint</div><div class="swatch-use">Completed, received</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FFD75E"></div><div class="swatch-name">Yellow · Coins</div><div class="swatch-hex">#FFD75E</div><div class="swatch-token">--yellow</div><div class="swatch-use">Currency, highlights</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#B59FE5"></div><div class="swatch-name">Lavender · Campaigns</div><div class="swatch-hex">#B59FE5</div><div class="swatch-token">--lavender</div><div class="swatch-use">Long-term, magic</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#2D2A4A"></div><div class="swatch-name">Ink · Text</div><div class="swatch-hex">#2D2A4A</div><div class="swatch-token">--ink</div><div class="swatch-use">Primary text, dark panels</div></div>
+      </div>
+    </div>
+
+    <!-- Surfaces -->
+    <div class="mb-4">
+      <h3 class="display-en-bold text-[18px] text-[var(--ink-soft)] uppercase tracking-widest mb-4">Surfaces</h3>
+      <div class="grid grid-cols-4 gap-4">
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FAF8F5; border: 1px solid #EFEDF5;"></div><div class="swatch-name">Background</div><div class="swatch-hex">#FAF8F5</div><div class="swatch-token">--bg</div><div class="swatch-use">App-level bg · NEVER pure white</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#FFFFFF; border: 1px solid #EFEDF5;"></div><div class="swatch-name">Card</div><div class="swatch-hex">#FFFFFF</div><div class="swatch-token">--card</div><div class="swatch-use">Cards, sheets, modals</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#6E6B89"></div><div class="swatch-name">Ink soft</div><div class="swatch-hex">#6E6B89</div><div class="swatch-token">--ink-soft</div><div class="swatch-use">Secondary text</div></div>
+        <div class="swatch-card"><div class="swatch-chip" style="background:#A8A6BB"></div><div class="swatch-name">Ink faded</div><div class="swatch-hex">#A8A6BB</div><div class="swatch-token">--ink-faded</div><div class="swatch-use">Tertiary, disabled, placeholder</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- TYPOGRAPHY -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card">
+    <div class="mb-2"><span class="section-sub">§3 · Typography</span></div>
+    <h2 class="section-h mb-8">Typeface system</h2>
+
+    <div class="grid grid-cols-2 gap-8 mb-8">
+      <div>
+        <div class="display-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest mb-2 font-bold">Latin · Fredoka</div>
+        <div class="border-r-4 border-[var(--pink)] pr-6 ps-6">
+          <div class="display-en-bold text-[72px] text-[var(--ink)] leading-[0.95]">Reco</div>
+          <div class="display-en-bold text-[28px] text-[var(--ink)] mt-3">Your tokens · ready</div>
+          <div class="display-en text-[18px] text-[var(--ink-soft)] mt-2">Get your <span class="display-en-bold">tokens</span> today</div>
+          <div class="body-en text-[14px] text-[var(--ink-soft)] mt-4">Fredoka 700 · 600 · 500 · weight axis</div>
+        </div>
+      </div>
+      <div dir="rtl">
+        <div class="display-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest mb-2 font-bold">Hebrew · Heebo</div>
+        <div class="border-r-4 border-[var(--sky)] pl-6 ps-6">
+          <div class="display-he-bold text-[72px] text-[var(--ink)] leading-[0.95]">היי, ליה</div>
+          <div class="display-he-bold text-[28px] text-[var(--ink)] mt-3">המטבעות שלך מחכים</div>
+          <div class="display-he text-[18px] text-[var(--ink-soft)] mt-2">קבלי את <span class="display-he-bold">המטבעות</span> שלך</div>
+          <div class="body-he text-[14px] text-[var(--ink-soft)] mt-4">Heebo 900 · 800 · 500 · weight axis</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-[var(--rule)] pt-6">
+      <h3 class="display-en-bold text-[16px] text-[var(--ink)] mb-4">Type scale</h3>
+      <div class="grid grid-cols-2 gap-x-12 gap-y-3" dir="ltr">
+        <div class="flex items-baseline gap-4"><span class="display-en-bold text-[40px] leading-none">40</span><span class="body-en text-[12px] text-[var(--ink-soft)]">display headline (kid screens)</span></div>
+        <div class="flex items-baseline gap-4"><span class="display-en-bold text-[28px] leading-none">28</span><span class="body-en text-[12px] text-[var(--ink-soft)]">display secondary</span></div>
+        <div class="flex items-baseline gap-4"><span class="display-en-bold text-[20px] leading-none">20</span><span class="body-en text-[12px] text-[var(--ink-soft)]">page title</span></div>
+        <div class="flex items-baseline gap-4"><span class="display-en-bold text-[16px] leading-none">16</span><span class="body-en text-[12px] text-[var(--ink-soft)]">section header</span></div>
+        <div class="flex items-baseline gap-4"><span class="body-en text-[14px] leading-none font-semibold">14</span><span class="body-en text-[12px] text-[var(--ink-soft)]">body emphasis</span></div>
+        <div class="flex items-baseline gap-4"><span class="body-en text-[13px] leading-none">13</span><span class="body-en text-[12px] text-[var(--ink-soft)]">body</span></div>
+        <div class="flex items-baseline gap-4"><span class="body-en text-[11px] leading-none">11</span><span class="body-en text-[12px] text-[var(--ink-soft)]">caption · pill</span></div>
+        <div class="flex items-baseline gap-4"><span class="num text-[44px] leading-none">42</span><span class="body-en text-[12px] text-[var(--ink-soft)]">wallet number (tabular)</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- ICONOGRAPHY -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card">
+    <div class="mb-2"><span class="section-sub">§4 · Iconography</span></div>
+    <h2 class="section-h mb-8">Five icon families</h2>
+
+    <!-- Family 1 -->
+    <div class="mb-10">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="display-en-bold text-[14px] text-[var(--pink)] uppercase tracking-widest">Family 1</span>
+        <h3 class="display-en-bold text-[20px] text-[var(--ink)]">Character avatars</h3>
+        <span class="body-en text-[12px] text-[var(--ink-soft)] italic">· identity contexts only · hand-rolled SVG</span>
+      </div>
+      <div class="flex gap-8 items-center">
+        <div class="text-center">
+          <div class="w-24 h-24 rounded-full overflow-hidden shadow-md mb-3"><svg viewBox="0 0 100 100"><use href="#av-fox"/></svg></div>
+          <div class="display-en-bold text-[13px] text-[var(--ink)]">Lia · Fox</div>
+          <div class="swatch-token">av-fox</div>
+        </div>
+        <div class="text-center">
+          <div class="w-24 h-24 rounded-full overflow-hidden shadow-md mb-3"><svg viewBox="0 0 100 100"><use href="#av-bunny"/></svg></div>
+          <div class="display-en-bold text-[13px] text-[var(--ink)]">Yael · Bunny</div>
+          <div class="swatch-token">av-bunny</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Family 2 -->
+    <div class="mb-10">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="display-en-bold text-[14px] text-[var(--mint-dark)] uppercase tracking-widest">Family 2</span>
+        <h3 class="display-en-bold text-[20px] text-[var(--ink)]">Task icons</h3>
+        <span class="body-en text-[12px] text-[var(--ink-soft)] italic">· utility · flat-illustrated + ink line · hand-rolled</span>
+      </div>
+      <div class="grid grid-cols-5 gap-4">
+        <div class="text-center"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-2" style="background: var(--mint-soft);"><svg width="40" height="40" viewBox="0 0 40 40"><use href="#ic-bed"/></svg></div><div class="display-en text-[12px]">Bed</div><div class="swatch-token">ic-bed</div></div>
+        <div class="text-center"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-2" style="background: var(--sky-soft);"><svg width="40" height="40" viewBox="0 0 40 40"><use href="#ic-tooth"/></svg></div><div class="display-en text-[12px]">Toothbrush</div><div class="swatch-token">ic-tooth</div></div>
+        <div class="text-center"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-2" style="background: var(--yellow-pale);"><svg width="40" height="40" viewBox="0 0 40 40"><use href="#ic-food"/></svg></div><div class="display-en text-[12px]">Breakfast</div><div class="swatch-token">ic-food</div></div>
+        <div class="text-center"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-2" style="background: var(--pink-soft);"><svg width="40" height="40" viewBox="0 0 40 40"><use href="#ic-shirt"/></svg></div><div class="display-en text-[12px]">Shirt</div><div class="swatch-token">ic-shirt</div></div>
+        <div class="text-center"><div class="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-2" style="background: var(--lavender-soft);"><svg width="40" height="40" viewBox="0 0 40 40"><use href="#ic-cam"/></svg></div><div class="display-en text-[12px]">Camera</div><div class="swatch-token">ic-cam</div></div>
+      </div>
+    </div>
+
+    <!-- Family 3 -->
+    <div class="mb-10">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="display-en-bold text-[14px] text-[var(--yellow-dark)] uppercase tracking-widest">Family 3</span>
+        <h3 class="display-en-bold text-[20px] text-[var(--ink)]">Badge emblems</h3>
+        <span class="body-en text-[12px] text-[var(--ink-soft)] italic">· flat-illustrated multi-color · production sourced from licensed pack (Phase 9)</span>
+      </div>
+      <div class="grid grid-cols-8 gap-3">
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--pink-soft);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-crown"/></svg></div><div class="display-en text-[10px]">Crown</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--yellow-pale);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-trophy"/></svg></div><div class="display-en text-[10px]">Trophy</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--sky-soft);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-medal"/></svg></div><div class="display-en text-[10px]">Medal</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--sky-soft);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-diamond"/></svg></div><div class="display-en text-[10px]">Diamond</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--peach-pale);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-cert"/></svg></div><div class="display-en text-[10px]">Certificate</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--lavender-soft);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-gift"/></svg></div><div class="display-en text-[10px]">Gift</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--peach-pale);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-star"/></svg></div><div class="display-en text-[10px]">Star</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--yellow-pale);"><svg width="44" height="44" viewBox="0 0 60 60"><use href="#em-torch"/></svg></div><div class="display-en text-[10px]">Torch</div></div>
+      </div>
+    </div>
+
+    <!-- Family 4 -->
+    <div class="mb-10">
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="display-en-bold text-[14px] text-[var(--lavender-dark)] uppercase tracking-widest">Family 4</span>
+        <h3 class="display-en-bold text-[20px] text-[var(--ink)]">Reward icons</h3>
+        <span class="body-en text-[12px] text-[var(--ink-soft)] italic">· same grammar as badges · larger scale · shop tile bg</span>
+      </div>
+      <div class="grid grid-cols-6 gap-3">
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--pink-soft);"><svg width="60" height="60" viewBox="0 0 80 80"><use href="#rw-candy"/></svg></div><div class="display-en text-[11px]">Candy · 2¢</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--sky-soft);"><svg width="56" height="56" viewBox="0 0 80 80"><use href="#rw-phone"/></svg></div><div class="display-en text-[11px]">Screen · 5¢</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--mint-soft);"><svg width="60" height="60" viewBox="0 0 80 80"><use href="#rw-ice"/></svg></div><div class="display-en text-[11px]">Ice · 8¢</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--lavender-soft);"><svg width="60" height="60" viewBox="0 0 80 80"><use href="#rw-pillow"/></svg></div><div class="display-en text-[11px]">Sleepover · 50¢</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--yellow-pale);"><svg width="60" height="60" viewBox="0 0 80 80"><use href="#rw-movie"/></svg></div><div class="display-en text-[11px]">Movie · 100¢</div></div>
+        <div class="text-center"><div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--peach-pale);"><svg width="60" height="60" viewBox="0 0 80 80"><use href="#rw-game"/></svg></div><div class="display-en text-[11px]">Nintendo · 300¢</div></div>
+      </div>
+    </div>
+
+    <!-- Family 5 + Coin -->
+    <div>
+      <div class="flex items-baseline gap-3 mb-4">
+        <span class="display-en-bold text-[14px] text-[var(--ink-soft)] uppercase tracking-widest">Family 5 + Coin</span>
+        <h3 class="display-en-bold text-[20px] text-[var(--ink)]">UI line icons + special coin glyph</h3>
+      </div>
+      <div class="grid grid-cols-8 gap-4">
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg></div><div class="display-en text-[10px]">Home</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div><div class="display-en text-[10px]">Tasks</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><div class="display-en text-[10px]">Shop</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div><div class="display-en text-[10px]">Quests</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M12 2 L18 8 L18 14 Q18 18 12 21 Q6 18 6 14 L6 8 Z"/></svg></div><div class="display-en text-[10px]">Badges</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></svg></div><div class="display-en text-[10px]">Bell</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2 bg-[var(--rule-soft)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg></div><div class="display-en text-[10px]">Search</div></div>
+        <div class="text-center"><div class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-2" style="background: rgba(255,215,94,.15);"><svg width="40" height="40" viewBox="0 0 32 32"><use href="#ic-coin"/></svg></div><div class="display-en text-[10px]">Coin · special</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- BADGE ARCHITECTURE -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card" style="background: linear-gradient(135deg, #FFF0F6, white);">
+    <div class="mb-2"><span class="section-sub">§5 · Badge architecture · LOCKED</span></div>
+    <h2 class="section-h mb-2">Embroidered Patch</h2>
+    <p class="body-en text-[14px] text-[var(--ink-soft)] mb-8 max-w-3xl">
+      Every badge in Reco — earned, locked, future — uses this architecture. Flat circle, dashed stitched border, pastel interior, illustrated emblem centered, white count chip pinned below.
+    </p>
+
+    <!-- Anatomy -->
+    <div class="grid grid-cols-12 gap-8 items-center mb-12">
+      <div class="col-span-5 flex justify-center">
+        <div class="patch" style="width: 220px; height: 220px;">
+          <div class="patch-bg" style="background: #FFE0EB;"></div>
+          <div class="patch-bg" style="inset: 14px; background: white;"></div>
+          <div class="patch-bg" style="inset: 22px; background: radial-gradient(circle at 35% 30%, #FFF0F6, #FFE0EB); border: 3px dashed #FF6B9D;"></div>
+          <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+          <div class="patch-count">×12</div>
+        </div>
+      </div>
+      <div class="col-span-7 space-y-3">
+        <div class="flex items-center gap-3"><span class="anatomy-label">1</span><div><div class="display-en-bold text-[14px]">Outer ring</div><div class="body-en text-[12px] text-[var(--ink-soft)]">Solid pastel — category's soft tone</div></div></div>
+        <div class="flex items-center gap-3"><span class="anatomy-label">2</span><div><div class="display-en-bold text-[14px]">White spacer ring</div><div class="body-en text-[12px] text-[var(--ink-soft)]">10–14px white band</div></div></div>
+        <div class="flex items-center gap-3"><span class="anatomy-label">3</span><div><div class="display-en-bold text-[14px]">Inner field</div><div class="body-en text-[12px] text-[var(--ink-soft)]">White circle, 2.5px dashed border in category color</div></div></div>
+        <div class="flex items-center gap-3"><span class="anatomy-label">4</span><div><div class="display-en-bold text-[14px]">Emblem</div><div class="body-en text-[12px] text-[var(--ink-soft)]">SVG from family 3, centered, ~56% width</div></div></div>
+        <div class="flex items-center gap-3"><span class="anatomy-label">5</span><div><div class="display-en-bold text-[14px]">Count chip</div><div class="body-en text-[12px] text-[var(--ink-soft)]">White pill pinned bottom-center · Fredoka 700 · 11px</div></div></div>
+      </div>
+    </div>
+
+    <!-- Color mapping samples -->
+    <div class="border-t border-[var(--rule)] pt-8">
+      <h3 class="display-en-bold text-[14px] text-[var(--ink)] uppercase tracking-widest mb-6">Color mapping · 8 locked badge types</h3>
+      <div class="grid grid-cols-4 gap-6">
+        <!-- Crown -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px;">
+            <div class="patch-bg" style="background: #FFE0EB;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #FFF0F6; border: 2.5px dashed #FF6B9D;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+            <div class="patch-count">×12</div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-5">Crown</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)]">King of Tasks · pink-pale + pink</div>
+        </div>
+        <!-- Trophy -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px;">
+            <div class="patch-bg" style="background: #FFF3D6;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #FFF9E5; border: 2.5px dashed #E8B927;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-trophy"/></svg>
+            <div class="patch-count">×4</div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-5">Trophy</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)]">100-task milestone · yellow-pale + yellow-dark</div>
+        </div>
+        <!-- Medal -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px;">
+            <div class="patch-bg" style="background: #DBEFFB;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #EDF6FD; border: 2.5px dashed #6EC9F4;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-medal"/></svg>
+            <div class="patch-count">×2</div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-5">Medal</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)]">Reading milestone · sky-pale + sky</div>
+        </div>
+        <!-- Star -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px;">
+            <div class="patch-bg" style="background: #FFE5D8;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #FFEDD5; border: 2.5px dashed #FF9F7A;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-star"/></svg>
+            <div class="patch-count">×1</div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-5">Star</div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)]">500-task milestone · peach-pale + peach</div>
+        </div>
+        <!-- Diamond (locked) -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px; filter: grayscale(1); opacity: .55;">
+            <div class="patch-bg" style="background: #EFEDF5;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #F4F2F8; border: 2.5px dashed #A8A6BB;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-diamond"/></svg>
+          </div>
+          <div class="relative" style="margin-top: -76px; height: 0;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(45,42,74,.85); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-9 text-[var(--ink-faded)]">Diamond · locked</div>
+          <div class="body-en text-[10px] text-[var(--ink-faded)]">30-day streak (unearned)</div>
+        </div>
+        <!-- Certificate (locked) -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px; filter: grayscale(1); opacity: .55;">
+            <div class="patch-bg" style="background: #EFEDF5;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #F4F2F8; border: 2.5px dashed #A8A6BB;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-cert"/></svg>
+          </div>
+          <div class="relative" style="margin-top: -76px; height: 0;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(45,42,74,.85); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-9 text-[var(--ink-faded)]">Certificate · locked</div>
+          <div class="body-en text-[10px] text-[var(--ink-faded)]">Year completion (unearned)</div>
+        </div>
+        <!-- Gift (locked) -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px; filter: grayscale(1); opacity: .55;">
+            <div class="patch-bg" style="background: #EFEDF5;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #F4F2F8; border: 2.5px dashed #A8A6BB;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-gift"/></svg>
+          </div>
+          <div class="relative" style="margin-top: -76px; height: 0;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(45,42,74,.85); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-9 text-[var(--ink-faded)]">Gift · locked</div>
+          <div class="body-en text-[10px] text-[var(--ink-faded)]">Birthday (yearly auto)</div>
+        </div>
+        <!-- Torch (locked) -->
+        <div class="text-center">
+          <div class="patch mx-auto" style="width: 120px; height: 120px; filter: grayscale(1); opacity: .55;">
+            <div class="patch-bg" style="background: #EFEDF5;"></div>
+            <div class="patch-bg" style="inset: 9px; background: white;"></div>
+            <div class="patch-bg" style="inset: 15px; background: #F4F2F8; border: 2.5px dashed #A8A6BB;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-torch"/></svg>
+          </div>
+          <div class="relative" style="margin-top: -76px; height: 0;">
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(45,42,74,.85); display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="display-en-bold text-[12px] mt-9 text-[var(--ink-faded)]">Torch · locked</div>
+          <div class="body-en text-[10px] text-[var(--ink-faded)]">10-campaign master</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- COMPONENTS -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card">
+    <div class="mb-2"><span class="section-sub">§6 · Component library</span></div>
+    <h2 class="section-h mb-8">Building blocks</h2>
+
+    <!-- Buttons -->
+    <div class="mb-10">
+      <h3 class="display-en-bold text-[16px] mb-4">Buttons</h3>
+      <div class="flex flex-wrap gap-4 items-center">
+        <button class="btn-pink">Send for approval</button>
+        <button class="btn-mint">I got it ✓</button>
+        <button class="btn-white">Cancel</button>
+        <button class="btn-ink">Close</button>
+        <span class="body-en text-[12px] text-[var(--ink-soft)]">All pill-shaped · Heebo 800 · hover lifts 1px</span>
+      </div>
+    </div>
+
+    <!-- Pills -->
+    <div class="mb-10">
+      <h3 class="display-en-bold text-[16px] mb-4">Pills (status chips)</h3>
+      <div class="flex flex-wrap gap-2 items-center">
+        <span class="pill pill-mint">Completed</span>
+        <span class="pill pill-pink">Pending</span>
+        <span class="pill pill-sky">Yael</span>
+        <span class="pill pill-yellow">+20 ¢</span>
+        <span class="pill pill-lavender">Campaign</span>
+        <span class="pill pill-grey">Metadata</span>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="mb-10">
+      <h3 class="display-en-bold text-[16px] mb-4">Card variants</h3>
+      <div class="grid grid-cols-3 gap-4">
+        <div class="card-soft p-4"><div class="display-en-bold text-[14px]">Default card</div><div class="body-en text-[12px] text-[var(--ink-soft)] mt-1">Tasks, stats, lists</div></div>
+        <div class="card-pink-soft p-4"><div class="display-en-bold text-[14px]">Pink-soft card</div><div class="body-en text-[12px] text-[var(--ink-soft)] mt-1">Active / pending</div></div>
+        <div class="card-mint-soft p-4"><div class="display-en-bold text-[14px]">Mint-soft card</div><div class="body-en text-[12px] text-[var(--ink-soft)] mt-1">Completed / received</div></div>
+        <div class="card-sky-soft p-4"><div class="display-en-bold text-[14px]">Sky-soft card</div><div class="body-en text-[12px] text-[var(--ink-soft)] mt-1">Yael identity / sibling chip</div></div>
+        <div class="card-yellow-soft p-4"><div class="display-en-bold text-[14px]">Yellow card</div><div class="body-en text-[12px] text-[var(--ink-soft)] mt-1">Campaign / coin emphasis</div></div>
+        <div class="card-lavender-soft p-4"><div class="display-en-bold text-[14px]">Lavender card</div><div class="body-en text-[12px] text-[var(--ink-soft)] mt-1">Long-term / magic surface</div></div>
+      </div>
+    </div>
+
+    <!-- Progress bars -->
+    <div class="mb-10">
+      <h3 class="display-en-bold text-[16px] mb-4">Progress bars</h3>
+      <div class="space-y-3 max-w-md">
+        <div><div class="body-en text-[11px] text-[var(--ink-soft)] mb-1">Campaign · lavender</div><div style="background: var(--rule); border-radius: 999px; height: 8px; overflow: hidden;"><div style="width: 38%; height: 100%; background: linear-gradient(90deg, var(--lavender), var(--lavender-dark));"></div></div></div>
+        <div><div class="body-en text-[11px] text-[var(--ink-soft)] mb-1">Coin progression · mint</div><div style="background: var(--rule); border-radius: 999px; height: 8px; overflow: hidden;"><div style="width: 70%; height: 100%; background: linear-gradient(90deg, var(--mint), var(--mint-dark));"></div></div></div>
+        <div><div class="body-en text-[11px] text-[var(--ink-soft)] mb-1">Long-term task · peach</div><div style="background: var(--rule); border-radius: 999px; height: 8px; overflow: hidden;"><div style="width: 50%; height: 100%; background: linear-gradient(90deg, var(--peach), var(--pink));"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Vertical timeline -->
+    <div>
+      <h3 class="display-en-bold text-[16px] mb-4">Vertical timeline (task list)</h3>
+      <div style="position: relative; padding-left: 24px; max-width: 400px;">
+        <div style="position: absolute; left: 8px; top: 12px; bottom: 12px; width: 2px; background: var(--rule);"></div>
+        <div style="position: relative; padding-bottom: 10px;">
+          <div style="position: absolute; left: -22px; top: 12px; width: 14px; height: 14px; border-radius: 50%; background: var(--mint); border: 3px solid var(--mint);"></div>
+          <div class="card-mint-soft p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-white"><svg width="22" height="22" viewBox="0 0 40 40"><use href="#ic-bed"/></svg></div>
+            <div class="flex-1"><div class="display-en-bold text-[13px] text-[var(--mint-dark)] line-through">Make bed</div></div>
+            <span class="pill pill-mint">+1 ¢</span>
+          </div>
+        </div>
+        <div style="position: relative; padding-bottom: 10px;">
+          <div style="position: absolute; left: -22px; top: 12px; width: 14px; height: 14px; border-radius: 50%; background: white; border: 3px solid var(--pink); box-shadow: 0 0 0 4px var(--pink-pale);"></div>
+          <div class="card-soft p-3 flex items-center gap-3" style="border-color: var(--pink); box-shadow: 0 4px 12px rgba(255,107,157,.12);">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--yellow-pale);"><svg width="22" height="22" viewBox="0 0 40 40"><use href="#ic-food"/></svg></div>
+            <div class="flex-1"><div class="display-en-bold text-[13px] text-[var(--ink)]">Eat breakfast</div></div>
+            <span class="pill pill-yellow">+5 ¢</span>
+          </div>
+        </div>
+        <div style="position: relative;">
+          <div style="position: absolute; left: -22px; top: 12px; width: 14px; height: 14px; border-radius: 50%; background: white; border: 3px solid var(--rule);"></div>
+          <div class="card-soft p-3 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background: var(--pink-soft);"><svg width="22" height="22" viewBox="0 0 40 40"><use href="#ic-shirt"/></svg></div>
+            <div class="flex-1"><div class="display-en-bold text-[13px] text-[var(--ink)]">Get dressed</div></div>
+            <span class="pill pill-yellow">+12 ¢</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- PATTERNS -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card">
+    <div class="mb-2"><span class="section-sub">§12 · Common patterns</span></div>
+    <h2 class="section-h mb-8">Composed UI recipes</h2>
+
+    <div class="grid grid-cols-2 gap-6">
+      <!-- Sibling activity chip -->
+      <div>
+        <h3 class="display-en-bold text-[14px] mb-3">Sibling activity chip</h3>
+        <div class="card-sky-soft p-3 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full overflow-hidden"><svg viewBox="0 0 100 100"><use href="#av-bunny"/></svg></div>
+          <div class="flex-1 text-sm" dir="rtl"><span class="display-he-bold text-[12px]">יעל</span> <span class="body-he text-[var(--ink-soft)]">זכתה ב</span><span class="display-he-bold text-[12px] text-[var(--sky-dark)]">תג קריאה!</span><div class="body-he text-[10px] text-[var(--ink-soft)] mt-0.5">לפני 12 דקות</div></div>
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: var(--sky-pale);"><svg width="28" height="28" viewBox="0 0 60 60"><use href="#em-medal"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Campaign banner -->
+      <div>
+        <h3 class="display-en-bold text-[14px] mb-3">Campaign banner</h3>
+        <div class="card-yellow-soft p-3 flex items-center gap-3" style="background: linear-gradient(135deg, var(--yellow-pale), white);">
+          <div class="patch flex-shrink-0" style="width: 56px; height: 56px;">
+            <div class="patch-bg" style="background: #FFE0EB;"></div>
+            <div class="patch-bg" style="inset: 4px; background: white;"></div>
+            <div class="patch-bg" style="inset: 7px; background: #FFF0F6; border: 2px dashed #FF6B9D;"></div>
+            <svg class="patch-emblem" viewBox="0 0 60 60"><use href="#em-crown"/></svg>
+          </div>
+          <div class="flex-1" dir="rtl">
+            <div class="display-en text-[10px] text-[var(--yellow-dark)] uppercase tracking-widest font-bold">קמפיין · פעיל</div>
+            <div class="display-he-bold text-[13px] text-[var(--ink)] mt-0.5">3 ימים של מיטה ברצף</div>
+            <div class="body-he text-[11px] text-[var(--yellow-dark)] mt-0.5">תיכף תקבלי את התג!</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet stat -->
+      <div>
+        <h3 class="display-en-bold text-[14px] mb-3">Wallet stat card</h3>
+        <div class="card-soft p-3" style="max-width: 200px;">
+          <div class="flex items-center justify-between mb-1">
+            <div class="body-en text-[10px] text-[var(--ink-soft)] uppercase tracking-widest font-bold">Coins</div>
+            <svg width="16" height="16" viewBox="0 0 32 32"><use href="#ic-coin"/></svg>
+          </div>
+          <div class="flex items-baseline gap-1">
+            <div class="num text-[28px] text-[var(--ink)] leading-none">350</div>
+            <div class="body-en text-[12px] text-[var(--ink-faded)]">/500</div>
+          </div>
+          <div class="body-en text-[10px] text-[var(--ink-soft)] mt-1">150 to next milestone</div>
+          <div class="pb-track mt-2" style="background: var(--rule); border-radius: 999px; height: 8px; overflow: hidden;"><div style="width:70%; height: 100%; background: linear-gradient(90deg, var(--mint), var(--mint-dark)); border-radius: 999px;"></div></div>
+        </div>
+      </div>
+
+      <!-- Reward tile -->
+      <div>
+        <h3 class="display-en-bold text-[14px] mb-3">Reward shop tile</h3>
+        <div class="card-soft p-3" style="max-width: 180px;">
+          <div class="aspect-square rounded-2xl flex items-center justify-center mb-2" style="background: var(--pink-soft);">
+            <svg width="68%" viewBox="0 0 80 80"><use href="#rw-candy"/></svg>
+          </div>
+          <div class="display-en-bold text-[14px] text-[var(--ink)] mb-1">Candy</div>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1"><svg width="14" height="14" viewBox="0 0 32 32"><use href="#ic-coin"/></svg><span class="num text-[14px] text-[var(--ink)]">2</span></div>
+            <button class="btn-pink text-white text-[11px] px-3 py-1.5" style="padding: 6px 12px; font-size: 11px;">Redeem</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- DO / DON'T -->
+<!-- =============================================================== -->
+<section class="max-w-6xl mx-auto px-6 mb-16" dir="ltr">
+  <div class="section-card">
+    <div class="mb-2"><span class="section-sub">§13 · Rules</span></div>
+    <h2 class="section-h mb-8">Do / Don't</h2>
+
+    <div class="grid grid-cols-2 gap-6">
+      <div class="do-card">
+        <div class="display-en-bold text-[16px] text-[var(--mint-dark)] mb-3"><span class="check">✓</span> Do</div>
+        <ul class="body-en text-[14px] text-[var(--ink)] space-y-2 leading-relaxed">
+          <li><span class="check">✓</span> Use <code class="num">--ink</code> (#2D2A4A) for text, never pure black</li>
+          <li><span class="check">✓</span> Use <code class="num">--bg</code> (#FAF8F5) for app background, white for cards only</li>
+          <li><span class="check">✓</span> Use <code class="num">--pink-dark</code> for denial / errors (kind, not aggressive)</li>
+          <li><span class="check">✓</span> Always tabular numerals for counts, balances, dates</li>
+          <li><span class="check">✓</span> Logical CSS properties (<code class="num">ps-*</code>, <code class="num">pe-*</code>) — never <code class="num">pl-*</code>/<code class="num">pr-*</code></li>
+          <li><span class="check">✓</span> One language per screen (Hebrew default, English via toggle)</li>
+          <li><span class="check">✓</span> Embroidered patch only for badges — circular, dashed border, white count chip</li>
+          <li><span class="check">✓</span> Every meaningful icon needs an <code class="num">aria-label</code></li>
+        </ul>
+      </div>
+      <div class="dont-card">
+        <div class="display-en-bold text-[16px] text-[var(--pink-dark)] mb-3"><span class="cross">✗</span> Don't</div>
+        <ul class="body-en text-[14px] text-[var(--ink)] space-y-2 leading-relaxed">
+          <li><span class="cross">✗</span> Use pure black <code class="num">#000</code> or pure white <code class="num">#FFF</code> at app bg level</li>
+          <li><span class="cross">✗</span> Use the color red anywhere — pink-dark covers denial states</li>
+          <li><span class="cross">✗</span> Mix Lia's peach + Yael's sky on the same component</li>
+          <li><span class="cross">✗</span> Use emoji for badges or rewards in production</li>
+          <li><span class="cross">✗</span> 3D silver shields or hanging-medal ribbons (rejected at Gate 3)</li>
+          <li><span class="cross">✗</span> Hardcoded Hebrew/English text in components — use dictionaries</li>
+          <li><span class="cross">✗</span> Animations &gt; 500ms outside celebration moments</li>
+          <li><span class="cross">✗</span> Red flash / shake effects for errors — soft denial only</li>
+          <li><span class="cross">✗</span> Proportional numerals for counts (always tabular)</li>
+          <li><span class="cross">✗</span> Fonts outside Fredoka / Heebo / Quicksand — ever</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- =============================================================== -->
+<!-- FOOTER -->
+<!-- =============================================================== -->
+<footer class="max-w-6xl mx-auto px-6 pb-20" dir="ltr">
+  <hr class="border-[var(--rule)] mb-8" />
+  <div class="flex items-baseline justify-between flex-wrap gap-4">
+    <div>
+      <div class="display-en-bold text-[24px] text-[var(--ink)]">Reco <span class="text-[var(--pink)]">·</span> Brandbook v1.0</div>
+      <div class="body-en text-[13px] text-[var(--ink-soft)] mt-1">Locked 2026-05-21 · canonical: <a href="./BRANDBOOK.md" class="text-[var(--pink)] underline">BRANDBOOK.md</a></div>
+    </div>
+    <div class="body-en text-[12px] text-[var(--ink-soft)] max-w-md">
+      This visual companion shows the system in action. For specifications, rules, and governance, see <a href="./BRANDBOOK.md" class="text-[var(--pink)] underline">BRANDBOOK.md</a> sections 0–14. Both documents must be updated together when the brand evolves.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

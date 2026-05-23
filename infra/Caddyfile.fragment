@@ -1,0 +1,55 @@
+# reco.my-restart.co.il — appended to the host Caddyfile by deploy-prod.sh.
+#
+# Caddy is installed on the host (NOT in docker-compose). It also serves
+# budget.my-restart.co.il and tasks.my-restart.co.il. Reloading after editing
+# is safe (no downtime) but Caddy validates the whole file — if a sibling
+# fragment is broken, the reload fails. deploy-prod.sh validates with
+# `caddy validate` before swapping the file in.
+#
+# Path routing per ARCHITECTURE.md §3:
+#   /api/internal/* → worker (evidence serve, ops endpoints)
+#   /healthz        → worker (host-side health check)
+#   everything else → web (Next.js App Router, Auth.js, server actions)
+
+reco.my-restart.co.il {
+	encode gzip zstd
+
+	log {
+		output file /var/log/caddy/reco-access.log {
+			roll_size 10mb
+			roll_keep 5
+			roll_keep_for 720h
+		}
+		level INFO
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(self), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# Worker — evidence photo serve + internal ops endpoints.
+	@worker path /api/internal/*
+	handle @worker {
+		reverse_proxy 127.0.0.1:8100
+	}
+
+	# Worker health (used by smoke tests + uptime monitors).
+	handle /healthz {
+		reverse_proxy 127.0.0.1:8100
+	}
+
+	# Everything else → web.
+	handle {
+		reverse_proxy 127.0.0.1:3030 {
+			# Pass real client IP so audit_log.request_ip is meaningful.
+			header_up X-Real-IP {remote_host}
+			header_up X-Forwarded-For {remote_host}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+}

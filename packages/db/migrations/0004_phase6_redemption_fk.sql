@@ -1,0 +1,50 @@
+-- 0004_phase6_redemption_fk.sql — resolve the circular redemption ↔ ledger FK
+-- chicken-and-egg flagged in PHASE-3-EXIT.md and RESUME-HERE.md.
+--
+-- Phase 6 introduces the kid redeem flow:
+--
+--   INSERT INTO redemption (id, ..., ledger_debit_id) VALUES (R, ..., L);
+--   INSERT INTO ledger_entry (id, kind='redeem', redemption_id, ...) VALUES (L, ..., R, ...);
+--
+-- Both rows must be created atomically in a single transaction, but each
+-- references the other via a NOT NULL or CHECK-required FK column:
+--
+--   redemption.ledger_debit_id      NOT NULL REFERENCES ledger_entry(id)
+--   ledger_entry.redemption_id      REFERENCES redemption(id), CHECK enforces
+--                                    NOT NULL when kind='redeem'
+--
+-- With both FKs IMMEDIATE, whichever INSERT runs first violates the other
+-- table's FK. The redemption.id and ledger_entry.id values exist (pre-
+-- generated client-side) but the referenced rows aren't physically present
+-- until both INSERTs land.
+--
+-- Fix: defer ONE side. We pick `ledger_entry.redemption_id` because:
+--   - It's only constraint-required for kind='redeem' (the other six kinds
+--     don't reference redemption at all), so deferring it has the smallest
+--     blast radius.
+--   - The CHECK constraint (kind='redeem' ⇒ redemption_id IS NOT NULL) is
+--     row-level and still IMMEDIATE — it only inspects the column value, not
+--     whether the referenced row exists, so deferring the FK doesn't weaken
+--     the integrity surface.
+--   - ledger_entry.redemption_id has no NOT NULL constraint to navigate around.
+--
+-- Pattern in the redeem operation:
+--   1. preGenerate R = gen_random_uuid() in the caller.
+--   2. ledgerPost({ kind:'redeem', redemptionId: R, ... }) → returns L.
+--      The new ledger_entry row references redemption(R) which doesn't yet
+--      exist; the FK is deferred so the INSERT succeeds.
+--   3. INSERT redemption (id = R, ledger_debit_id = L, ...). Both FKs OK
+--      (ledger_entry now exists, redemption.id matches what step 2 inserted).
+--   4. COMMIT. Postgres validates the deferred FK; redemption(R) exists ⇒ pass.
+--
+-- If the transaction rolls back between steps 2 and 3, the deferred FK is
+-- never checked because no commit occurs — the rollback discards both
+-- candidate rows.
+--
+-- The auto-generated constraint name from the inline `REFERENCES redemption(id)`
+-- in 0001_init.sql is `ledger_entry_redemption_id_fkey` (PostgreSQL's
+-- <table>_<column>_fkey naming).
+
+ALTER TABLE ledger_entry
+  ALTER CONSTRAINT ledger_entry_redemption_id_fkey
+  DEFERRABLE INITIALLY DEFERRED;

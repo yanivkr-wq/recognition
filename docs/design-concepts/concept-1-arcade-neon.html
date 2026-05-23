@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Concept 1 — Arcade Neon Quest</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400..700&family=Suez+One&family=Heebo:wght@300;400;500;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #08080F;
+    --bg: #0E0E18;
+    --surface: #15151F;
+    --surface-2: #1F1F2D;
+    --border: #2A2A3E;
+    --pink: #FF2D87;
+    --pink-glow: rgba(255, 45, 135, .35);
+    --cyan: #00E5FF;
+    --cyan-glow: rgba(0, 229, 255, .30);
+    --gold: #FFD600;
+    --gold-glow: rgba(255, 214, 0, .35);
+    --acid: #00FF94;
+    --warn: #FFAA00;
+    --err: #FF3366;
+    --text: #F0F0FF;
+    --muted: #7A7A8C;
+  }
+  html, body { background: var(--bg-deep); color: var(--text); font-family: 'Heebo', sans-serif; }
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: radial-gradient(circle at center, rgba(255,255,255,.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background: linear-gradient(rgba(255,45,135,.015) 50%, transparent 50%);
+    background-size: 100% 4px;
+    mix-blend-mode: overlay;
+  }
+  .arcade { font-family: 'Press Start 2P', monospace; }
+  .pixel-sans { font-family: 'Pixelify Sans', sans-serif; letter-spacing: .02em; }
+  .display-he { font-family: 'Suez One', 'Heebo', sans-serif; font-weight: 400; letter-spacing: -.01em; }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .heebo { font-family: 'Heebo', sans-serif; }
+
+  .glow-pink { box-shadow: 0 0 0 1px var(--pink), 0 0 16px var(--pink-glow), inset 0 0 24px rgba(255,45,135,.08); }
+  .glow-cyan { box-shadow: 0 0 0 1px var(--cyan), 0 0 16px var(--cyan-glow), inset 0 0 24px rgba(0,229,255,.07); }
+  .glow-gold { box-shadow: 0 0 0 1px var(--gold), 0 0 12px var(--gold-glow); }
+  .text-glow-pink { text-shadow: 0 0 12px var(--pink-glow), 0 0 4px rgba(255,45,135,.6); }
+  .text-glow-cyan { text-shadow: 0 0 12px var(--cyan-glow), 0 0 4px rgba(0,229,255,.6); }
+  .text-glow-gold { text-shadow: 0 0 14px var(--gold-glow), 0 0 4px rgba(255,214,0,.7); }
+  .text-glow-acid { text-shadow: 0 0 12px rgba(0,255,148,.5); }
+
+  /* Phone frame */
+  .phone {
+    width: 390px;
+    min-height: 844px;
+    background: var(--bg);
+    border-radius: 44px;
+    border: 6px solid #000;
+    box-shadow:
+      0 0 0 1px #1f1f2d,
+      0 30px 80px rgba(255,45,135,.10),
+      0 60px 120px rgba(0,229,255,.04);
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+  }
+  .phone-inner {
+    height: 100%; min-height: 832px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .notch {
+    width: 110px; height: 28px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto;
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    z-index: 50;
+  }
+  .statusbar {
+    padding: 14px 20px 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700;
+    color: var(--text);
+    position: relative; z-index: 10;
+  }
+
+  /* Coin sprite */
+  .coin {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1em; height: 1em;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #FFE968, #FFD600 50%, #BD8F00);
+    box-shadow: 0 0 0 1.5px #FFD600, 0 0 10px rgba(255,214,0,.5), inset 0 -2px 0 rgba(0,0,0,.25);
+    color: #5C4400; font-weight: 900; font-size: .55em;
+    flex-shrink: 0;
+  }
+  .coin-icon { font-family: 'Press Start 2P', monospace; }
+
+  /* Pixel rendering for sharp icons */
+  .pixel-icon { image-rendering: pixelated; image-rendering: -moz-crisp-edges; }
+
+  /* Avatar tile */
+  .av-tile {
+    aspect-ratio: 1; border-radius: 22px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Suez One', sans-serif; font-size: 88px; font-weight: 400; line-height: 1;
+    position: relative;
+    isolation: isolate;
+  }
+  .av-tile::before {
+    content: ""; position: absolute; inset: 0; border-radius: 22px;
+    background: linear-gradient(135deg, rgba(255,255,255,.12), transparent 50%);
+    z-index: 1;
+  }
+
+  /* Streak chain */
+  .streak-day {
+    width: 36px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    position: relative;
+  }
+  .streak-day.done {
+    background: linear-gradient(180deg, #FF7AB6, #FF2D87);
+    border-color: var(--pink);
+    color: #fff;
+    box-shadow: 0 0 12px var(--pink-glow);
+  }
+  .streak-day.today {
+    background: var(--bg);
+    border: 2px dashed var(--cyan);
+    color: var(--cyan);
+  }
+
+  /* Bottom tab bar */
+  .tabbar {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    background: rgba(8,8,15,.92);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    padding: 12px 8px 28px;
+  }
+  .tab {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font-family: 'Press Start 2P', monospace; font-size: 8px;
+    color: var(--muted);
+  }
+  .tab.active { color: var(--cyan); text-shadow: 0 0 8px var(--cyan-glow); }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; border-radius: 999px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: .02em;
+  }
+  .pill-pink { background: rgba(255,45,135,.12); color: var(--pink); border: 1px solid rgba(255,45,135,.3); }
+  .pill-cyan { background: rgba(0,229,255,.12); color: var(--cyan); border: 1px solid rgba(0,229,255,.3); }
+  .pill-gold { background: rgba(255,214,0,.12); color: var(--gold); border: 1px solid rgba(255,214,0,.3); }
+  .pill-acid { background: rgba(0,255,148,.12); color: var(--acid); border: 1px solid rgba(0,255,148,.3); }
+  .pill-muted { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+
+  .frame-h2 {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 13px;
+    color: var(--cyan);
+    letter-spacing: .04em;
+    text-shadow: 0 0 8px var(--cyan-glow);
+  }
+  .swatch { width: 56px; height: 56px; border-radius: 12px; }
+
+  /* Mini progress bar */
+  .pb-track { background: var(--surface-2); border-radius: 999px; overflow: hidden; height: 8px; position: relative; }
+  .pb-fill { height: 100%; border-radius: 999px; box-shadow: 0 0 12px currentColor; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- =================== INTRO SECTION =================== -->
+<section class="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-12" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="arcade text-[11px] text-[var(--cyan)] text-glow-cyan">CONCEPT 01</span>
+    <span class="arcade text-[11px] text-[var(--muted)]">// RECO DESIGN DECK</span>
+  </div>
+  <h1 class="arcade text-[40px] leading-[1.05] text-[var(--pink)] text-glow-pink mb-3">ARCADE<br/>NEON QUEST</h1>
+  <p class="heebo text-[var(--muted)] text-lg max-w-2xl">Reco as an after-hours arcade. The wallet is a high-score scoreboard, tasks are missions, badges are tournament trophies. Aimed at the kid who finds "kid apps" cringe and wants something that feels just slightly forbidden.</p>
+
+  <div class="grid grid-cols-3 gap-8 mt-12">
+    <!-- Palette -->
+    <div>
+      <div class="arcade text-[10px] text-[var(--muted)] mb-4">PALETTE</div>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div><div class="swatch glow-pink" style="background:#FF2D87"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#FF2D87</div></div>
+        <div><div class="swatch glow-cyan" style="background:#00E5FF"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#00E5FF</div></div>
+        <div><div class="swatch glow-gold" style="background:#FFD600"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#FFD600</div></div>
+        <div><div class="swatch" style="background:#00FF94; box-shadow:0 0 16px rgba(0,255,148,.4)"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#00FF94</div></div>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div><div class="swatch border border-[var(--border)]" style="background:#0E0E18"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#0E0E18</div></div>
+        <div><div class="swatch border border-[var(--border)]" style="background:#15151F"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#15151F</div></div>
+        <div><div class="swatch border border-[var(--border)]" style="background:#1F1F2D"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#1F1F2D</div></div>
+        <div><div class="swatch border border-[var(--border)]" style="background:#F0F0FF"></div><div class="mono text-[10px] mt-1.5 text-[var(--muted)]">#F0F0FF</div></div>
+      </div>
+      <p class="text-xs text-[var(--muted)] mt-4 leading-relaxed">Lia = pink (#FF2D87). Yael = cyan (#00E5FF). Coins are arcade gold. Acid green = success. Surface stack is three dark grays; backgrounds never go fully black except at the device bezel.</p>
+    </div>
+
+    <!-- Typography -->
+    <div>
+      <div class="arcade text-[10px] text-[var(--muted)] mb-4">TYPOGRAPHY</div>
+      <div class="space-y-3">
+        <div class="border-l-2 border-[var(--pink)] pr-0 pl-4">
+          <div class="arcade text-[18px] text-[var(--pink)] text-glow-pink leading-none">RECO</div>
+          <div class="mono text-[10px] text-[var(--muted)] mt-2">Press Start 2P · arcade display</div>
+        </div>
+        <div class="border-l-2 border-[var(--cyan)] pl-4">
+          <div class="display-he text-[28px] text-[var(--cyan)] text-glow-cyan leading-none">ליה</div>
+          <div class="mono text-[10px] text-[var(--muted)] mt-2">Suez One · Hebrew display</div>
+        </div>
+        <div class="border-l-2 border-white/30 pl-4">
+          <div class="mono text-[16px] text-white">0047 / pages: 38</div>
+          <div class="mono text-[10px] text-[var(--muted)] mt-1">JetBrains Mono · tabular numerals</div>
+        </div>
+        <div class="border-l-2 border-white/20 pl-4">
+          <div class="heebo text-[15px] text-white">תיכף תורי במשחק</div>
+          <div class="mono text-[10px] text-[var(--muted)] mt-1">Heebo · Hebrew body 400/500</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iconography -->
+    <div>
+      <div class="arcade text-[10px] text-[var(--muted)] mb-4">ICONOGRAPHY</div>
+      <p class="text-sm text-[var(--text)]/80 leading-relaxed mb-4">Pixel-art icons at 16/24/32 px, snapped to integer pixels. Solid blocky silhouettes with one-pixel highlights. Neon glow via box-shadow on hover. Optional CRT scanline overlay on key surfaces.</p>
+      <div class="flex gap-3 flex-wrap">
+        <!-- Sample pixel icons -->
+        <div class="w-12 h-12 bg-[var(--surface-2)] rounded-lg flex items-center justify-center glow-pink">
+          <svg width="24" height="24" viewBox="0 0 16 16" shape-rendering="crispEdges">
+            <path fill="#FF2D87" d="M2 5h12v9h-12zM4 3h8v2h-8zM6 1h4v2h-4z"/>
+          </svg>
+        </div>
+        <div class="w-12 h-12 bg-[var(--surface-2)] rounded-lg flex items-center justify-center glow-cyan">
+          <svg width="24" height="24" viewBox="0 0 16 16" shape-rendering="crispEdges">
+            <path fill="#00E5FF" d="M3 7h2v6h-2zM7 3h2v10h-2zM11 9h2v4h-2z"/>
+          </svg>
+        </div>
+        <div class="w-12 h-12 bg-[var(--surface-2)] rounded-lg flex items-center justify-center glow-gold">
+          <svg width="24" height="24" viewBox="0 0 16 16" shape-rendering="crispEdges">
+            <path fill="#FFD600" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/>
+            <path fill="#5C4400" d="M7 6h2v4h-2z"/>
+          </svg>
+        </div>
+        <div class="w-12 h-12 bg-[var(--surface-2)] rounded-lg flex items-center justify-center" style="box-shadow: 0 0 0 1px var(--acid), 0 0 16px rgba(0,255,148,.3)">
+          <svg width="24" height="24" viewBox="0 0 16 16" shape-rendering="crispEdges">
+            <path fill="#00FF94" d="M3 8h2v2h-2zM5 10h2v2h-2zM7 8h2v2h-2zM9 6h2v2h-2zM11 4h2v2h-2z"/>
+          </svg>
+        </div>
+      </div>
+      <p class="text-xs text-[var(--muted)] mt-4">Trophies = pixel sprites · Streak = flame chain · Wallet = scoreboard digits · Sibling activity = ticker tape</p>
+    </div>
+  </div>
+</section>
+
+<div class="relative z-10 max-w-6xl mx-auto px-6">
+  <hr class="border-[var(--border)] my-4" />
+  <p class="arcade text-[10px] text-[var(--muted)] mb-12">// PREVIEW · 8 KID-FACING SCREENS · HEBREW (RTL) DEFAULT · ENGLISH TOGGLE BOTTOM</p>
+</div>
+
+<!-- =================== SCREENS GRID =================== -->
+<main class="relative z-10 max-w-6xl mx-auto px-6 pb-32">
+
+<!-- screens use 2-col layout, 4 rows -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-20 gap-x-12 justify-items-center">
+
+<!-- ============================================ -->
+<!-- SCREEN A — PROFILE PICKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">A</div>
+    <div class="frame-h2">PROFILE PICKER</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">Netflix-style entry → /pick</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+      <div class="px-6 pt-6 pb-4 text-center">
+        <div class="arcade text-[10px] text-[var(--cyan)] mb-2 text-glow-cyan">// SELECT PLAYER //</div>
+        <h1 class="display-he text-[36px] text-[var(--pink)] text-glow-pink leading-tight">מי משחקת?</h1>
+      </div>
+      <div class="flex-1 px-6 pt-2 flex flex-col gap-5">
+        <!-- Lia tile -->
+        <button class="av-tile glow-pink relative" style="background: linear-gradient(135deg, #2A1126, #FF2D87 200%);">
+          <span style="color:#fff; text-shadow: 0 0 24px rgba(0,0,0,.4)">ל</span>
+          <div class="absolute bottom-3 right-3 left-3 flex items-end justify-between z-10">
+            <div class="text-right">
+              <div class="display-he text-[22px] text-white leading-none">ליה</div>
+              <div class="arcade text-[9px] text-white/80 mt-1.5">LEVEL 04</div>
+            </div>
+            <div class="pill pill-gold">
+              <span class="coin"><span class="coin-icon">¢</span></span>
+              <span class="mono">0047</span>
+            </div>
+          </div>
+        </button>
+        <!-- Yael tile -->
+        <button class="av-tile glow-cyan relative" style="background: linear-gradient(135deg, #0A2128, #00E5FF 200%);">
+          <span style="color:#fff; text-shadow: 0 0 24px rgba(0,0,0,.4)">י</span>
+          <div class="absolute bottom-3 right-3 left-3 flex items-end justify-between z-10">
+            <div class="text-right">
+              <div class="display-he text-[22px] text-white leading-none">יעל</div>
+              <div class="arcade text-[9px] text-white/80 mt-1.5">LEVEL 03</div>
+            </div>
+            <div class="pill pill-gold">
+              <span class="coin"><span class="coin-icon">¢</span></span>
+              <span class="mono">0089</span>
+            </div>
+          </div>
+        </button>
+      </div>
+      <div class="px-6 py-6 text-center" dir="ltr">
+        <button class="arcade text-[9px] text-[var(--muted)] hover:text-[var(--cyan)]">▶ ADMIN LOGIN</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN B — KID HOME / WALLET -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">B</div>
+    <div class="frame-h2">HOME · WALLET</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">Lia logged in · 4 today tasks · 1 active streak</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <!-- Top bar -->
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold" style="background: linear-gradient(135deg, #FF2D87, #2A1126); box-shadow: 0 0 0 1px #FF2D87, 0 0 12px var(--pink-glow);">
+            <span class="display-he text-[20px] text-white">ל</span>
+          </div>
+          <div>
+            <div class="text-xs text-[var(--muted)] heebo">בוקר טוב,</div>
+            <div class="display-he text-[18px] text-white leading-none">ליה</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center relative">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="2.5"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></svg>
+            <span class="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--err)]" style="box-shadow:0 0 6px var(--err)"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Wallet scoreboard -->
+      <div class="mx-5 mt-4 rounded-2xl p-5 glow-pink relative overflow-hidden" style="background: linear-gradient(180deg, #1A0F1A, #0E0E18);">
+        <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(transparent 50%, rgba(255,45,135,.04) 50%); background-size: 100% 3px;"></div>
+        <div class="relative">
+          <div class="arcade text-[9px] text-[var(--pink)] mb-1 text-glow-pink">// WALLET BALANCE //</div>
+          <div class="flex items-baseline gap-3">
+            <span class="coin text-[36px]"><span class="coin-icon">¢</span></span>
+            <span class="arcade text-[44px] text-[var(--gold)] text-glow-gold leading-none mono" style="font-family: 'Press Start 2P'">0047</span>
+          </div>
+          <div class="flex items-center gap-2 mt-3 text-[11px]">
+            <span class="pill pill-acid">+12 היום</span>
+            <span class="mono text-[var(--muted)]">חודש: +84</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's missions -->
+      <div class="px-5 mt-5">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="display-he text-[18px] text-white">המשימות שלי היום</div>
+          <span class="arcade text-[9px] text-[var(--cyan)]">3/4</span>
+        </div>
+        <div class="space-y-2">
+          <!-- task done -->
+          <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--border)]" style="background: rgba(0,255,148,.04);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:rgba(0,255,148,.18);">
+              <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#00FF94" d="M3 8h2v2h-2zM5 10h2v2h-2zM7 8h2v2h-2zM9 6h2v2h-2zM11 4h2v2h-2z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="heebo text-[15px] text-white/70 line-through">להציע את המיטה</div>
+              <div class="mono text-[10px] text-[var(--muted)]">DAILY · עוד 21h למחר</div>
+            </div>
+            <div class="pill pill-acid mono text-[10px]">+1</div>
+          </div>
+          <!-- task with evidence required -->
+          <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--cyan)]/30 glow-cyan" style="background: rgba(0,229,255,.05);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:rgba(0,229,255,.18);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="heebo text-[15px] text-white">שיעורי בית</div>
+              <div class="mono text-[10px] text-[var(--cyan)]">דרושה תמונה · תזכורת 17:00</div>
+            </div>
+            <div class="pill pill-gold mono text-[10px]">+20</div>
+          </div>
+          <!-- regular task -->
+          <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--border)]" style="background: var(--surface);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:rgba(255,45,135,.15);">
+              <svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#FF2D87" d="M3 4h10v2h-10zM3 8h10v2h-10zM3 12h10v2h-10z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="heebo text-[15px] text-white">לערוך את השולחן</div>
+              <div class="mono text-[10px] text-[var(--muted)]">DAILY</div>
+            </div>
+            <div class="pill pill-gold mono text-[10px]">+5</div>
+          </div>
+          <!-- long-term -->
+          <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--border)]" style="background: var(--surface);">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:rgba(255,214,0,.15);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFD600" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2zM22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="heebo text-[14px] text-white">לקרוא 100 עמודים</div>
+              <div class="pb-track mt-1.5" style="height:5px"><div class="pb-fill" style="width:38%; background: var(--gold); color: var(--gold);"></div></div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-1"><span class="text-[var(--gold)]">38</span>/100 עמודים</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active campaign -->
+      <div class="mx-5 mt-5 rounded-xl p-3 relative" style="background: linear-gradient(135deg, rgba(255,45,135,.12), rgba(255,170,0,.08)); border: 1px solid rgba(255,45,135,.3);">
+        <div class="flex items-center gap-3">
+          <div class="text-3xl">🔥</div>
+          <div class="flex-1 min-w-0">
+            <div class="display-he text-[15px] text-white leading-tight">קמפיין: 5 ימים של מיטה</div>
+            <div class="mono text-[10px] text-[var(--muted)] mt-0.5">+50 בונוס · תג BED MASTER</div>
+          </div>
+          <span class="arcade text-[9px] text-[var(--pink)]">3/5</span>
+        </div>
+      </div>
+
+      <!-- Sibling ticker -->
+      <div class="mx-5 mt-3 mb-5 rounded-lg p-2.5 border border-[var(--border)] flex items-center gap-2.5" style="background: var(--surface);">
+        <div class="w-6 h-6 rounded-md flex items-center justify-center display-he text-[14px] text-white" style="background: linear-gradient(135deg, #00E5FF, #0A2128);">י</div>
+        <div class="flex-1 min-w-0 text-xs">
+          <span class="heebo text-white">יעל זכתה ב</span><span class="heebo text-[var(--cyan)] font-bold">תג קריאה</span><span class="heebo text-white"> לפני 12 דק׳</span>
+        </div>
+        <span class="text-base">🏅</span>
+      </div>
+
+      <!-- Spacer for tabbar -->
+      <div class="flex-1"></div>
+
+      <!-- Tab bar -->
+      <div class="tabbar">
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN C — TASK LIST -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">C</div>
+    <div class="frame-h2">TASK LIST</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">Daily + long-term · filter chips</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+        <div class="display-he text-[20px] text-white">המשימות שלי</div>
+        <div class="w-9"></div>
+      </div>
+
+      <div class="px-5 mt-3 flex gap-2 overflow-x-auto">
+        <button class="pill pill-pink">היום (4)</button>
+        <button class="pill pill-muted">טווח-ארוך (2)</button>
+        <button class="pill pill-muted">הכל</button>
+        <button class="pill pill-muted">בוצעו</button>
+      </div>
+
+      <!-- Today section -->
+      <div class="px-5 mt-5">
+        <div class="arcade text-[9px] text-[var(--muted)] mb-2">// TODAY · DAILY //</div>
+        <div class="space-y-2">
+          <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)]" style="background: rgba(0,255,148,.04);">
+            <div class="w-6 h-6 rounded-md flex items-center justify-center" style="background:var(--acid)"><svg width="14" height="14" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#000" d="M3 8h2v2h-2zM5 10h2v2h-2zM7 8h2v2h-2zM9 6h2v2h-2zM11 4h2v2h-2z"/></svg></div>
+            <div class="flex-1"><div class="heebo text-white text-sm line-through">להציע את המיטה</div></div>
+            <span class="pill pill-acid mono">+1</span>
+            <button class="text-[var(--muted)] mono text-[10px] hover:text-[var(--cyan)]">UNDO</button>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)]" style="background: var(--surface);">
+            <div class="w-6 h-6 rounded-md border-2 border-[var(--cyan)]"></div>
+            <div class="flex-1">
+              <div class="heebo text-white text-sm">לערוך את השולחן</div>
+              <div class="mono text-[10px] text-[var(--muted)]">⏰ 18:00</div>
+            </div>
+            <span class="pill pill-gold mono">+5</span>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--cyan)]/30 glow-cyan" style="background: var(--surface);">
+            <div class="w-6 h-6 rounded-md border-2 border-[var(--cyan)]"></div>
+            <div class="flex-1">
+              <div class="heebo text-white text-sm flex items-center gap-1.5">שיעורי בית <svg width="13" height="13" viewBox="0 0 24 24" fill="#00E5FF"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg></div>
+              <div class="mono text-[10px] text-[var(--cyan)]">⏰ 17:00 · דרושה תמונה</div>
+            </div>
+            <span class="pill pill-gold mono">+20</span>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-xl border border-[var(--border)]" style="background: var(--surface);">
+            <div class="w-6 h-6 rounded-md border-2 border-[var(--cyan)]"></div>
+            <div class="flex-1"><div class="heebo text-white text-sm">לצחצח שיניים</div></div>
+            <span class="pill pill-gold mono">+1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Long-term -->
+      <div class="px-5 mt-5">
+        <div class="arcade text-[9px] text-[var(--muted)] mb-2">// LONG-TERM //</div>
+        <div class="space-y-2">
+          <div class="p-3 rounded-xl border border-[var(--border)]" style="background: var(--surface);">
+            <div class="flex items-center justify-between mb-2">
+              <div class="heebo text-white text-sm">📖 לקרוא 100 עמודים</div>
+              <span class="pill pill-gold mono">1¢/עמ׳</span>
+            </div>
+            <div class="pb-track" style="height:8px"><div class="pb-fill" style="width:38%; background: linear-gradient(90deg, #FFD600, #FF2D87); color: #FFD600;"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="mono text-[11px] text-[var(--gold)]">38 / 100</div>
+              <button class="arcade text-[9px] text-[var(--cyan)] text-glow-cyan">+ LOG</button>
+            </div>
+          </div>
+          <div class="p-3 rounded-xl border border-[var(--border)]" style="background: var(--surface);">
+            <div class="flex items-center justify-between mb-2">
+              <div class="heebo text-white text-sm">🎹 פסנתר 300 דקות</div>
+              <span class="pill pill-gold mono">1¢/דק׳</span>
+            </div>
+            <div class="pb-track" style="height:8px"><div class="pb-fill" style="width:40%; background: linear-gradient(90deg, #00E5FF, #FF2D87); color: #00E5FF;"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="mono text-[11px] text-[var(--cyan)]">120 / 300</div>
+              <button class="arcade text-[9px] text-[var(--cyan)] text-glow-cyan">+ LOG</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN D — TASK DETAIL · EVIDENCE -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">D</div>
+    <div class="frame-h2">EVIDENCE UPLOAD</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">Homework · photo capture · pending state</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="arcade text-[10px] text-[var(--cyan)]">// MISSION //</div>
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+      </div>
+
+      <!-- Mission card -->
+      <div class="mx-5 mt-4 rounded-2xl p-5 glow-cyan relative overflow-hidden" style="background: linear-gradient(180deg, #051E26, #0E0E18);">
+        <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(transparent 50%, rgba(0,229,255,.05) 50%); background-size: 100% 3px;"></div>
+        <div class="relative">
+          <div class="arcade text-[9px] text-[var(--cyan)] mb-2 text-glow-cyan">// MISSION 003 //</div>
+          <h1 class="display-he text-[32px] text-white leading-tight">שיעורי בית</h1>
+          <div class="heebo text-[13px] text-white/70 mt-2 leading-relaxed">צלמי את העמוד האחרון של שיעורי הבית.</div>
+          <div class="flex items-center gap-2 mt-4">
+            <span class="pill pill-gold mono">REWARD +20<span class="coin mr-1"><span class="coin-icon">¢</span></span></span>
+            <span class="pill pill-cyan">⏰ 17:00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Camera capture -->
+      <div class="px-5 mt-6">
+        <div class="arcade text-[10px] text-[var(--muted)] mb-3">// CAPTURE EVIDENCE //</div>
+        <div class="relative rounded-2xl border-2 border-dashed border-[var(--cyan)]/40 overflow-hidden" style="aspect-ratio: 4/3; background: var(--surface);">
+          <!-- placeholder/preview -->
+          <div class="absolute inset-0 flex items-center justify-center" style="background: repeating-linear-gradient(45deg, transparent 0, transparent 8px, rgba(0,229,255,.04) 8px, rgba(0,229,255,.04) 16px);">
+            <div class="flex flex-col items-center gap-2">
+              <div class="w-16 h-16 rounded-full flex items-center justify-center glow-cyan" style="background: var(--surface-2);">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4"/></svg>
+              </div>
+              <div class="arcade text-[10px] text-[var(--cyan)]">TAP TO SHOOT</div>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-3 mt-3">
+          <button class="flex-1 py-3 rounded-xl glow-cyan flex items-center justify-center gap-2" style="background: linear-gradient(180deg, rgba(0,229,255,.18), rgba(0,229,255,.04));">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#00E5FF"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg>
+            <span class="arcade text-[10px] text-[var(--cyan)]">CAMERA</span>
+          </button>
+          <button class="flex-1 py-3 rounded-xl border border-[var(--border)] flex items-center justify-center gap-2" style="background: var(--surface);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span class="arcade text-[10px] text-white">GALLERY</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div class="px-5 mt-6 mb-5">
+        <div class="arcade text-[10px] text-[var(--muted)] mb-2">// LAST ATTEMPT //</div>
+        <div class="rounded-xl p-3 border border-[var(--err)]/40 flex items-center gap-3" style="background: rgba(255,51,102,.05);">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center" style="background: rgba(255,51,102,.2);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF3366" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+          <div class="flex-1">
+            <div class="heebo text-[13px] text-white">נדחתה אתמול 17:42</div>
+            <div class="heebo text-[11px] text-[var(--muted)] italic">"לא רואים את הכותרת — תנסי שוב"</div>
+          </div>
+          <button class="arcade text-[9px] text-[var(--cyan)] text-glow-cyan">RETRY</button>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Big CTA -->
+      <div class="px-5 pb-5">
+        <button class="w-full py-4 rounded-2xl glow-pink flex items-center justify-center gap-3 relative overflow-hidden" style="background: linear-gradient(180deg, #FF2D87, #C61D6A);">
+          <span class="arcade text-[12px] text-white">SUBMIT MISSION</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN E — REDEEM / SHOP -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">E</div>
+    <div class="frame-h2">SHOP · REDEEM</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">6 rewards · balance 47 · 3 affordable</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="display-he text-[20px] text-white">החנות</div>
+        <button class="text-[var(--muted)]"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 8 12 12 14 14"/></svg></button>
+      </div>
+
+      <!-- Balance + filter -->
+      <div class="mx-5 mt-4 rounded-xl p-3 flex items-center gap-3 glow-gold" style="background: linear-gradient(135deg, rgba(255,214,0,.10), rgba(255,214,0,.02));">
+        <span class="coin text-[28px]"><span class="coin-icon">¢</span></span>
+        <div class="flex-1">
+          <div class="arcade text-[8px] text-[var(--gold)]">// YOUR BALANCE //</div>
+          <div class="mono text-[24px] text-[var(--gold)] text-glow-gold leading-none">0047</div>
+        </div>
+        <span class="pill pill-acid">3 ניתן לקנות</span>
+      </div>
+
+      <!-- Grid -->
+      <div class="px-5 mt-5 grid grid-cols-2 gap-3">
+        <!-- candy (affordable) -->
+        <div class="rounded-xl p-3 border border-[var(--pink)]/40 glow-pink relative" style="background: linear-gradient(180deg, rgba(255,45,135,.08), var(--surface));">
+          <div class="aspect-square rounded-lg flex items-center justify-center text-5xl mb-2" style="background: var(--surface-2);">🍬</div>
+          <div class="heebo text-white text-sm mb-1">סוכריה</div>
+          <div class="flex items-center justify-between">
+            <div class="mono text-[var(--gold)] text-sm font-bold">2<span class="coin text-base mr-0.5"><span class="coin-icon">¢</span></span></div>
+            <button class="arcade text-[8px] text-[var(--pink)]">REDEEM ▸</button>
+          </div>
+        </div>
+        <!-- screen time (affordable) -->
+        <div class="rounded-xl p-3 border border-[var(--pink)]/40 glow-pink relative" style="background: linear-gradient(180deg, rgba(255,45,135,.08), var(--surface));">
+          <div class="aspect-square rounded-lg flex items-center justify-center text-5xl mb-2" style="background: var(--surface-2);">📱</div>
+          <div class="heebo text-white text-sm mb-1">חצי שעה מסך</div>
+          <div class="flex items-center justify-between">
+            <div class="mono text-[var(--gold)] text-sm font-bold">5<span class="coin text-base mr-0.5"><span class="coin-icon">¢</span></span></div>
+            <button class="arcade text-[8px] text-[var(--pink)]">REDEEM ▸</button>
+          </div>
+        </div>
+        <!-- ice cream (affordable) -->
+        <div class="rounded-xl p-3 border border-[var(--pink)]/40 glow-pink relative" style="background: linear-gradient(180deg, rgba(255,45,135,.08), var(--surface));">
+          <div class="aspect-square rounded-lg flex items-center justify-center text-5xl mb-2" style="background: var(--surface-2);">🍦</div>
+          <div class="heebo text-white text-sm mb-1">גלידה</div>
+          <div class="flex items-center justify-between">
+            <div class="mono text-[var(--gold)] text-sm font-bold">8<span class="coin text-base mr-0.5"><span class="coin-icon">¢</span></span></div>
+            <button class="arcade text-[8px] text-[var(--pink)]">REDEEM ▸</button>
+          </div>
+        </div>
+        <!-- sleepover (locked) -->
+        <div class="rounded-xl p-3 border border-[var(--border)] relative" style="background: var(--surface); opacity: .6;">
+          <div class="aspect-square rounded-lg flex items-center justify-center text-5xl mb-2 grayscale" style="background: var(--surface-2);">🛌</div>
+          <div class="heebo text-white text-sm mb-1">לינה אצל חברה</div>
+          <div class="flex items-center justify-between">
+            <div class="mono text-[var(--muted)] text-sm font-bold">50<span class="coin text-base mr-0.5 opacity-50"><span class="coin-icon">¢</span></span></div>
+            <span class="arcade text-[7px] text-[var(--muted)]">3 NEED</span>
+          </div>
+        </div>
+        <!-- movie (locked) -->
+        <div class="rounded-xl p-3 border border-[var(--border)] relative" style="background: var(--surface); opacity: .6;">
+          <div class="aspect-square rounded-lg flex items-center justify-center text-5xl mb-2 grayscale" style="background: var(--surface-2);">🎬</div>
+          <div class="heebo text-white text-sm mb-1">סרט בקולנוע</div>
+          <div class="flex items-center justify-between">
+            <div class="mono text-[var(--muted)] text-sm font-bold">100<span class="coin text-base mr-0.5 opacity-50"><span class="coin-icon">¢</span></span></div>
+            <span class="arcade text-[7px] text-[var(--muted)]">53 NEED</span>
+          </div>
+        </div>
+        <!-- nintendo (big locked) -->
+        <div class="rounded-xl p-3 border border-[var(--border)] relative" style="background: var(--surface); opacity: .6;">
+          <div class="aspect-square rounded-lg flex items-center justify-center text-5xl mb-2 grayscale" style="background: var(--surface-2);">🎮</div>
+          <div class="heebo text-white text-sm mb-1">משחק נינטנדו</div>
+          <div class="flex items-center justify-between">
+            <div class="mono text-[var(--muted)] text-sm font-bold">300<span class="coin text-base mr-0.5 opacity-50"><span class="coin-icon">¢</span></span></div>
+            <span class="arcade text-[7px] text-[var(--muted)]">253 NEED</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[20px]"></div>
+
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN F — REDEMPTION TRACKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">F</div>
+    <div class="frame-h2">ORDERS / TRACKER</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">Pending + received history</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="display-he text-[20px] text-white">ההזמנות שלי</div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Pending section -->
+      <div class="px-5 mt-5">
+        <div class="arcade text-[9px] text-[var(--warn)] mb-3 flex items-center gap-2"><span>⏳</span>PENDING DELIVERY</div>
+        <div class="space-y-2">
+          <div class="rounded-xl p-3 border border-[var(--warn)]/40 flex items-center gap-3 relative" style="background: linear-gradient(135deg, rgba(255,170,0,.08), var(--surface));">
+            <div class="w-14 h-14 rounded-lg flex items-center justify-center text-3xl" style="background: var(--surface-2);">🍦</div>
+            <div class="flex-1 min-w-0">
+              <div class="heebo text-white text-sm">גלידה</div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-0.5">הוזמן לפני 2 שעות · 8<span class="coin text-[10px] mx-0.5"><span class="coin-icon">¢</span></span></div>
+            </div>
+            <button class="arcade text-[8px] py-2 px-3 rounded-lg" style="background: var(--warn); color: #000;">GOT IT!</button>
+          </div>
+          <div class="rounded-xl p-3 border border-[var(--warn)]/40 flex items-center gap-3" style="background: linear-gradient(135deg, rgba(255,170,0,.08), var(--surface));">
+            <div class="w-14 h-14 rounded-lg flex items-center justify-center text-3xl" style="background: var(--surface-2);">🍬</div>
+            <div class="flex-1 min-w-0">
+              <div class="heebo text-white text-sm">סוכריה</div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-0.5">הוזמן אתמול · 2<span class="coin text-[10px] mx-0.5"><span class="coin-icon">¢</span></span></div>
+            </div>
+            <button class="arcade text-[8px] py-2 px-3 rounded-lg" style="background: var(--warn); color: #000;">GOT IT!</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Received section -->
+      <div class="px-5 mt-6">
+        <div class="arcade text-[9px] text-[var(--acid)] mb-3 flex items-center gap-2"><span>✓</span>RECEIVED · 18 ALL TIME</div>
+        <div class="space-y-2">
+          <div class="rounded-xl p-3 border border-[var(--border)] flex items-center gap-3" style="background: var(--surface);">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl opacity-80" style="background: var(--surface-2);">📱</div>
+            <div class="flex-1">
+              <div class="heebo text-white/80 text-sm">חצי שעה מסך</div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-0.5">קיבלתי לפני 3 ימים · 5<span class="coin text-[10px] mx-0.5"><span class="coin-icon">¢</span></span></div>
+            </div>
+            <div class="pill pill-acid">קיבלתי</div>
+          </div>
+          <div class="rounded-xl p-3 border border-[var(--border)] flex items-center gap-3" style="background: var(--surface);">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl opacity-80" style="background: var(--surface-2);">🍬</div>
+            <div class="flex-1">
+              <div class="heebo text-white/80 text-sm">סוכריה</div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-0.5">קיבלתי לפני שבוע · 2<span class="coin text-[10px] mx-0.5"><span class="coin-icon">¢</span></span></div>
+            </div>
+            <div class="pill pill-acid">קיבלתי</div>
+          </div>
+          <div class="rounded-xl p-3 border border-[var(--border)] flex items-center gap-3 opacity-60" style="background: var(--surface);">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center text-2xl grayscale" style="background: var(--surface-2);">🎬</div>
+            <div class="flex-1">
+              <div class="heebo text-white/80 text-sm">סרט בקולנוע</div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-0.5">קיבלתי לפני חודש · 100<span class="coin text-[10px] mx-0.5"><span class="coin-icon">¢</span></span></div>
+            </div>
+            <div class="pill pill-acid">קיבלתי</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN G — CAMPAIGN VIEW -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">G</div>
+    <div class="frame-h2">CAMPAIGNS</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">1 streak (day 3/5) + 1 total (38/100, 12 days left)</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="display-he text-[20px] text-white">הקווסטים שלי</div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Streak campaign card -->
+      <div class="mx-5 mt-4 rounded-2xl p-5 glow-pink relative overflow-hidden" style="background: linear-gradient(180deg, #2A0F1F, #0E0E18);">
+        <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(transparent 50%, rgba(255,45,135,.05) 50%); background-size: 100% 3px;"></div>
+        <div class="relative">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="arcade text-[9px] text-[var(--pink)] mb-1.5 text-glow-pink">// STREAK QUEST //</div>
+              <div class="display-he text-[20px] text-white leading-tight">5 ימים של מיטה</div>
+            </div>
+            <div class="text-4xl">🔥</div>
+          </div>
+
+          <!-- Streak chain -->
+          <div class="flex gap-2 mb-3">
+            <div class="streak-day done">1</div>
+            <div class="streak-day done">2</div>
+            <div class="streak-day done">3</div>
+            <div class="streak-day today">4</div>
+            <div class="streak-day">5</div>
+          </div>
+
+          <div class="mono text-[11px] text-[var(--muted)] mb-3">
+            <span class="text-[var(--pink)] font-bold">3</span> ימים מתוך <span class="text-white">5</span> · עוד <span class="text-[var(--cyan)]">יומיים</span> לפרס
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="pill pill-gold mono">+50</span>
+            <span class="pill pill-pink">תג BED MASTER</span>
+          </div>
+
+          <div class="heebo text-[12px] text-white/70 mt-3 italic leading-relaxed">
+            "תיכף שם! עוד יומיים והפרס שלך."
+          </div>
+        </div>
+      </div>
+
+      <!-- Total campaign card -->
+      <div class="mx-5 mt-4 rounded-2xl p-5 glow-cyan relative overflow-hidden" style="background: linear-gradient(180deg, #021A1F, #0E0E18);">
+        <div class="relative">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <div class="arcade text-[9px] text-[var(--cyan)] mb-1.5 text-glow-cyan">// TOTAL QUEST //</div>
+              <div class="display-he text-[20px] text-white leading-tight">לקרוא 100 עמודים</div>
+            </div>
+            <div class="text-4xl">📚</div>
+          </div>
+
+          <!-- Big progress -->
+          <div class="flex items-baseline gap-2 mb-2">
+            <span class="arcade text-[26px] text-[var(--cyan)] text-glow-cyan">38</span>
+            <span class="mono text-[var(--muted)] text-sm">/ 100 עמודים</span>
+          </div>
+          <div class="pb-track" style="height:10px"><div class="pb-fill" style="width:38%; background: linear-gradient(90deg, #00E5FF, #FFD600); color: #00E5FF;"></div></div>
+
+          <div class="flex items-center justify-between mt-3">
+            <span class="mono text-[11px] text-[var(--muted)]">עוד <span class="text-[var(--warn)] font-bold">12 ימים</span></span>
+            <span class="mono text-[11px] text-[var(--muted)]">עוד <span class="text-[var(--cyan)] font-bold">62 עמודים</span></span>
+          </div>
+
+          <div class="flex items-center gap-2 mt-3">
+            <span class="pill pill-gold mono">+100</span>
+            <span class="pill pill-cyan">תג BOOKWORM</span>
+          </div>
+
+          <div class="heebo text-[12px] text-white/70 mt-3 italic leading-relaxed">
+            "5 עמודים ביום ויש לך את זה. או 62 ביום האחרון. מי שפויטת חשבון."
+          </div>
+        </div>
+      </div>
+
+      <div class="px-5 mt-5">
+        <div class="arcade text-[9px] text-[var(--muted)] mb-2">// LEADERBOARD //</div>
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-3 p-2 rounded-lg border border-[var(--border)]" style="background: var(--surface);">
+            <span class="arcade text-[10px] text-[var(--gold)] w-5">#1</span>
+            <div class="w-6 h-6 rounded-md flex items-center justify-center display-he text-[14px] text-white" style="background: linear-gradient(135deg, #00E5FF, #0A2128);">י</div>
+            <span class="heebo text-white text-sm flex-1">יעל</span>
+            <span class="mono text-[var(--gold)] text-sm">89<span class="coin text-base mx-0.5"><span class="coin-icon">¢</span></span></span>
+          </div>
+          <div class="flex items-center gap-3 p-2 rounded-lg border border-[var(--pink)]/40" style="background: rgba(255,45,135,.05);">
+            <span class="arcade text-[10px] text-[var(--muted)] w-5">#2</span>
+            <div class="w-6 h-6 rounded-md flex items-center justify-center display-he text-[14px] text-white" style="background: linear-gradient(135deg, #FF2D87, #2A1126);">ל</div>
+            <span class="heebo text-white text-sm flex-1">ליה <span class="text-[var(--cyan)] text-[10px]">· את</span></span>
+            <span class="mono text-[var(--gold)] text-sm">47<span class="coin text-base mx-0.5"><span class="coin-icon">¢</span></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN H — BADGES COLLECTION -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-1">H</div>
+    <div class="frame-h2">BADGES</div>
+    <div class="mono text-xs text-[var(--muted)] mt-1">3 earned · 5 locked · sibling chip</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-lg bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="display-he text-[20px] text-white">התגים שלי</div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Stats banner -->
+      <div class="mx-5 mt-4 rounded-2xl p-4 relative" style="background: linear-gradient(135deg, rgba(255,45,135,.10), rgba(0,229,255,.08));">
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <div class="arcade text-[20px] text-[var(--pink)] text-glow-pink leading-none">03</div>
+            <div class="mono text-[10px] text-[var(--muted)] mt-1">EARNED</div>
+          </div>
+          <div class="border-x border-[var(--border)]">
+            <div class="arcade text-[20px] text-white leading-none">08</div>
+            <div class="mono text-[10px] text-[var(--muted)] mt-1">TOTAL</div>
+          </div>
+          <div>
+            <div class="arcade text-[20px] text-[var(--cyan)] text-glow-cyan leading-none">37%</div>
+            <div class="mono text-[10px] text-[var(--muted)] mt-1">DONE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle -->
+      <div class="px-5 mt-4 flex gap-2">
+        <button class="pill pill-pink">שלי</button>
+        <button class="pill pill-muted">של יעל</button>
+      </div>
+
+      <!-- Grid -->
+      <div class="px-5 mt-4 grid grid-cols-4 gap-3">
+        <!-- Earned -->
+        <div class="text-center">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl glow-pink mb-1.5" style="background: linear-gradient(180deg, #FF2D87, #2A1126);">🏆</div>
+          <div class="heebo text-[10px] text-white leading-tight">אלופת מיטה</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl glow-cyan mb-1.5" style="background: linear-gradient(180deg, #00E5FF, #0A2128);">📚</div>
+          <div class="heebo text-[10px] text-white leading-tight">תולעת ספרים</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl glow-gold mb-1.5" style="background: linear-gradient(180deg, #FFD600, #5C4400);">⭐</div>
+          <div class="heebo text-[10px] text-white leading-tight">100 משימות</div>
+        </div>
+        <!-- Locked -->
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--surface);">
+            🎹
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+            </div>
+          </div>
+          <div class="heebo text-[10px] text-[var(--muted)] leading-tight">מוסיקאית</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--surface);">
+            🔥
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+            </div>
+          </div>
+          <div class="heebo text-[10px] text-[var(--muted)] leading-tight">רצף 30 ימים</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--surface);">
+            🎂
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+            </div>
+          </div>
+          <div class="heebo text-[10px] text-[var(--muted)] leading-tight">יום הולדת 2026</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--surface);">
+            💯
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+            </div>
+          </div>
+          <div class="heebo text-[10px] text-[var(--muted)] leading-tight">500 משימות</div>
+        </div>
+        <div class="text-center opacity-50">
+          <div class="aspect-square rounded-xl flex items-center justify-center text-3xl grayscale mb-1.5 relative" style="background: var(--surface);">
+            🥇
+            <div class="absolute inset-0 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--muted)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+            </div>
+          </div>
+          <div class="heebo text-[10px] text-[var(--muted)] leading-tight">10 קמפיינים</div>
+        </div>
+      </div>
+
+      <!-- Sibling activity card -->
+      <div class="mx-5 mt-5 rounded-xl p-3 border border-[var(--cyan)]/30" style="background: rgba(0,229,255,.04);">
+        <div class="arcade text-[9px] text-[var(--cyan)] mb-2">// SIBLING ACTIVITY //</div>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-lg flex items-center justify-center display-he text-[18px] text-white" style="background: linear-gradient(135deg, #00E5FF, #0A2128);">י</div>
+          <div class="flex-1">
+            <div class="heebo text-white text-sm">יעל זכתה ב<span class="text-[var(--cyan)] font-bold">תג מוסיקאית</span></div>
+            <div class="mono text-[10px] text-[var(--muted)] mt-0.5">לפני 12 דקות</div>
+          </div>
+          <div class="text-2xl">🎹</div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- /screens grid -->
+
+<!-- =================== LANGUAGE TOGGLE PREVIEW =================== -->
+<div class="mt-24" dir="ltr">
+  <hr class="border-[var(--border)] mb-12" />
+  <div class="text-center mb-8">
+    <div class="arcade text-[10px] text-[var(--cyan)] mb-2">LANGUAGE TOGGLE PREVIEW</div>
+    <div class="frame-h2">SAME HOME SCREEN · ENGLISH (LTR)</div>
+  </div>
+  <div class="flex justify-center">
+    <div class="phone" lang="en">
+      <div class="notch"></div>
+      <div class="phone-inner" dir="ltr">
+        <div class="statusbar"><span>9:41</span><span>RECO</span></div>
+
+        <div class="px-5 pt-3 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center font-bold" style="background: linear-gradient(135deg, #FF2D87, #2A1126); box-shadow: 0 0 0 1px #FF2D87, 0 0 12px var(--pink-glow);">
+              <span class="arcade text-[14px] text-white">L</span>
+            </div>
+            <div>
+              <div class="text-xs text-[var(--muted)]">good morning,</div>
+              <div class="arcade text-[14px] text-white leading-none">LIA</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-4 rounded-2xl p-5 glow-pink relative overflow-hidden" style="background: linear-gradient(180deg, #1A0F1A, #0E0E18);">
+          <div class="absolute inset-0 opacity-30" style="background-image: linear-gradient(transparent 50%, rgba(255,45,135,.04) 50%); background-size: 100% 3px;"></div>
+          <div class="relative">
+            <div class="arcade text-[9px] text-[var(--pink)] mb-1 text-glow-pink">// WALLET BALANCE //</div>
+            <div class="flex items-baseline gap-3">
+              <span class="coin text-[36px]"><span class="coin-icon">¢</span></span>
+              <span class="arcade text-[44px] text-[var(--gold)] text-glow-gold leading-none">0047</span>
+            </div>
+            <div class="flex items-center gap-2 mt-3 text-[11px]">
+              <span class="pill pill-acid">+12 TODAY</span>
+              <span class="mono text-[var(--muted)]">MONTH: +84</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 mt-5">
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="arcade text-[12px] text-white">TODAY'S MISSIONS</div>
+            <span class="arcade text-[9px] text-[var(--cyan)]">3/4</span>
+          </div>
+          <div class="space-y-2">
+            <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--border)]" style="background: rgba(0,255,148,.04);">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:rgba(0,255,148,.18);"><svg width="18" height="18" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="#00FF94" d="M3 8h2v2h-2zM5 10h2v2h-2zM7 8h2v2h-2zM9 6h2v2h-2zM11 4h2v2h-2z"/></svg></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[14px] text-white/70 line-through">Make your bed</div>
+                <div class="mono text-[10px] text-[var(--muted)]">DAILY · resets in 21h</div>
+              </div>
+              <div class="pill pill-acid mono">+1</div>
+            </div>
+            <div class="flex items-center gap-3 p-2.5 rounded-xl border border-[var(--cyan)]/30 glow-cyan" style="background: rgba(0,229,255,.05);">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center" style="background:rgba(0,229,255,.18);"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+              <div class="flex-1 min-w-0">
+                <div class="text-[14px] text-white">Homework</div>
+                <div class="mono text-[10px] text-[var(--cyan)]">Photo required · reminder at 17:00</div>
+              </div>
+              <div class="pill pill-gold mono">+20</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-5 rounded-xl p-3 relative" style="background: linear-gradient(135deg, rgba(255,45,135,.12), rgba(255,170,0,.08)); border: 1px solid rgba(255,45,135,.3);">
+          <div class="flex items-center gap-3">
+            <div class="text-3xl">🔥</div>
+            <div class="flex-1 min-w-0">
+              <div class="arcade text-[10px] text-white leading-tight">CAMPAIGN: 5-DAY BED STREAK</div>
+              <div class="mono text-[10px] text-[var(--muted)] mt-1">+50 BONUS · BED MASTER badge</div>
+            </div>
+            <span class="arcade text-[9px] text-[var(--pink)]">3/5</span>
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+        <div class="tabbar">
+          <div class="tab active"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M2 7h2v7h2v-4h4v4h2v-7h2L8 2z"/></svg>HOME</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v2h-10zM3 7h10v2h-10zM3 11h10v2h-10z"/></svg>TASKS</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M4 2h8v2h-8zM2 4h12v8h-12zM4 12h8v2h-8z"/></svg>SHOP</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M6 1h4v4h2v3l-2 2v5h-4v-5l-2-2v-3h2z"/></svg>QUEST</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 16 16" shape-rendering="crispEdges"><path fill="currentColor" d="M3 3h10v3h-10zM5 6h6v3h-6zM7 9h2v3h-2z"/></svg>BADGE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== CONCEPT FOOTER =================== -->
+<footer class="mt-24 max-w-3xl mx-auto px-6 pb-16" dir="ltr">
+  <hr class="border-[var(--border)] mb-12" />
+  <div class="arcade text-[10px] text-[var(--muted)] mb-3">// CONCEPT 01 NOTES //</div>
+  <h3 class="arcade text-[18px] text-[var(--pink)] mb-6 leading-snug">STRONGEST WEAKNESS:</h3>
+  <p class="heebo text-[15px] text-[var(--text)]/85 leading-relaxed mb-4">
+    The arcade-neon aesthetic skews boy-coded and "edgy." Kids 9-11 split sharply on whether dark, neon, gamified screens read as cool or as overstimulating. If either Lia or Yael leans away from arcade-game aesthetics in real life, this concept will feel like a costume they don't want to wear. Also: the dark theme makes evidence-photo previews and reward thumbnails harder to read at a glance — kids' eyes have to work harder for what should be an effortless interface.
+  </p>
+  <p class="heebo text-[15px] text-[var(--text)]/85 leading-relaxed">
+    Quietest strength: the high-score-display framing makes the wallet ledger feel like an objective record, not a parent-controlled allowance. Coins become "points the system minted" rather than "money mom gave me," which matches the actual ledger semantics — and the streak/total campaign visuals (chain + scoreboard) are the most intuitive of the three concepts.
+  </p>
+</footer>
+
+</main>
+
+</body>
+</html>

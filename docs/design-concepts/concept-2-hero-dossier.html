@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reco — Concept 2 — Hero Dossier</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Frank+Ruhl+Libre:wght@300;400;500;700;900&family=Heebo:wght@300;400;500;700;800;900&family=DM+Mono:wght@400;500&family=Caveat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F5EFE2;
+    --paper-deep: #EEE5D2;
+    --vellum: #FBF7EC;
+    --ink: #2B1F12;
+    --ink-soft: #4A3826;
+    --ink-faded: #8A7A65;
+    --crimson: #8E2B1F;
+    --crimson-dark: #5F1B13;
+    --royal: #1E3A8A;
+    --royal-dark: #14275C;
+    --gold: #B8881C;
+    --gold-light: #D4A24D;
+    --gold-pale: #E8D098;
+    --forest: #2F5D3E;
+    --forest-pale: #C7D8CB;
+    --rouge: #B85248;
+    --rule: #C9B998;
+    --emboss: rgba(120, 85, 28, .15);
+  }
+  html, body { background: var(--paper); color: var(--ink); font-family: 'Cormorant Garamond', 'Frank Ruhl Libre', serif; min-height: 100vh; }
+  body {
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(184, 136, 28, .04) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(30, 58, 138, .03) 0%, transparent 40%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence baseFrequency='.85' /><feColorMatrix values='0 0 0 0 0.7  0 0 0 0 0.5  0 0 0 0 0.2  0 0 0 .06 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  .cinzel { font-family: 'Cinzel', serif; letter-spacing: .04em; }
+  .cormorant { font-family: 'Cormorant Garamond', serif; }
+  .frank { font-family: 'Frank Ruhl Libre', serif; }
+  .heebo { font-family: 'Heebo', sans-serif; }
+  .caveat { font-family: 'Caveat', cursive; }
+  .dm-mono { font-family: 'DM Mono', monospace; font-feature-settings: "tnum"; }
+
+  .ink { color: var(--ink); }
+  .crimson { color: var(--crimson); }
+  .royal { color: var(--royal); }
+  .gold { color: var(--gold); }
+  .gold-bright { color: var(--gold-light); }
+
+  /* Phone frame — slightly creamier */
+  .phone {
+    width: 390px; min-height: 844px;
+    background: var(--vellum);
+    border-radius: 44px;
+    border: 6px solid #1a1108;
+    box-shadow:
+      0 0 0 1px #2b1f12,
+      0 30px 80px rgba(43, 31, 18, .25),
+      0 60px 120px rgba(43, 31, 18, .12);
+    overflow: hidden;
+    position: relative;
+    isolation: isolate;
+  }
+  .phone-inner { height: 100%; min-height: 832px; display: flex; flex-direction: column; position: relative; }
+  .notch { width: 110px; height: 28px; background: #1a1108; border-radius: 0 0 16px 16px; position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 50; }
+  .statusbar { padding: 14px 20px 6px; display: flex; justify-content: space-between; align-items: center; font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; color: var(--ink); position: relative; z-index: 10; }
+
+  /* Gold seal */
+  .seal {
+    width: 64px; height: 64px;
+    background: radial-gradient(circle at 35% 30%, #F8DF96, #C4944A 55%, #8C661E);
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(120, 85, 28, .35), inset 0 -3px 6px rgba(0,0,0,.2), inset 0 2px 4px rgba(255,255,255,.4);
+    position: relative;
+    flex-shrink: 0;
+  }
+  .seal::after {
+    content: ""; position: absolute; inset: 5px;
+    border: 1.5px dashed rgba(255,255,255,.45);
+    border-radius: 50%;
+  }
+  .seal-inner {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #5F3B0F; font-family: 'Cinzel', serif; font-weight: 700; font-size: 14px;
+    text-shadow: 0 1px 0 rgba(255,255,255,.4);
+  }
+
+  /* Coin — embossed gold */
+  .coin {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1em; height: 1em; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #F8DF96, #C4944A 50%, #8C661E);
+    box-shadow: 0 1px 2px rgba(0,0,0,.15), inset 0 -1px 0 rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.3);
+    color: #5F3B0F; font-weight: 700; font-size: .55em; flex-shrink: 0;
+  }
+
+  /* Filigree corner — used as decorative element */
+  .filigree-tl, .filigree-tr, .filigree-bl, .filigree-br {
+    position: absolute; width: 32px; height: 32px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><path d='M0 0 L0 8 Q0 0 8 0 Z' fill='%23B8881C'/><path d='M0 12 Q4 12 8 8 T 12 0' stroke='%23B8881C' stroke-width='.7' fill='none'/><circle cx='14' cy='2' r='1.2' fill='%23B8881C'/><circle cx='2' cy='14' r='1.2' fill='%23B8881C'/></svg>");
+    background-size: contain; background-repeat: no-repeat;
+    opacity: .85;
+  }
+  .filigree-tl { top: 8px; left: 8px; }
+  .filigree-tr { top: 8px; right: 8px; transform: scaleX(-1); }
+  .filigree-bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+  .filigree-br { bottom: 8px; right: 8px; transform: scale(-1, -1); }
+
+  /* Ribbon banner */
+  .ribbon {
+    display: inline-block; position: relative;
+    padding: 6px 18px;
+    background: linear-gradient(180deg, var(--crimson), var(--crimson-dark));
+    color: #FCEFD0;
+    font-family: 'Cinzel', serif; font-weight: 600; font-size: 10px; letter-spacing: .12em;
+    box-shadow: 0 2px 4px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+  .ribbon::before, .ribbon::after {
+    content: ""; position: absolute; top: 0; height: 100%; width: 10px;
+    background: var(--crimson-dark);
+  }
+  .ribbon::before { right: -10px; clip-path: polygon(0 0, 100% 50%, 0 100%, 0 70%, 50% 50%, 0 30%); }
+  .ribbon::after { left: -10px; clip-path: polygon(100% 0, 0 50%, 100% 100%, 100% 70%, 50% 50%, 100% 30%); }
+
+  /* Card stock parchment */
+  .parchment {
+    background: var(--vellum);
+    border: 1px solid var(--rule);
+    box-shadow: 0 1px 2px rgba(43,31,18,.06), inset 0 0 0 4px var(--vellum), inset 0 0 0 5px var(--rule);
+    border-radius: 6px;
+  }
+  .parchment-bare { background: var(--vellum); border: 1px solid var(--rule); border-radius: 6px; }
+
+  .double-rule { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 2px 0; }
+
+  /* Heraldic chip */
+  .crest {
+    width: 44px; height: 52px;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 50% 100%, 0 70%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-family: 'Cinzel', serif; font-weight: 800; font-size: 22px;
+    box-shadow: inset 0 -2px 4px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.15);
+  }
+
+  /* Tabbar */
+  .tabbar {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    background: linear-gradient(180deg, var(--paper-deep), var(--paper));
+    border-top: 2px solid var(--rule);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+    padding: 14px 8px 28px;
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-family: 'Cinzel', serif; font-size: 9px; font-weight: 600; letter-spacing: .08em; color: var(--ink-faded); }
+  .tab.active { color: var(--crimson); }
+  .tab.active::after { content: ""; display: block; width: 4px; height: 4px; background: var(--crimson); border-radius: 50%; margin-top: 2px; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px;
+    font-family: 'Cinzel', serif; font-size: 9px; font-weight: 600; letter-spacing: .1em;
+    border: 1px solid;
+  }
+  .pill-crimson { background: rgba(142, 43, 31, .08); color: var(--crimson); border-color: rgba(142, 43, 31, .35); }
+  .pill-royal { background: rgba(30, 58, 138, .08); color: var(--royal); border-color: rgba(30, 58, 138, .35); }
+  .pill-gold { background: rgba(184, 136, 28, .08); color: var(--gold); border-color: rgba(184, 136, 28, .45); }
+  .pill-forest { background: rgba(47, 93, 62, .08); color: var(--forest); border-color: rgba(47, 93, 62, .35); }
+  .pill-ink { background: rgba(43, 31, 18, .05); color: var(--ink-soft); border-color: var(--rule); }
+
+  .frame-h2 { font-family: 'Cinzel', serif; font-weight: 700; font-size: 14px; color: var(--ink); letter-spacing: .12em; }
+  .swatch { width: 56px; height: 56px; border-radius: 4px; box-shadow: 0 2px 6px rgba(43,31,18,.15); }
+
+  .pb-track { background: rgba(184,136,28,.12); border: 1px solid var(--gold-pale); border-radius: 999px; overflow: hidden; height: 10px; position: relative; box-shadow: inset 0 1px 2px rgba(0,0,0,.08); }
+  .pb-fill { height: 100%; border-radius: 999px; background: linear-gradient(180deg, var(--gold-light), var(--gold)); box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+
+  /* Wax stamp animation */
+  .wax-stamp {
+    background: radial-gradient(circle at 35% 30%, #DD5A4F, #8E2B1F 70%);
+    color: #FCEFD0;
+    border-radius: 50%;
+    box-shadow: 0 3px 8px rgba(95, 27, 19, .35), inset 0 -2px 4px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.2);
+  }
+</style>
+</head>
+<body class="min-h-screen">
+
+<!-- =================== INTRO SECTION =================== -->
+<section class="relative max-w-6xl mx-auto px-6 pt-20 pb-12" dir="ltr">
+  <div class="flex items-baseline gap-3 mb-2">
+    <span class="cinzel text-[11px] text-[var(--crimson)] font-bold">CONCEPT 02</span>
+    <span class="cinzel text-[10px] text-[var(--ink-faded)]">— RECO DESIGN DECK —</span>
+  </div>
+  <div class="relative inline-block mb-3">
+    <h1 class="cinzel text-[44px] font-bold leading-[1.05] text-[var(--ink)]">HERO<br>DOSSIER</h1>
+    <div class="absolute -top-3 -right-4 caveat text-[var(--crimson)] text-3xl -rotate-12">Reco</div>
+  </div>
+  <p class="cormorant text-[var(--ink-soft)] text-[19px] max-w-2xl leading-relaxed italic">
+    Reco as an illuminated quest log. Each kid is the hero of her own dossier — wallet is the treasury, tasks are quests, rewards are loot, badges are crests pinned to a personal coat of arms. Built from parchment, ink, ribbon, gold leaf, and the dignity of an old library.
+  </p>
+
+  <div class="grid grid-cols-3 gap-10 mt-12">
+    <!-- Palette -->
+    <div>
+      <div class="cinzel text-[10px] font-bold text-[var(--ink-faded)] mb-4 letter-tight">PALETTE</div>
+      <div class="grid grid-cols-4 gap-2 mb-3">
+        <div><div class="swatch" style="background:#8E2B1F"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#8E2B1F</div></div>
+        <div><div class="swatch" style="background:#1E3A8A"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#1E3A8A</div></div>
+        <div><div class="swatch" style="background:#B8881C"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#B8881C</div></div>
+        <div><div class="swatch" style="background:#2F5D3E"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#2F5D3E</div></div>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        <div><div class="swatch" style="background:#F5EFE2"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#F5EFE2</div></div>
+        <div><div class="swatch" style="background:#FBF7EC"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#FBF7EC</div></div>
+        <div><div class="swatch" style="background:#2B1F12"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#2B1F12</div></div>
+        <div><div class="swatch" style="background:#D4A24D"></div><div class="dm-mono text-[10px] mt-1.5 text-[var(--ink-faded)]">#D4A24D</div></div>
+      </div>
+      <p class="cormorant text-[14px] text-[var(--ink-soft)] mt-4 leading-relaxed italic">
+        Lia bears the crimson banner. Yael flies royal blue. Both kingdoms share the same gold currency, the same green seal of approval, the same parchment world. Coins are real metallic gold — never flat yellow.
+      </p>
+    </div>
+
+    <!-- Typography -->
+    <div>
+      <div class="cinzel text-[10px] font-bold text-[var(--ink-faded)] mb-4">TYPOGRAPHY</div>
+      <div class="space-y-3">
+        <div class="border-r-2 border-[var(--crimson)] pr-4">
+          <div class="cinzel text-[24px] font-bold text-[var(--ink)] leading-none">RECO</div>
+          <div class="dm-mono text-[10px] text-[var(--ink-faded)] mt-2">Cinzel · stamped Roman caps</div>
+        </div>
+        <div class="border-r-2 border-[var(--royal)] pr-4">
+          <div class="frank text-[28px] font-bold text-[var(--ink)] leading-none">ליה</div>
+          <div class="dm-mono text-[10px] text-[var(--ink-faded)] mt-2">Frank Ruhl Libre · Hebrew dignity</div>
+        </div>
+        <div class="border-r-2 border-[var(--ink)]/40 pr-4">
+          <div class="cormorant italic text-[18px] text-[var(--ink-soft)] leading-snug">"Three quests remain ere sunset."</div>
+          <div class="dm-mono text-[10px] text-[var(--ink-faded)] mt-1">Cormorant Garamond · narrative body</div>
+        </div>
+        <div class="border-r-2 border-[var(--gold)] pr-4">
+          <div class="dm-mono text-[16px] text-[var(--ink)]">47 / 38 of 100</div>
+          <div class="dm-mono text-[10px] text-[var(--ink-faded)] mt-1">DM Mono · tabular numerals</div>
+        </div>
+        <div class="border-r-2 border-[var(--rouge)] pr-4">
+          <div class="caveat text-[20px] text-[var(--crimson)] leading-none">— Lia, your turn!</div>
+          <div class="dm-mono text-[10px] text-[var(--ink-faded)] mt-1">Caveat · margin notes, signatures</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Iconography -->
+    <div>
+      <div class="cinzel text-[10px] font-bold text-[var(--ink-faded)] mb-4">ICONOGRAPHY</div>
+      <p class="cormorant text-[14px] text-[var(--ink-soft)] leading-relaxed italic mb-4">
+        Illustrated emblems and heraldic devices. Shields, ribbons, wax seals, scrolls, treasure chests, quill-pen flourishes. Solid silhouettes with a single gold-line edge. Where icons fail, hand-drawn margin doodles fill the gap. No flat outlines — these icons want to feel printed and embossed.
+      </p>
+      <div class="flex gap-3 flex-wrap items-center">
+        <!-- crest -->
+        <div class="crest" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13);">ל</div>
+        <div class="crest" style="background: linear-gradient(180deg, #1E3A8A, #14275C);">י</div>
+        <!-- seal -->
+        <div class="seal"><div class="seal-inner">✓</div></div>
+        <!-- wax stamp -->
+        <div class="wax-stamp w-12 h-12 flex items-center justify-center cinzel font-bold text-[14px]">R</div>
+      </div>
+      <p class="cormorant text-[12px] text-[var(--ink-faded)] italic mt-4">
+        Each kid's "crest" is her color shield with first letter. Wax stamps mark joker actions. Gold seals mark approvals.
+      </p>
+    </div>
+  </div>
+</section>
+
+<div class="max-w-6xl mx-auto px-6">
+  <div class="flex items-center gap-4 my-8">
+    <hr class="flex-1 border-[var(--rule)]" />
+    <span class="cinzel text-[10px] text-[var(--ink-faded)] tracking-widest">8 KID SCREENS · HEBREW DEFAULT · + ADMIN VIEWS</span>
+    <hr class="flex-1 border-[var(--rule)]" />
+  </div>
+</div>
+
+<!-- =================== SCREENS GRID =================== -->
+<main class="max-w-6xl mx-auto px-6 pb-32">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-y-20 gap-x-12 justify-items-center">
+
+<!-- ============================================ -->
+<!-- SCREEN A — PROFILE PICKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">A</div>
+    <div class="frame-h2">— PROFILE PICKER —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">Two heroes await</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-6 pt-8 pb-2 text-center">
+        <div class="flex justify-center mb-3">
+          <span class="ribbon">— ASCENDANT —</span>
+        </div>
+        <h1 class="frank text-[36px] font-bold text-[var(--ink)] leading-tight">מי תרים את החרב?</h1>
+        <p class="cormorant italic text-[15px] text-[var(--ink-faded)] mt-2">— ההרפתקאה שלך מחכה</p>
+      </div>
+
+      <div class="flex-1 px-5 pt-4 flex flex-col gap-4">
+        <!-- Lia dossier card -->
+        <button class="parchment p-4 relative">
+          <div class="filigree-tl"></div><div class="filigree-tr"></div><div class="filigree-bl"></div><div class="filigree-br"></div>
+          <div class="flex items-center gap-4 px-2">
+            <div class="crest" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13);">ל</div>
+            <div class="flex-1 text-right">
+              <div class="frank text-[22px] font-bold text-[var(--ink)] leading-tight">ליה</div>
+              <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest mt-1">— HOUSE CRIMSON —</div>
+              <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-2">דרגה 4 · 7 תגים</div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <span class="coin text-[18px]">¢</span>
+              <span class="dm-mono text-[14px] font-bold text-[var(--gold)]">47</span>
+            </div>
+          </div>
+        </button>
+
+        <!-- Yael dossier card -->
+        <button class="parchment p-4 relative">
+          <div class="filigree-tl"></div><div class="filigree-tr"></div><div class="filigree-bl"></div><div class="filigree-br"></div>
+          <div class="flex items-center gap-4 px-2">
+            <div class="crest" style="background: linear-gradient(180deg, #1E3A8A, #14275C);">י</div>
+            <div class="flex-1 text-right">
+              <div class="frank text-[22px] font-bold text-[var(--ink)] leading-tight">יעל</div>
+              <div class="cinzel text-[9px] text-[var(--royal)] tracking-widest mt-1">— HOUSE AZURE —</div>
+              <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-2">דרגה 3 · 5 תגים</div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <span class="coin text-[18px]">¢</span>
+              <span class="dm-mono text-[14px] font-bold text-[var(--gold)]">89</span>
+            </div>
+          </div>
+        </button>
+      </div>
+
+      <div class="px-6 py-8 text-center" dir="ltr">
+        <hr class="border-[var(--rule)] mb-4" />
+        <button class="cinzel text-[10px] text-[var(--ink-faded)] tracking-widest hover:text-[var(--crimson)]">⚜ COURT OF ELDERS ⚜</button>
+        <div class="cormorant text-[11px] italic text-[var(--ink-faded)] mt-1">parent admin</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN B — KID HOME -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">B</div>
+    <div class="frame-h2">— THE DOSSIER —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">Wallet · today's quests · campaign banner</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <!-- Top: hero card -->
+      <div class="px-5 pt-3 pb-2 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="crest w-9 h-11" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13); font-size: 18px;">ל</div>
+          <div>
+            <div class="cormorant italic text-[12px] text-[var(--ink-faded)]">— יומן של —</div>
+            <div class="frank text-[18px] font-bold text-[var(--ink)] leading-none">ליה</div>
+          </div>
+        </div>
+        <button class="w-10 h-10 rounded-full border border-[var(--rule)] flex items-center justify-center relative" style="background: var(--vellum);">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2"><path d="M6 8a6 6 0 0112 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 004 0"/></svg>
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[var(--crimson)] text-[9px] font-bold text-white flex items-center justify-center">2</span>
+        </button>
+      </div>
+
+      <!-- Treasury -->
+      <div class="mx-5 mt-2 parchment p-5 relative">
+        <div class="filigree-tl"></div><div class="filigree-tr"></div>
+        <div class="text-center">
+          <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest mb-1">— TREASURY —</div>
+          <div class="flex items-center justify-center gap-3 mb-2">
+            <div class="seal w-12 h-12"><div class="seal-inner" style="font-size: 18px;">¢</div></div>
+            <div class="dm-mono text-[48px] font-bold text-[var(--gold)] leading-none">47</div>
+          </div>
+          <div class="cormorant italic text-[14px] text-[var(--ink-faded)]">— מטבעות זהב —</div>
+          <div class="flex items-center justify-center gap-2 mt-3">
+            <span class="pill pill-forest">+12 היום</span>
+            <span class="pill pill-ink">חודש +84</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's quests -->
+      <div class="px-5 mt-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="frank text-[17px] font-bold text-[var(--ink)]">⚔ הקווסטים של היום</div>
+          <span class="cinzel text-[10px] text-[var(--gold)] font-bold tracking-widest">III / IV</span>
+        </div>
+        <div class="space-y-1.5">
+          <div class="parchment-bare px-3 py-2.5 flex items-center gap-3" style="background: rgba(47, 93, 62, .05);">
+            <div class="seal w-8 h-8"><div class="seal-inner" style="font-size: 11px;">✓</div></div>
+            <div class="flex-1">
+              <div class="frank text-[14px] text-[var(--ink-soft)] line-through">להציע את המיטה</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">אושר 7:14</div>
+            </div>
+            <span class="pill pill-gold">+1</span>
+          </div>
+          <div class="parchment-bare px-3 py-2.5 flex items-center gap-3" style="border-color: var(--royal); border-width: 1.5px;">
+            <div class="w-8 h-8 rounded-full border-2 border-[var(--royal)] flex items-center justify-center" style="background: var(--vellum);">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--royal)"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/><circle cx="12" cy="13" r="4" fill="var(--vellum)"/></svg>
+            </div>
+            <div class="flex-1">
+              <div class="frank text-[14px] font-bold text-[var(--ink)]">שיעורי בית</div>
+              <div class="cormorant italic text-[11px] text-[var(--royal)]">נדרשת תמונה · קריאה ב-17:00</div>
+            </div>
+            <span class="pill pill-crimson">+20</span>
+          </div>
+          <div class="parchment-bare px-3 py-2.5 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full border-2 border-[var(--gold)] flex items-center justify-center" style="background: var(--vellum);"></div>
+            <div class="flex-1">
+              <div class="frank text-[14px] text-[var(--ink)]">לערוך את השולחן</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">⏰ 18:00</div>
+            </div>
+            <span class="pill pill-gold">+5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campaign banner -->
+      <div class="mx-5 mt-4 relative parchment p-3" style="background: linear-gradient(135deg, rgba(184,136,28,.10), var(--vellum));">
+        <div class="flex items-center gap-3">
+          <div class="text-2xl">🔥</div>
+          <div class="flex-1 min-w-0">
+            <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— ACTIVE QUEST —</div>
+            <div class="frank text-[14px] font-bold text-[var(--ink)] leading-tight mt-0.5">5 ימים של מיטה</div>
+            <div class="caveat text-[14px] text-[var(--crimson)] leading-none mt-0.5">"תיכף שם!"</div>
+          </div>
+          <div class="text-center">
+            <div class="dm-mono text-[18px] font-bold text-[var(--crimson)] leading-none">3<span class="text-[var(--ink-faded)] text-sm">/5</span></div>
+            <div class="cinzel text-[8px] text-[var(--ink-faded)] tracking-widest mt-1">DAYS</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Yael activity -->
+      <div class="mx-5 mt-3 mb-4 px-3 py-2 flex items-center gap-3 border-t border-b border-[var(--rule)]" style="background: rgba(30,58,138,.04);">
+        <div class="crest w-6 h-7" style="background: linear-gradient(180deg, #1E3A8A, #14275C); font-size: 11px;">י</div>
+        <div class="flex-1 text-xs">
+          <span class="cormorant italic text-[var(--ink-soft)]">— יעל זכתה ב</span><span class="frank font-bold text-[var(--royal)]">תג הקריאה</span><span class="cormorant italic text-[var(--ink-soft)]"> לפני 12 דק׳ —</span>
+        </div>
+        <div class="text-base">🏅</div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- Tabbar -->
+      <div class="tabbar">
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 0a1 1 0 110 2 1 1 0 010-2z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3zM9 8v4h6V8H9z"/></svg>TROVE</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN C — QUEST LOG (task list) -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">C</div>
+    <div class="frame-h2">— QUEST LOG —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">Daily + long-term · all in one ledger</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="text-center">
+          <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— LIBER QUESTIS —</div>
+          <div class="frank text-[20px] font-bold text-[var(--ink)] leading-tight">ספר הקווסטים</div>
+        </div>
+        <div class="w-9"></div>
+      </div>
+
+      <div class="px-5 mt-3 flex gap-2 overflow-x-auto">
+        <button class="pill pill-crimson">היום (4)</button>
+        <button class="pill pill-ink">טווח-ארוך (2)</button>
+        <button class="pill pill-ink">הכל</button>
+      </div>
+
+      <!-- Daily -->
+      <div class="px-5 mt-4">
+        <div class="flex items-center gap-3 mb-2">
+          <hr class="flex-1 border-[var(--rule)]" />
+          <span class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">DAILY · CAPITULUM I</span>
+          <hr class="flex-1 border-[var(--rule)]" />
+        </div>
+        <div class="space-y-1.5">
+          <div class="parchment-bare p-3 flex items-center gap-3" style="background: rgba(47,93,62,.05);">
+            <div class="seal w-7 h-7"><div class="seal-inner" style="font-size: 10px;">✓</div></div>
+            <div class="flex-1">
+              <div class="frank text-[14px] text-[var(--ink-soft)] line-through">להציע את המיטה</div>
+            </div>
+            <span class="pill pill-gold">+1</span>
+            <button class="cinzel text-[8px] text-[var(--crimson)] tracking-widest">בטל</button>
+          </div>
+          <div class="parchment-bare p-3 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full border-2 border-[var(--ink-faded)]" style="background: var(--vellum);"></div>
+            <div class="flex-1">
+              <div class="frank text-[14px] text-[var(--ink)]">לערוך את השולחן</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">⏰ קריאה ב-18:00</div>
+            </div>
+            <span class="pill pill-gold">+5</span>
+          </div>
+          <div class="parchment-bare p-3 flex items-center gap-3" style="border-color: var(--royal); border-width: 1.5px;">
+            <div class="w-7 h-7 rounded-full border-2 border-[var(--royal)]" style="background: var(--vellum);"></div>
+            <div class="flex-1">
+              <div class="frank text-[14px] font-bold text-[var(--ink)] flex items-center gap-1.5">שיעורי בית <svg width="11" height="11" viewBox="0 0 24 24" fill="var(--royal)"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg></div>
+              <div class="cormorant italic text-[11px] text-[var(--royal)]">תמונה נדרשת · 17:00</div>
+            </div>
+            <span class="pill pill-crimson">+20</span>
+          </div>
+          <div class="parchment-bare p-3 flex items-center gap-3">
+            <div class="w-7 h-7 rounded-full border-2 border-[var(--ink-faded)]" style="background: var(--vellum);"></div>
+            <div class="flex-1"><div class="frank text-[14px] text-[var(--ink)]">לצחצח שיניים</div></div>
+            <span class="pill pill-gold">+1</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Long-term -->
+      <div class="px-5 mt-5">
+        <div class="flex items-center gap-3 mb-2">
+          <hr class="flex-1 border-[var(--rule)]" />
+          <span class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">LONG QUEST · CAPITULUM II</span>
+          <hr class="flex-1 border-[var(--rule)]" />
+        </div>
+        <div class="space-y-2">
+          <div class="parchment-bare p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="frank text-[14px] font-bold text-[var(--ink)]">📖 לקרוא 100 עמודים</div>
+              <span class="pill pill-gold">¢/עמוד</span>
+            </div>
+            <div class="pb-track"><div class="pb-fill" style="width:38%"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="dm-mono text-[12px] font-bold text-[var(--gold)]">38 / 100</div>
+              <button class="cinzel text-[10px] font-bold text-[var(--crimson)] tracking-widest">+ הוסיפי</button>
+            </div>
+          </div>
+          <div class="parchment-bare p-3">
+            <div class="flex items-center justify-between mb-2">
+              <div class="frank text-[14px] font-bold text-[var(--ink)]">🎹 פסנתר 300 דקות</div>
+              <span class="pill pill-gold">¢/דקה</span>
+            </div>
+            <div class="pb-track"><div class="pb-fill" style="width:40%"></div></div>
+            <div class="flex justify-between items-center mt-2">
+              <div class="dm-mono text-[12px] font-bold text-[var(--gold)]">120 / 300</div>
+              <button class="cinzel text-[10px] font-bold text-[var(--crimson)] tracking-widest">+ הוסיפי</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2zm-7 0a1 1 0 110 2 1 1 0 010-2z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3zM9 8v4h6V8H9z"/></svg>TROVE</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN D — EVIDENCE UPLOAD -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">D</div>
+    <div class="frame-h2">— PROOF OF DEED —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">Submit homework for the elders' seal</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="cinzel text-[10px] text-[var(--crimson)] tracking-widest">— QUEST DETAIL —</div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Quest card -->
+      <div class="mx-5 mt-3 parchment p-5 text-center relative">
+        <div class="filigree-tl"></div><div class="filigree-tr"></div><div class="filigree-bl"></div><div class="filigree-br"></div>
+        <div class="flex justify-center mb-2">
+          <span class="ribbon">— QUEST III —</span>
+        </div>
+        <h1 class="frank text-[28px] font-bold text-[var(--ink)] leading-tight">שיעורי בית</h1>
+        <p class="cormorant italic text-[14px] text-[var(--ink-faded)] mt-2 leading-relaxed">
+          "תצלמי את העמוד האחרון של שיעורי הבית, וההוכחה תועבר לזקני הבית לחתימת זהב."
+        </p>
+        <div class="flex items-center justify-center gap-2 mt-4">
+          <span class="pill pill-crimson">+20 ¢</span>
+          <span class="pill pill-royal">17:00</span>
+        </div>
+      </div>
+
+      <!-- Capture -->
+      <div class="px-5 mt-5">
+        <div class="flex items-center gap-3 mb-3">
+          <hr class="flex-1 border-[var(--rule)]" />
+          <span class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">CAPTURE EVIDENCE</span>
+          <hr class="flex-1 border-[var(--rule)]" />
+        </div>
+        <div class="parchment-bare border-2 border-dashed" style="border-color: var(--gold); aspect-ratio: 4/3; background: linear-gradient(135deg, rgba(184,136,28,.04), var(--vellum));">
+          <div class="h-full flex flex-col items-center justify-center gap-2">
+            <div class="seal w-16 h-16"><div class="seal-inner" style="font-size: 22px;">📷</div></div>
+            <div class="cinzel text-[10px] text-[var(--ink-soft)] tracking-widest mt-2">— TAP TO CAPTURE —</div>
+            <div class="cormorant italic text-[12px] text-[var(--ink-faded)]">תמונה אחת · עד 10MB</div>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button class="flex-1 py-2.5 rounded-lg flex items-center justify-center gap-2" style="background: var(--ink); color: var(--vellum);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--vellum)"><path d="M23 19V8a2 2 0 00-2-2h-3l-2-3H8L6 6H3a2 2 0 00-2 2v11a2 2 0 002 2h18a2 2 0 002-2z"/></svg>
+            <span class="cinzel text-[10px] tracking-widest font-bold">CAMERA</span>
+          </button>
+          <button class="flex-1 py-2.5 rounded-lg border border-[var(--ink)] flex items-center justify-center gap-2" style="background: var(--vellum);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/></svg>
+            <span class="cinzel text-[10px] tracking-widest font-bold text-[var(--ink)]">GALLERY</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Previous attempt -->
+      <div class="px-5 mt-5">
+        <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest mb-2">— PREVIOUS DECREE —</div>
+        <div class="parchment-bare p-3 flex items-start gap-3" style="border-color: var(--crimson); background: rgba(142,43,31,.04);">
+          <div class="wax-stamp w-9 h-9 flex items-center justify-center cinzel font-bold text-[14px] flex-shrink-0">✗</div>
+          <div class="flex-1">
+            <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— DECREE OF REJECTION —</div>
+            <div class="cormorant italic text-[13px] text-[var(--ink-soft)] mt-1 leading-snug">"לא רואים את הכותרת — תנסי שוב, נסיכה."</div>
+            <div class="caveat text-[14px] text-[var(--crimson)] mt-1">— אמא, אתמול 17:42</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+
+      <!-- CTA -->
+      <div class="px-5 pb-5 pt-3">
+        <button class="w-full py-4 rounded-lg relative" style="background: linear-gradient(180deg, var(--crimson), var(--crimson-dark)); box-shadow: 0 4px 12px rgba(142,43,31,.35), inset 0 1px 0 rgba(255,255,255,.15);">
+          <span class="cinzel text-[12px] font-bold tracking-widest" style="color: #FCEFD0;">⚜ SUBMIT TO THE COURT ⚜</span>
+        </button>
+        <div class="caveat text-[14px] text-[var(--ink-faded)] text-center mt-2">— שני ההורים יקבלו הודעה</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN E — TROVE / REDEEM SHOP -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">E</div>
+    <div class="frame-h2">— TROVE OF SPOILS —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">6 rewards · 3 affordable · balance 47</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="text-center">
+          <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— THESAURUS —</div>
+          <div class="frank text-[20px] font-bold text-[var(--ink)] leading-tight">החנות</div>
+        </div>
+        <button><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="12" cy="12" r="9"/><polyline points="12 8 12 12 14 14"/></svg></button>
+      </div>
+
+      <!-- Balance -->
+      <div class="mx-5 mt-3 parchment p-3 flex items-center gap-3 relative">
+        <div class="filigree-tl"></div><div class="filigree-tr"></div>
+        <div class="seal w-12 h-12"><div class="seal-inner" style="font-size: 18px;">¢</div></div>
+        <div class="flex-1">
+          <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">— TREASURY —</div>
+          <div class="dm-mono text-[26px] font-bold text-[var(--gold)] leading-none">47</div>
+        </div>
+        <span class="pill pill-forest">3 ניתן לקנות</span>
+      </div>
+
+      <!-- Items -->
+      <div class="px-5 mt-4 grid grid-cols-2 gap-3">
+        <!-- candy -->
+        <div class="parchment p-3 relative">
+          <div class="filigree-tl" style="width:20px;height:20px;top:4px;left:4px;"></div>
+          <div class="filigree-tr" style="width:20px;height:20px;top:4px;right:4px;"></div>
+          <div class="aspect-square rounded flex items-center justify-center text-5xl mb-2" style="background: rgba(184,136,28,.06);">🍬</div>
+          <div class="frank text-[14px] font-bold text-[var(--ink)] mb-1">סוכריה</div>
+          <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mb-2">— תענוג רגעי</div>
+          <div class="flex items-center justify-between">
+            <div class="dm-mono text-[15px] font-bold text-[var(--gold)] flex items-center gap-1">2<span class="coin text-[12px]">¢</span></div>
+            <button class="cinzel text-[8px] font-bold tracking-widest text-[var(--crimson)]">פדי ▸</button>
+          </div>
+        </div>
+        <!-- screen time -->
+        <div class="parchment p-3 relative">
+          <div class="filigree-tl" style="width:20px;height:20px;top:4px;left:4px;"></div>
+          <div class="filigree-tr" style="width:20px;height:20px;top:4px;right:4px;"></div>
+          <div class="aspect-square rounded flex items-center justify-center text-5xl mb-2" style="background: rgba(184,136,28,.06);">📱</div>
+          <div class="frank text-[14px] font-bold text-[var(--ink)] mb-1">חצי שעה מסך</div>
+          <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mb-2">— הקסם הזוהר</div>
+          <div class="flex items-center justify-between">
+            <div class="dm-mono text-[15px] font-bold text-[var(--gold)] flex items-center gap-1">5<span class="coin text-[12px]">¢</span></div>
+            <button class="cinzel text-[8px] font-bold tracking-widest text-[var(--crimson)]">פדי ▸</button>
+          </div>
+        </div>
+        <!-- ice cream -->
+        <div class="parchment p-3 relative">
+          <div class="filigree-tl" style="width:20px;height:20px;top:4px;left:4px;"></div>
+          <div class="filigree-tr" style="width:20px;height:20px;top:4px;right:4px;"></div>
+          <div class="aspect-square rounded flex items-center justify-center text-5xl mb-2" style="background: rgba(184,136,28,.06);">🍦</div>
+          <div class="frank text-[14px] font-bold text-[var(--ink)] mb-1">גלידה</div>
+          <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mb-2">— הצוננת המתוקה</div>
+          <div class="flex items-center justify-between">
+            <div class="dm-mono text-[15px] font-bold text-[var(--gold)] flex items-center gap-1">8<span class="coin text-[12px]">¢</span></div>
+            <button class="cinzel text-[8px] font-bold tracking-widest text-[var(--crimson)]">פדי ▸</button>
+          </div>
+        </div>
+        <!-- sleepover -->
+        <div class="parchment-bare p-3 opacity-60">
+          <div class="aspect-square rounded flex items-center justify-center text-5xl mb-2 grayscale" style="background: rgba(184,136,28,.04);">🛌</div>
+          <div class="frank text-[14px] text-[var(--ink-soft)] mb-1">לינה אצל חברה</div>
+          <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mb-2">— הלילה הזר</div>
+          <div class="flex items-center justify-between">
+            <div class="dm-mono text-[14px] text-[var(--ink-faded)] flex items-center gap-1">50<span class="coin text-[12px] opacity-50">¢</span></div>
+            <span class="cinzel text-[8px] text-[var(--ink-faded)]">חסר 3</span>
+          </div>
+        </div>
+        <!-- movie -->
+        <div class="parchment-bare p-3 opacity-60">
+          <div class="aspect-square rounded flex items-center justify-center text-5xl mb-2 grayscale" style="background: rgba(184,136,28,.04);">🎬</div>
+          <div class="frank text-[14px] text-[var(--ink-soft)] mb-1">סרט בקולנוע</div>
+          <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mb-2">— תיאטרון הצללים</div>
+          <div class="flex items-center justify-between">
+            <div class="dm-mono text-[14px] text-[var(--ink-faded)] flex items-center gap-1">100<span class="coin text-[12px] opacity-50">¢</span></div>
+            <span class="cinzel text-[8px] text-[var(--ink-faded)]">חסר 53</span>
+          </div>
+        </div>
+        <!-- nintendo (BIG GOAL) -->
+        <div class="parchment-bare p-3 opacity-60 relative">
+          <div class="absolute top-1 left-1 right-1 caveat text-center text-[11px] text-[var(--crimson)] -rotate-3">— הפרס הגדול</div>
+          <div class="aspect-square rounded flex items-center justify-center text-5xl mb-2 grayscale mt-3" style="background: rgba(184,136,28,.04);">🎮</div>
+          <div class="frank text-[14px] text-[var(--ink-soft)] mb-1">משחק נינטנדו</div>
+          <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mb-2">— האוצר האגדי</div>
+          <div class="flex items-center justify-between">
+            <div class="dm-mono text-[14px] text-[var(--ink-faded)] flex items-center gap-1">300<span class="coin text-[12px] opacity-50">¢</span></div>
+            <span class="cinzel text-[8px] text-[var(--ink-faded)]">חסר 253</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-[20px]"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>QUESTS</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3zM9 8v4h6V8H9z"/></svg>TROVE</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN F — REDEMPTION TRACKER -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">F</div>
+    <div class="frame-h2">— ROLL OF REWARDS —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">Pending + received history</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="text-center">
+          <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— PROCLAMATIONS —</div>
+          <div class="frank text-[20px] font-bold text-[var(--ink)] leading-tight">ההזמנות שלי</div>
+        </div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Pending -->
+      <div class="px-5 mt-4">
+        <div class="flex items-center gap-3 mb-2">
+          <hr class="flex-1 border-[var(--rule)]" />
+          <span class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">AWAITING DELIVERY · II</span>
+          <hr class="flex-1 border-[var(--rule)]" />
+        </div>
+        <div class="space-y-2">
+          <div class="parchment p-3 flex items-center gap-3 relative">
+            <div class="w-14 h-14 rounded flex items-center justify-center text-3xl" style="background: rgba(184,136,28,.06); border: 1px solid var(--rule);">🍦</div>
+            <div class="flex-1">
+              <div class="frank text-[14px] font-bold text-[var(--ink)]">גלידה</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">פדית לפני 2 שעות · 8 מטבעות</div>
+              <div class="caveat text-[12px] text-[var(--crimson)] mt-0.5">— עוד מעט בדרך!</div>
+            </div>
+            <button class="cinzel text-[9px] font-bold tracking-widest text-white px-3 py-2 rounded" style="background: var(--crimson);">קיבלתי ✓</button>
+          </div>
+          <div class="parchment p-3 flex items-center gap-3">
+            <div class="w-14 h-14 rounded flex items-center justify-center text-3xl" style="background: rgba(184,136,28,.06); border: 1px solid var(--rule);">🍬</div>
+            <div class="flex-1">
+              <div class="frank text-[14px] font-bold text-[var(--ink)]">סוכריה</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">פדית אתמול · 2 מטבעות</div>
+            </div>
+            <button class="cinzel text-[9px] font-bold tracking-widest text-white px-3 py-2 rounded" style="background: var(--crimson);">קיבלתי ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Received -->
+      <div class="px-5 mt-6">
+        <div class="flex items-center gap-3 mb-2">
+          <hr class="flex-1 border-[var(--rule)]" />
+          <span class="cinzel text-[9px] text-[var(--forest)] tracking-widest">DELIVERED · XVIII ALL TIME</span>
+          <hr class="flex-1 border-[var(--rule)]" />
+        </div>
+        <div class="space-y-2">
+          <div class="parchment-bare p-3 flex items-center gap-3" style="background: rgba(47,93,62,.04);">
+            <div class="w-12 h-12 rounded flex items-center justify-center text-2xl opacity-80">📱</div>
+            <div class="flex-1">
+              <div class="frank text-[13px] text-[var(--ink)]">חצי שעה מסך</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">קיבלתי לפני 3 ימים</div>
+            </div>
+            <div class="seal w-9 h-9"><div class="seal-inner" style="font-size:14px;">✓</div></div>
+          </div>
+          <div class="parchment-bare p-3 flex items-center gap-3" style="background: rgba(47,93,62,.04);">
+            <div class="w-12 h-12 rounded flex items-center justify-center text-2xl opacity-80">🍬</div>
+            <div class="flex-1">
+              <div class="frank text-[13px] text-[var(--ink)]">סוכריה</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">קיבלתי לפני שבוע</div>
+            </div>
+            <div class="seal w-9 h-9"><div class="seal-inner" style="font-size:14px;">✓</div></div>
+          </div>
+          <div class="parchment-bare p-3 flex items-center gap-3 opacity-70" style="background: rgba(47,93,62,.04);">
+            <div class="w-12 h-12 rounded flex items-center justify-center text-2xl grayscale">🎬</div>
+            <div class="flex-1">
+              <div class="frank text-[13px] text-[var(--ink)]">סרט בקולנוע</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">קיבלתי לפני חודש</div>
+            </div>
+            <div class="seal w-9 h-9"><div class="seal-inner" style="font-size:14px;">✓</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>QUESTS</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3zM9 8v4h6V8H9z"/></svg>TROVE</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN G — CAMPAIGNS -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">G</div>
+    <div class="frame-h2">— GRAND QUESTS —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">1 streak (day 3/5) + 1 total (38/100, 12 days left)</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="text-center">
+          <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— EPIC LEDGER —</div>
+          <div class="frank text-[20px] font-bold text-[var(--ink)] leading-tight">המשימות הגדולות</div>
+        </div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Streak quest -->
+      <div class="mx-5 mt-3 parchment p-5 relative" style="background: linear-gradient(135deg, rgba(142,43,31,.06), var(--vellum));">
+        <div class="filigree-tl"></div><div class="filigree-tr"></div><div class="filigree-bl"></div><div class="filigree-br"></div>
+        <div class="flex justify-center mb-2">
+          <span class="ribbon">— STREAK · QUEST I —</span>
+        </div>
+        <h2 class="frank text-[20px] font-bold text-[var(--ink)] text-center leading-tight">5 ימים של מיטה</h2>
+        <p class="cormorant italic text-[12px] text-[var(--ink-faded)] text-center mt-1">— יום אחר יום, לשמים —</p>
+
+        <!-- Streak chain as wax stamps -->
+        <div class="flex justify-center gap-2 mt-4 mb-3">
+          <div class="wax-stamp w-9 h-9 flex items-center justify-center cinzel font-bold text-[12px]">I</div>
+          <div class="wax-stamp w-9 h-9 flex items-center justify-center cinzel font-bold text-[12px]">II</div>
+          <div class="wax-stamp w-9 h-9 flex items-center justify-center cinzel font-bold text-[12px]">III</div>
+          <div class="w-9 h-9 rounded-full border-2 border-dashed border-[var(--gold)] flex items-center justify-center cinzel font-bold text-[12px] text-[var(--gold)]" style="background: var(--vellum);">IV</div>
+          <div class="w-9 h-9 rounded-full border-2 border-[var(--ink-faded)] border-dotted flex items-center justify-center cinzel font-bold text-[12px] text-[var(--ink-faded)]" style="background: var(--vellum);">V</div>
+        </div>
+
+        <div class="cormorant italic text-center text-[13px] text-[var(--ink-soft)] my-3">
+          <span class="text-[var(--crimson)] font-bold">3</span> מתוך 5 ימים · עוד <span class="text-[var(--gold)] font-bold">2 ימים</span> לפרס
+        </div>
+
+        <hr class="border-[var(--rule)] my-3" />
+
+        <div class="flex items-center justify-around">
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">BOUNTY</div>
+            <div class="dm-mono text-[18px] font-bold text-[var(--gold)] mt-1">+50 ¢</div>
+          </div>
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">CREST</div>
+            <div class="text-2xl mt-1">🛡️</div>
+            <div class="caveat text-[10px] text-[var(--crimson)] -mt-1">BED MASTER</div>
+          </div>
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">FREEZES</div>
+            <div class="dm-mono text-[18px] font-bold text-[var(--ink-soft)] mt-1">0 / 1</div>
+          </div>
+        </div>
+
+        <div class="caveat text-center text-[16px] text-[var(--crimson)] mt-3 leading-snug">"תיכף שם, ליה — עוד יומיים."</div>
+      </div>
+
+      <!-- Total quest -->
+      <div class="mx-5 mt-4 parchment p-5 relative" style="background: linear-gradient(135deg, rgba(30,58,138,.05), var(--vellum));">
+        <div class="filigree-tl"></div><div class="filigree-tr"></div>
+        <div class="flex justify-center mb-2">
+          <span class="ribbon" style="background: linear-gradient(180deg, var(--royal), var(--royal-dark));">
+            <span style="color:#FCEFD0">— TOTAL · QUEST II —</span>
+          </span>
+        </div>
+        <h2 class="frank text-[20px] font-bold text-[var(--ink)] text-center leading-tight">לקרוא 100 עמודים</h2>
+        <p class="cormorant italic text-[12px] text-[var(--ink-faded)] text-center mt-1">— הספר שמחכה לי בתום —</p>
+
+        <div class="flex items-baseline justify-center gap-2 mt-4">
+          <span class="dm-mono text-[44px] font-bold text-[var(--royal)] leading-none">38</span>
+          <span class="cormorant italic text-[18px] text-[var(--ink-faded)]">/ 100 עמודים</span>
+        </div>
+        <div class="pb-track mt-3" style="height:14px;"><div class="pb-fill" style="width:38%; background: linear-gradient(90deg, var(--royal), var(--gold-light));"></div></div>
+
+        <div class="flex justify-between mt-3 text-xs">
+          <div>
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">DAYS LEFT</div>
+            <div class="dm-mono text-[18px] font-bold text-[var(--rouge)]">12</div>
+          </div>
+          <div class="text-right">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">TO GO</div>
+            <div class="dm-mono text-[18px] font-bold text-[var(--royal)]">62 עמ׳</div>
+          </div>
+        </div>
+
+        <hr class="border-[var(--rule)] my-3" />
+
+        <div class="flex items-center justify-around">
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">BOUNTY</div>
+            <div class="dm-mono text-[18px] font-bold text-[var(--gold)] mt-1">+100 ¢</div>
+          </div>
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">CREST</div>
+            <div class="text-2xl mt-1">📚</div>
+            <div class="caveat text-[10px] text-[var(--royal)] -mt-1">BOOKWORM</div>
+          </div>
+        </div>
+
+        <div class="caveat text-center text-[15px] text-[var(--royal)] mt-3 leading-snug">"5 בכל יום ויש לך את זה."</div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3zM9 8v4h6V8H9z"/></svg>TROVE</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<!-- SCREEN H — BADGES / CREST -->
+<!-- ============================================ -->
+<div class="flex flex-col items-center gap-4">
+  <div class="text-center" dir="ltr">
+    <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">H</div>
+    <div class="frame-h2">— COAT OF ARMS —</div>
+    <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">3 earned · 5 locked · sibling chip</div>
+  </div>
+  <div class="phone">
+    <div class="notch"></div>
+    <div class="phone-inner">
+      <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+      <div class="px-5 pt-3 flex items-center justify-between">
+        <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+        <div class="text-center">
+          <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— ARMORIAL —</div>
+          <div class="frank text-[20px] font-bold text-[var(--ink)] leading-tight">התגים שלי</div>
+        </div>
+        <div class="w-9"></div>
+      </div>
+
+      <!-- Hero panel -->
+      <div class="mx-5 mt-3 parchment p-4 relative">
+        <div class="filigree-tl"></div><div class="filigree-tr"></div><div class="filigree-bl"></div><div class="filigree-br"></div>
+        <div class="flex items-center gap-4">
+          <div class="crest w-16 h-20" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13); font-size: 28px;">ל</div>
+          <div class="flex-1 text-right">
+            <div class="frank text-[20px] font-bold text-[var(--ink)]">ליה</div>
+            <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— HOUSE CRIMSON · LV 4 —</div>
+            <div class="flex gap-3 mt-2 text-center">
+              <div>
+                <div class="dm-mono text-[18px] font-bold text-[var(--crimson)] leading-none">3</div>
+                <div class="cormorant italic text-[10px] text-[var(--ink-faded)]">תגים</div>
+              </div>
+              <div>
+                <div class="dm-mono text-[18px] font-bold text-[var(--ink)] leading-none">8</div>
+                <div class="cormorant italic text-[10px] text-[var(--ink-faded)]">סך הכל</div>
+              </div>
+              <div>
+                <div class="dm-mono text-[18px] font-bold text-[var(--gold)] leading-none">38%</div>
+                <div class="cormorant italic text-[10px] text-[var(--ink-faded)]">השלמתי</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toggle -->
+      <div class="px-5 mt-3 flex gap-2">
+        <button class="pill pill-crimson">שלי</button>
+        <button class="pill pill-ink">של יעל</button>
+      </div>
+
+      <!-- Grid -->
+      <div class="px-5 mt-4 grid grid-cols-4 gap-3">
+        <!-- Earned -->
+        <div class="text-center">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 relative" style="background: radial-gradient(circle at 35% 30%, #DD5A4F, #8E2B1F 70%); box-shadow: 0 3px 8px rgba(95,27,19,.35), inset 0 -2px 4px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.2);">🛡️</div>
+          <div class="frank text-[10px] text-[var(--ink)] leading-tight font-bold">אלופת מיטה</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 relative" style="background: radial-gradient(circle at 35% 30%, #3A5DBF, #14275C 70%); box-shadow: 0 3px 8px rgba(20,39,92,.35), inset 0 -2px 4px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.2);">📚</div>
+          <div class="frank text-[10px] text-[var(--ink)] leading-tight font-bold">תולעת ספרים</div>
+        </div>
+        <div class="text-center">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 relative" style="background: radial-gradient(circle at 35% 30%, #F8DF96, #8C661E 70%); box-shadow: 0 3px 8px rgba(140,102,30,.35), inset 0 -2px 4px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.2);">⭐</div>
+          <div class="frank text-[10px] text-[var(--ink)] leading-tight font-bold">100 משימות</div>
+        </div>
+        <!-- Locked -->
+        <div class="text-center opacity-55">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 grayscale relative parchment-bare">
+            🎹
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--vellum)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2zM9 6a3 3 0 016 0v2H9V6z"/></svg>
+            </div>
+          </div>
+          <div class="frank text-[10px] text-[var(--ink-faded)] leading-tight">מוסיקאית</div>
+        </div>
+        <div class="text-center opacity-55">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 grayscale relative parchment-bare">
+            🔥
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--vellum)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="frank text-[10px] text-[var(--ink-faded)] leading-tight">רצף 30 ימים</div>
+        </div>
+        <div class="text-center opacity-55">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 grayscale relative parchment-bare">
+            🎂
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--vellum)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="frank text-[10px] text-[var(--ink-faded)] leading-tight">יום הולדת '26</div>
+        </div>
+        <div class="text-center opacity-55">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 grayscale relative parchment-bare">
+            💯
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--vellum)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="frank text-[10px] text-[var(--ink-faded)] leading-tight">500 משימות</div>
+        </div>
+        <div class="text-center opacity-55">
+          <div class="aspect-square rounded flex items-center justify-center text-3xl mb-1.5 grayscale relative parchment-bare">
+            🥇
+            <div class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[var(--ink)] flex items-center justify-center">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--vellum)"><path d="M18 8h-1V6A5 5 0 007 6v2H6c-1 0-2 1-2 2v10c0 1 1 2 2 2h12c1 0 2-1 2-2V10c0-1-1-2-2-2z"/></svg>
+            </div>
+          </div>
+          <div class="frank text-[10px] text-[var(--ink-faded)] leading-tight">10 קמפיינים</div>
+        </div>
+      </div>
+
+      <!-- Sibling activity -->
+      <div class="mx-5 mt-5 parchment p-3 relative" style="background: rgba(30,58,138,.04);">
+        <div class="filigree-tl" style="width:20px;height:20px;top:4px;left:4px;"></div>
+        <div class="filigree-tr" style="width:20px;height:20px;top:4px;right:4px;"></div>
+        <div class="cinzel text-[8px] text-[var(--royal)] tracking-widest mb-1.5">— FROM HOUSE AZURE —</div>
+        <div class="flex items-center gap-3">
+          <div class="crest w-9 h-11" style="background: linear-gradient(180deg, #1E3A8A, #14275C); font-size: 18px;">י</div>
+          <div class="flex-1">
+            <div class="frank text-[13px] text-[var(--ink)]">יעל זכתה ב<span class="font-bold text-[var(--royal)]">תג מוסיקאית</span></div>
+            <div class="caveat text-[13px] text-[var(--ink-faded)] mt-0.5">— לפני 12 דקות</div>
+          </div>
+          <div class="text-2xl">🎹</div>
+        </div>
+      </div>
+
+      <div class="flex-1"></div>
+      <div class="tabbar">
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>QUESTS</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3z"/></svg>TROVE</div>
+        <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+        <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+<!-- /screens grid -->
+
+<!-- =================== ADMIN VIEWS =================== -->
+<div class="mt-32" dir="ltr">
+  <div class="flex items-center gap-4 mb-8">
+    <hr class="flex-1 border-[var(--rule)]" />
+    <span class="cinzel text-[12px] font-bold text-[var(--ink)] tracking-widest">— COURT OF ELDERS · ADMIN VIEW —</span>
+    <hr class="flex-1 border-[var(--rule)]" />
+  </div>
+  <p class="cormorant italic text-center text-[14px] text-[var(--ink-faded)] max-w-2xl mx-auto mb-16">
+    The admin surface borrows the parchment + ribbon system but stays utilitarian. Same fonts, denser layouts, less ceremonial flourish. Both parents see the same view; the audit feed attributes each action by name.
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-y-20 gap-x-12 justify-items-center">
+
+  <!-- ADMIN — Approval queue -->
+  <div class="flex flex-col items-center gap-4">
+    <div class="text-center">
+      <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">ADMIN · I</div>
+      <div class="frame-h2">— PROOFS PENDING —</div>
+      <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">3 submissions awaiting your seal</div>
+    </div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO · ADMIN</span></div>
+
+        <div class="px-5 pt-3 flex items-center justify-between">
+          <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— PETITIONS —</div>
+            <div class="frank text-[18px] font-bold text-[var(--ink)] leading-tight">תור האישורים</div>
+          </div>
+          <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg></button>
+        </div>
+
+        <div class="mx-5 mt-3 px-3 py-2 flex items-center justify-between" style="background: rgba(184,136,28,.06); border: 1px solid var(--rule); border-radius: 4px;">
+          <div class="cinzel text-[10px] text-[var(--ink)] tracking-widest">3 PENDING · 0 OVERDUE</div>
+          <span class="caveat text-[14px] text-[var(--crimson)]">— הראשונה תזכה</span>
+        </div>
+
+        <!-- Submission 1 -->
+        <div class="mx-5 mt-3 parchment p-3 relative">
+          <div class="filigree-tl"></div><div class="filigree-tr"></div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="crest w-7 h-9" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13); font-size: 13px;">ל</div>
+            <div class="flex-1">
+              <div class="frank text-[13px] font-bold text-[var(--ink)]">ליה · שיעורי בית</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">הוגש לפני 4 דקות · בקשה ראשונה</div>
+            </div>
+            <span class="pill pill-crimson">+20</span>
+          </div>
+          <!-- thumbnail -->
+          <div class="rounded flex items-center justify-center text-4xl mb-2" style="aspect-ratio: 16/9; background: linear-gradient(135deg, rgba(184,136,28,.15), rgba(43,31,18,.08)); border: 1px solid var(--rule);">📄</div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-2 rounded text-white cinzel text-[10px] font-bold tracking-widest" style="background: var(--forest);">✓ אישור</button>
+            <button class="flex-1 py-2 rounded cinzel text-[10px] font-bold tracking-widest" style="background: var(--vellum); border: 1px solid var(--crimson); color: var(--crimson);">✗ דחייה</button>
+            <button class="w-9 py-2 rounded border border-[var(--rule)] flex items-center justify-center" style="background: var(--vellum);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Submission 2 -->
+        <div class="mx-5 mt-2 parchment p-3 relative">
+          <div class="filigree-tl"></div><div class="filigree-tr"></div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="crest w-7 h-9" style="background: linear-gradient(180deg, #1E3A8A, #14275C); font-size: 13px;">י</div>
+            <div class="flex-1">
+              <div class="frank text-[13px] font-bold text-[var(--ink)]">יעל · פסנתר 15 דק׳</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">הוגש לפני 22 דקות · long-term</div>
+            </div>
+            <span class="pill pill-royal">+15</span>
+          </div>
+          <div class="rounded flex items-center justify-center text-4xl mb-2" style="aspect-ratio: 16/9; background: linear-gradient(135deg, rgba(30,58,138,.15), rgba(43,31,18,.08)); border: 1px solid var(--rule);">🎹</div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-2 rounded text-white cinzel text-[10px] font-bold tracking-widest" style="background: var(--forest);">✓ אישור</button>
+            <button class="flex-1 py-2 rounded cinzel text-[10px] font-bold tracking-widest" style="background: var(--vellum); border: 1px solid var(--crimson); color: var(--crimson);">✗ דחייה</button>
+            <button class="w-9 py-2 rounded border border-[var(--rule)] flex items-center justify-center" style="background: var(--vellum);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="12" cy="12" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <!-- Submission 3 (resubmit) -->
+        <div class="mx-5 mt-2 parchment p-3 relative" style="background: linear-gradient(135deg, rgba(184,82,72,.05), var(--vellum));">
+          <div class="absolute -top-1.5 right-3 caveat text-[14px] text-[var(--crimson)]">— הגשה חוזרת</div>
+          <div class="filigree-tl"></div><div class="filigree-tr"></div>
+          <div class="flex items-center gap-3 mb-2 mt-1">
+            <div class="crest w-7 h-9" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13); font-size: 13px;">ל</div>
+            <div class="flex-1">
+              <div class="frank text-[13px] font-bold text-[var(--ink)]">ליה · שיעורי בית</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">הוגש לפני שעה · דחית אתמול</div>
+            </div>
+            <span class="pill pill-crimson">+20</span>
+          </div>
+          <div class="rounded flex items-center justify-center text-4xl mb-2" style="aspect-ratio: 16/9; background: linear-gradient(135deg, rgba(184,136,28,.18), rgba(43,31,18,.08)); border: 1px solid var(--rule);">📄</div>
+          <div class="flex gap-2">
+            <button class="flex-1 py-2 rounded text-white cinzel text-[10px] font-bold tracking-widest" style="background: var(--forest);">✓ אישור</button>
+            <button class="flex-1 py-2 rounded cinzel text-[10px] font-bold tracking-widest" style="background: var(--vellum); border: 1px solid var(--crimson); color: var(--crimson);">✗ דחייה</button>
+            <button class="w-9 py-2 rounded border border-[var(--rule)] flex items-center justify-center" style="background: var(--vellum);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2"><circle cx="12" cy="12" r="1"/></svg></button>
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+        <div class="tabbar">
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+          <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>APPROVE</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 11H7a2 2 0 00-2 2v6m4-8h6m-6 0V9a2 2 0 012-2h2a2 2 0 012 2v2m0 0h2a2 2 0 012 2v6M5 19h14"/></svg>KIDS</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>JOKER</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 7h18M3 12h18M3 17h18"/></svg>AUDIT</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN — Joker wallet -->
+  <div class="flex flex-col items-center gap-4">
+    <div class="text-center">
+      <div class="cinzel text-[10px] text-[var(--crimson)] mb-1">ADMIN · II</div>
+      <div class="frame-h2">— JOKER DECREE —</div>
+      <div class="cormorant italic text-[13px] text-[var(--ink-faded)] mt-1">Wallet adjustment with mandatory reason</div>
+    </div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="phone-inner">
+        <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO · ADMIN</span></div>
+
+        <div class="px-5 pt-3 flex items-center justify-between">
+          <button class="w-9 h-9 rounded-full border border-[var(--rule)] flex items-center justify-center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button>
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— ROYAL DECREE —</div>
+            <div class="frank text-[18px] font-bold text-[var(--ink)] leading-tight">התאמת ארנק</div>
+          </div>
+          <div class="w-9"></div>
+        </div>
+
+        <!-- Pick kid -->
+        <div class="mx-5 mt-4">
+          <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest mb-2">— SUBJECT —</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="parchment p-3 flex items-center gap-2 relative" style="border-color: var(--crimson); border-width: 2px;">
+              <div class="crest w-7 h-9" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13); font-size: 12px;">ל</div>
+              <div class="flex-1 text-right">
+                <div class="frank text-[14px] font-bold text-[var(--ink)] leading-none">ליה</div>
+                <div class="dm-mono text-[11px] text-[var(--gold)] mt-1">47 ¢</div>
+              </div>
+              <div class="absolute top-1 right-1"><div class="seal w-5 h-5"><div class="seal-inner" style="font-size:9px;">•</div></div></div>
+            </button>
+            <button class="parchment-bare p-3 flex items-center gap-2">
+              <div class="crest w-7 h-9" style="background: linear-gradient(180deg, #1E3A8A, #14275C); font-size: 12px;">י</div>
+              <div class="flex-1 text-right">
+                <div class="frank text-[14px] font-bold text-[var(--ink)] leading-none">יעל</div>
+                <div class="dm-mono text-[11px] text-[var(--gold)] mt-1">89 ¢</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Direction picker -->
+        <div class="mx-5 mt-4">
+          <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest mb-2">— DECREE TYPE —</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="parchment p-3 text-center" style="border-color: var(--forest); border-width: 2px; background: rgba(47,93,62,.06);">
+              <div class="cinzel text-[10px] font-bold tracking-widest text-[var(--forest)]">+ הענקה</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mt-1">תוספת מטבעות</div>
+            </button>
+            <button class="parchment-bare p-3 text-center">
+              <div class="cinzel text-[10px] font-bold tracking-widest text-[var(--ink-soft)]">− קיזוז</div>
+              <div class="cormorant italic text-[11px] text-[var(--ink-faded)] mt-1">הפחתה</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Amount -->
+        <div class="mx-5 mt-4">
+          <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest mb-2">— AMOUNT IN GOLD —</div>
+          <div class="parchment p-3 flex items-center gap-3">
+            <span class="coin text-[24px]">¢</span>
+            <input type="text" value="+5" class="flex-1 bg-transparent text-right dm-mono text-[28px] font-bold text-[var(--forest)] outline-none" />
+            <div class="flex gap-1">
+              <button class="w-7 h-7 rounded border border-[var(--rule)] cinzel text-[10px] font-bold text-[var(--ink)]" style="background:var(--vellum);">+1</button>
+              <button class="w-7 h-7 rounded border border-[var(--rule)] cinzel text-[10px] font-bold text-[var(--ink)]" style="background:var(--vellum);">+5</button>
+            </div>
+          </div>
+          <div class="dm-mono text-[11px] text-[var(--ink-faded)] text-center mt-2">יתרה לאחר: <span class="text-[var(--gold)] font-bold">52 ¢</span></div>
+        </div>
+
+        <!-- Reason (mandatory) -->
+        <div class="mx-5 mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest">— REASON (CHRONICLED) —</div>
+            <span class="pill pill-crimson">חובה</span>
+          </div>
+          <div class="parchment p-3" style="border-color: var(--crimson); border-width: 1.5px;">
+            <textarea rows="3" class="w-full bg-transparent text-right outline-none cormorant italic text-[14px] text-[var(--ink)] placeholder-[var(--ink-faded)]" placeholder="לדוגמה: עזרה ליעל לחזור על שיעורים">עזרה לאחותך עם שיעורי החשבון</textarea>
+          </div>
+          <div class="caveat text-[12px] text-[var(--ink-faded)] mt-2 leading-snug">
+            — הסיבה תוצג ביומן של ליה ובפיד ההורים. שני ההורים יראו את הפעולה.
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+
+        <!-- CTAs -->
+        <div class="px-5 pb-5 pt-3 flex gap-2">
+          <button class="flex-1 py-3 rounded cinzel text-[10px] font-bold tracking-widest border border-[var(--rule)]" style="background:var(--vellum); color: var(--ink);">בטל</button>
+          <button class="flex-[2] py-3 rounded cinzel text-[11px] font-bold tracking-widest text-white relative" style="background: linear-gradient(180deg, var(--crimson), var(--crimson-dark)); box-shadow: 0 3px 8px rgba(95,27,19,.35), inset 0 1px 0 rgba(255,255,255,.15);">
+            ⚜ חתום בשעווה ⚜
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  <!-- /admin grid -->
+</div>
+
+<!-- =================== LANGUAGE TOGGLE PREVIEW =================== -->
+<div class="mt-32" dir="ltr">
+  <div class="flex items-center gap-4 mb-8">
+    <hr class="flex-1 border-[var(--rule)]" />
+    <span class="cinzel text-[12px] font-bold text-[var(--ink)] tracking-widest">— LANGUAGE TOGGLE PREVIEW · ENGLISH (LTR) —</span>
+    <hr class="flex-1 border-[var(--rule)]" />
+  </div>
+  <p class="cormorant italic text-center text-[14px] text-[var(--ink-faded)] mb-8">Same home screen rendered LTR with English copy. Display type stays in Cinzel; Hebrew serifs swap to italic Cormorant.</p>
+  <div class="flex justify-center">
+    <div class="phone" lang="en">
+      <div class="notch"></div>
+      <div class="phone-inner" dir="ltr">
+        <div class="statusbar"><span>9:41</span><span class="cinzel text-[11px] font-bold tracking-widest">RECO</span></div>
+
+        <div class="px-5 pt-3 pb-2 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="crest w-9 h-11" style="background: linear-gradient(180deg, #8E2B1F, #5F1B13); font-size: 16px;">L</div>
+            <div>
+              <div class="cormorant italic text-[12px] text-[var(--ink-faded)]">— diary of —</div>
+              <div class="cinzel text-[16px] font-bold text-[var(--ink)] leading-none">LIA</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-2 parchment p-5 relative">
+          <div class="filigree-tl"></div><div class="filigree-tr"></div>
+          <div class="text-center">
+            <div class="cinzel text-[9px] text-[var(--ink-faded)] tracking-widest mb-1">— TREASURY —</div>
+            <div class="flex items-center justify-center gap-3 mb-2">
+              <div class="seal w-12 h-12"><div class="seal-inner" style="font-size: 18px;">¢</div></div>
+              <div class="dm-mono text-[48px] font-bold text-[var(--gold)] leading-none">47</div>
+            </div>
+            <div class="cormorant italic text-[14px] text-[var(--ink-faded)]">— gold coins —</div>
+            <div class="flex items-center justify-center gap-2 mt-3">
+              <span class="pill pill-forest">+12 today</span>
+              <span class="pill pill-ink">month +84</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-5 mt-4">
+          <div class="flex items-center justify-between mb-2">
+            <div class="cinzel text-[14px] font-bold text-[var(--ink)] tracking-widest">⚔ TODAY'S QUESTS</div>
+            <span class="cinzel text-[10px] text-[var(--gold)] font-bold tracking-widest">III / IV</span>
+          </div>
+          <div class="space-y-1.5">
+            <div class="parchment-bare px-3 py-2.5 flex items-center gap-3" style="background: rgba(47, 93, 62, .05);">
+              <div class="seal w-8 h-8"><div class="seal-inner" style="font-size: 11px;">✓</div></div>
+              <div class="flex-1">
+                <div class="cinzel text-[13px] text-[var(--ink-soft)] line-through tracking-wide">MAKE BED</div>
+                <div class="cormorant italic text-[11px] text-[var(--ink-faded)]">sealed at 07:14</div>
+              </div>
+              <span class="pill pill-gold">+1</span>
+            </div>
+            <div class="parchment-bare px-3 py-2.5 flex items-center gap-3" style="border-color: var(--royal); border-width: 1.5px;">
+              <div class="w-8 h-8 rounded-full border-2 border-[var(--royal)] flex items-center justify-center" style="background: var(--vellum);"></div>
+              <div class="flex-1">
+                <div class="cinzel text-[13px] font-bold text-[var(--ink)] tracking-wide">HOMEWORK</div>
+                <div class="cormorant italic text-[11px] text-[var(--royal)]">photo required · 17:00</div>
+              </div>
+              <span class="pill pill-crimson">+20</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mx-5 mt-4 parchment p-3" style="background: linear-gradient(135deg, rgba(184,136,28,.10), var(--vellum));">
+          <div class="flex items-center gap-3">
+            <div class="text-2xl">🔥</div>
+            <div class="flex-1">
+              <div class="cinzel text-[9px] text-[var(--crimson)] tracking-widest">— ACTIVE QUEST —</div>
+              <div class="cinzel text-[13px] font-bold text-[var(--ink)] leading-tight mt-0.5 tracking-wide">5-DAY BED STREAK</div>
+              <div class="caveat text-[14px] text-[var(--crimson)] leading-none mt-0.5">"so close, Lia!"</div>
+            </div>
+            <div class="text-center">
+              <div class="dm-mono text-[18px] font-bold text-[var(--crimson)] leading-none">3<span class="text-[var(--ink-faded)] text-sm">/5</span></div>
+              <div class="cinzel text-[8px] text-[var(--ink-faded)] tracking-widest mt-1">DAYS</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-1"></div>
+        <div class="tabbar">
+          <div class="tab active"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-7H10v7H6a2 2 0 01-2-2z"/></svg>HOME</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg>QUESTS</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4V2h10v2h3v8a4 4 0 01-4 4h-1.5l-.5 5h3v2H7v-2h3l-.5-5H8a4 4 0 01-4-4V4h3z"/></svg>TROVE</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>QUESTS</div>
+          <div class="tab"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1l9 5v6c0 5-9 11-9 11s-9-6-9-11V6z"/></svg>CREST</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== FOOTER =================== -->
+<footer class="mt-32 max-w-3xl mx-auto px-6 pb-16" dir="ltr">
+  <hr class="border-[var(--rule)] mb-12" />
+  <div class="cinzel text-[10px] text-[var(--ink-faded)] tracking-widest mb-3">— CONCEPT 02 NOTES —</div>
+  <h3 class="cinzel text-[20px] font-bold text-[var(--ink)] mb-6 leading-snug tracking-wide">STRONGEST WEAKNESS</h3>
+  <p class="cormorant text-[18px] italic text-[var(--ink-soft)] leading-relaxed mb-4">
+    The hero-dossier framing leans hard into a fantasy register that some 9–11 year olds will find irresistible and others will find embarrassing. Reading words like "Trove" and "Decree" in English (or "מגילה" / "צו" if we Hebrew-ize them harder) every day risks the same fate as Habitica's medieval-RPG mode — beloved by a niche, opt-out for everyone else. The narrative voice in margin annotations needs careful copywriting; bad fantasy copy is worse than no fantasy copy.
+  </p>
+  <p class="cormorant text-[18px] italic text-[var(--ink-soft)] leading-relaxed">
+    Quietest strength: this concept makes <span class="font-bold text-[var(--crimson)]">attribution</span> beautiful. Every joker action gets a wax seal. Every approval gets a gold seal. The ledger reads like a chronicle. The narrative wrapper accidentally turns the "mandatory reason on admin actions" feature from a bureaucratic friction into a story beat. And the audit feed has natural visual variety (different seals, different ribbons) that a flat list of "[event] at [time]" doesn't have.
+  </p>
+</footer>
+
+</main>
+
+</body>
+</html>

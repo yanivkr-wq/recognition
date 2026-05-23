@@ -1,0 +1,39 @@
+# Exclusions for Docker build context.
+# Applies to both Dockerfile.web and Dockerfile.worker since the build context
+# is the repo root (infra/docker-compose.yml uses context: ..).
+
+**/node_modules
+**/.next
+**/.turbo
+**/dist
+**/coverage
+**/.vitest-cache
+
+# Local-only files
+**/.env
+**/.env.local
+**/.env.*.local
+.git
+.github
+.vscode
+.idea
+.claude
+
+# Editor/junk
+**/.DS_Store
+**/Thumbs.db
+**/*.log
+**/.cache
+
+# Tests + docs not needed in image
+**/__tests__
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+docs
+
+# Volumes / state from local dev
+infra/secrets
+
+# Web app local artifacts
+apps/web/.next/cache
