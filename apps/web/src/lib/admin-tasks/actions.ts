@@ -571,3 +571,142 @@ export async function toggleAssignmentAction(
 export async function toggleAssignmentFormAction(formData: FormData): Promise<void> {
   await toggleAssignmentAction(undefined, formData);
 }
+
+// ─── Bulk per-kid assignment ──────────────────────────────────────────────
+// Lets admin pick a kid and toggle a whole list of task templates on/off in
+// one save. Diff-based:
+//   - template in checked list, no row yet → INSERT enabled=true
+//   - template in checked list, row exists but disabled → re-enable
+//   - template NOT in checked list, row exists + enabled → disable
+//   - template NOT in checked list, row absent → no-op
+// The unique (template_id, kid_id) index means we never INSERT a second row;
+// toggling enabled is the right knob.
+
+export type BulkAssignResult =
+  | { ok: true; added: number; removed: number; unchanged: number }
+  | { ok: false; error: 'forbidden' | 'not_found' | 'internal' };
+
+export async function bulkAssignTasksAction(
+  _prev: BulkAssignResult | undefined,
+  formData: FormData,
+): Promise<BulkAssignResult> {
+  const kidId = String(formData.get('kidId') ?? '');
+  if (!kidId) return { ok: false, error: 'not_found' };
+  // Every checked checkbox posts its templateId. Empty list = unassign all.
+  const checked = new Set(formData.getAll('templateId').map((v) => String(v)));
+
+  let admin;
+  try {
+    admin = await requireAdmin();
+  } catch (err) {
+    if (err instanceof UnauthorizedError) return { ok: false, error: 'forbidden' };
+    throw err;
+  }
+
+  const db = getDb();
+
+  // Verify kid belongs to this household.
+  const kRows = await db
+    .select({ id: kidTable.id })
+    .from(kidTable)
+    .where(
+      and(
+        eq(kidTable.id, kidId),
+        eq(kidTable.householdId, admin.householdId),
+        isNull(kidTable.archivedAt),
+      ),
+    )
+    .limit(1);
+  if (!kRows[0]) return { ok: false, error: 'not_found' };
+
+  // Pull every active task template in the household. Anything in `checked`
+  // that doesn't match one of these (forged template id from a stale page)
+  // gets silently ignored — safer than erroring on a partial mismatch.
+  const templates = await db
+    .select({ id: taskTemplate.id })
+    .from(taskTemplate)
+    .where(
+      and(
+        eq(taskTemplate.householdId, admin.householdId),
+        isNull(taskTemplate.archivedAt),
+      ),
+    );
+  const validTemplateIds = new Set(templates.map((t) => t.id));
+
+  // Pull every existing assignment row for this kid (including disabled +
+  // archived) so we can diff.
+  const existing = await db
+    .select({
+      id: taskAssignment.id,
+      templateId: taskAssignment.templateId,
+      enabled: taskAssignment.enabled,
+      archivedAt: taskAssignment.archivedAt,
+    })
+    .from(taskAssignment)
+    .where(eq(taskAssignment.kidId, kidId));
+  const existingByTemplate = new Map(existing.map((r) => [r.templateId, r]));
+
+  let added = 0;
+  let removed = 0;
+  let unchanged = 0;
+  const auditAdded: string[] = [];
+  const auditRemoved: string[] = [];
+
+  try {
+    // Pass 1: things that should be enabled.
+    for (const templateId of checked) {
+      if (!validTemplateIds.has(templateId)) continue;
+      const row = existingByTemplate.get(templateId);
+      if (!row) {
+        await db.insert(taskAssignment).values({
+          householdId: admin.householdId,
+          templateId,
+          kidId,
+          enabled: true,
+        });
+        added += 1;
+        auditAdded.push(templateId);
+      } else if (!row.enabled || row.archivedAt) {
+        await db
+          .update(taskAssignment)
+          .set({ enabled: true, archivedAt: null })
+          .where(eq(taskAssignment.id, row.id));
+        added += 1;
+        auditAdded.push(templateId);
+      } else {
+        unchanged += 1;
+      }
+    }
+    // Pass 2: things that should be disabled — anything currently enabled
+    // that the admin un-checked.
+    for (const row of existing) {
+      if (checked.has(row.templateId)) continue;
+      if (row.enabled && !row.archivedAt) {
+        await db
+          .update(taskAssignment)
+          .set({ enabled: false, archivedAt: new Date() })
+          .where(eq(taskAssignment.id, row.id));
+        removed += 1;
+        auditRemoved.push(row.templateId);
+      }
+    }
+
+    if (added > 0 || removed > 0) {
+      await db.insert(auditLog).values({
+        householdId: admin.householdId,
+        actorUserId: admin.userId,
+        action: 'task_assignment.bulk',
+        targetKind: 'kid',
+        targetId: kidId,
+        afterJson: { added: auditAdded, removed: auditRemoved },
+      });
+    }
+
+    revalidatePath('/[lang]/admin', 'layout');
+    revalidatePath('/[lang]', 'layout');
+    return { ok: true, added, removed, unchanged };
+  } catch (err) {
+    console.error('bulkAssignTasksAction failed', err);
+    return { ok: false, error: 'internal' };
+  }
+}

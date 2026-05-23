@@ -63,6 +63,12 @@ export default async function AdminKidsPage({
             <span className="font-bold text-ink flex-1">{k.name}</span>
             <div className="flex gap-2 text-xs">
               <Link
+                href={`/${lang}/admin/kids/${k.id}/tasks`}
+                className="px-3 py-2 rounded-full bg-lavender-pale text-lavender-dark font-bold hover:opacity-80 transition"
+              >
+                {t.admin.tasks}
+              </Link>
+              <Link
                 href={`/${lang}/admin/kids/${k.id}/pin`}
                 className="px-3 py-2 rounded-full bg-pink-pale text-pink-dark font-bold hover:bg-pink-soft transition"
               >

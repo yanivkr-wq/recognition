@@ -237,6 +237,13 @@ export interface Dictionary {
     assignments: string;
     assignTo: string;
     assignedKids: string;
+    bulkAssignHint: string;
+    bulkAssignSelected: string;
+    bulkAssignSelectAll: string;
+    bulkAssignClearAll: string;
+    bulkAssignAddedShort: string;
+    bulkAssignRemovedShort: string;
+    bulkAssignFailed: string;
     ledger: string;
     ledgerFor: string;
     noLedger: string;
