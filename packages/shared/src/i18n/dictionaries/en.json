@@ -360,6 +360,10 @@
     "badgeImageNone": "No image — drawn emblem shown",
     "badgeImageCurrent": "Current image",
     "badgeImageCreateFirst": "Save the badge first to upload an image.",
+    "badgeGenerateIcon": "✨ Generate icon with AI",
+    "badgeGeneratingIcon": "Generating…",
+    "badgeGenerateFailed": "Icon generation failed, try again",
+    "badgeGenerateNoTitle": "Add a title first",
     "feedback": "Feedback"
   },
   "feedback": {

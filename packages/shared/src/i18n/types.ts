@@ -373,6 +373,10 @@ export interface Dictionary {
     badgeImageNone: string;
     badgeImageCurrent: string;
     badgeImageCreateFirst: string;
+    badgeGenerateIcon: string;
+    badgeGeneratingIcon: string;
+    badgeGenerateFailed: string;
+    badgeGenerateNoTitle: string;
     feedback: string;
   };
   feedback: {

@@ -44,6 +44,18 @@ interface Props {
   t: Dictionary;
 }
 
+// On-brand badge swatches (the saturated set the seeded badges + AI use).
+// The native picker covers anything else.
+const BADGE_COLOR_SWATCHES = [
+  '#FF6B9D', // pink
+  '#E8B927', // yellow
+  '#5FD0A6', // mint
+  '#6EC9F4', // sky
+  '#3DA8DD', // deep sky
+  '#FF9F7A', // peach
+  '#B59FE5', // lavender
+];
+
 const ERROR_MESSAGES: Record<BadgeFormError, keyof Dictionary['admin']> = {
   invalid_title: 'invalidBadge',
   invalid_color: 'invalidBadge',
@@ -153,27 +165,50 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
           </div>
         </div>
 
-        <label className="block">
+        <div className="block">
           <span className="block text-xs text-ink-soft mb-1">{t.admin.color}</span>
-          <div className="flex items-center gap-2">
-            <span
-              className="w-9 h-9 rounded-xl border border-rule shrink-0"
+          {/* Brand swatches + a native picker for anything custom. The chosen
+              hex posts via the hidden input below. */}
+          <input type="hidden" name="color" value={color} />
+          <div className="flex flex-wrap items-center gap-2">
+            {BADGE_COLOR_SWATCHES.map((c) => {
+              const selected = color.toLowerCase() === c.toLowerCase();
+              return (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setColor(c)}
+                  aria-label={c}
+                  aria-pressed={selected}
+                  className={`w-8 h-8 rounded-full border-2 transition hover:scale-105 ${
+                    selected ? 'border-ink ring-2 ring-pink-pale' : 'border-rule'
+                  }`}
+                  style={{ backgroundColor: c }}
+                />
+              );
+            })}
+            {/* Custom color — native picker behind a rainbow chip. */}
+            <label
+              className="relative w-8 h-8 rounded-full border-2 border-rule overflow-hidden cursor-pointer shrink-0"
+              title={t.admin.color}
               style={{
-                backgroundColor: /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#B59FE5',
+                background:
+                  'conic-gradient(#FF6B9D,#E8B927,#5FD0A6,#6EC9F4,#B59FE5,#FF6B9D)',
               }}
-              aria-hidden="true"
-            />
-            <input
-              name="color"
-              type="text"
-              value={color}
-              onChange={(e) => setColor(e.currentTarget.value)}
-              required
-              dir="ltr"
-              className="flex-1 rounded-xl border border-rule bg-card px-3 py-2 text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
-            />
+            >
+              <input
+                type="color"
+                value={/^#[0-9a-fA-F]{6}$/.test(color) ? color : '#B59FE5'}
+                onChange={(e) => setColor(e.currentTarget.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                aria-label={t.admin.color}
+              />
+            </label>
+            <span className="num text-[11px] text-ink-faded ms-1" dir="ltr">
+              {color}
+            </span>
           </div>
-        </label>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <label className="block">
@@ -217,6 +252,9 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
         <BadgeImagePicker
           badgeId={initial.id}
           currentImageUrl={initial.currentImageUrl ?? null}
+          titleHe={titleHe}
+          titleEn={titleEn}
+          color={color}
           t={t}
         />
       ) : (

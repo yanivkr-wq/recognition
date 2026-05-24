@@ -38,13 +38,22 @@ function badgeImageRoot(): string {
   return path.resolve(raw, 'badges');
 }
 
-export function freshBadgeImageFilename(mime: string, now: Date = new Date()): string {
-  const ext = badgeExtensionFor(mime);
-  if (!ext) throw new Error(`unsupported mime: ${mime}`);
+function datedFilename(ext: string, now: Date): string {
   const yyyy = now.getUTCFullYear().toString();
   const mm = String(now.getUTCMonth() + 1).padStart(2, '0');
   const dd = String(now.getUTCDate()).padStart(2, '0');
   return `${yyyy}/${mm}/${dd}/${randomUUID()}.${ext}`;
+}
+
+export function freshBadgeImageFilename(mime: string, now: Date = new Date()): string {
+  const ext = badgeExtensionFor(mime);
+  if (!ext) throw new Error(`unsupported mime: ${mime}`);
+  return datedFilename(ext, now);
+}
+
+/** For AI-generated vector icons stored as .svg on the same volume. */
+export function freshBadgeSvgFilename(now: Date = new Date()): string {
+  return datedFilename('svg', now);
 }
 
 export function badgeImagePathFor(filename: string): string {

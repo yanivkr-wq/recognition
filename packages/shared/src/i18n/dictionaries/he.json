@@ -360,6 +360,10 @@
     "badgeImageNone": "אין תמונה — הסמל המצויר מוצג",
     "badgeImageCurrent": "התמונה הנוכחית",
     "badgeImageCreateFirst": "שמרי קודם את התג כדי להעלות תמונה.",
+    "badgeGenerateIcon": "✨ צור אייקון עם AI",
+    "badgeGeneratingIcon": "יוצר…",
+    "badgeGenerateFailed": "יצירת האייקון נכשלה, נסי שוב",
+    "badgeGenerateNoTitle": "יש להזין כותרת תחילה",
     "feedback": "משוב"
   },
   "feedback": {

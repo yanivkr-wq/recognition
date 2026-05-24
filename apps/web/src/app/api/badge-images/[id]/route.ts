@@ -34,6 +34,7 @@ const MIME_BY_EXT: Record<string, string> = {
   jpeg: 'image/jpeg',
   png: 'image/png',
   webp: 'image/webp',
+  svg: 'image/svg+xml',
 };
 
 export async function GET(_req: NextRequest, { params }: Ctx): Promise<Response> {
@@ -91,6 +92,9 @@ export async function GET(_req: NextRequest, { params }: Ctx): Promise<Response>
       'Content-Length': String(size),
       'Cache-Control': 'private, max-age=300',
       'X-Content-Type-Options': 'nosniff',
+      // Neutralize scripts/fetches even if an AI-generated .svg is opened
+      // directly (it's already sanitized + only loaded via <img>).
+      'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox",
     },
   });
 }

@@ -46,49 +46,55 @@ export default async function AdminKidsPage({
         {kids.map((k) => (
           <li
             key={k.id}
-            className="flex items-center gap-4 bg-card rounded-2xl shadow-card p-4"
+            className="bg-card rounded-2xl shadow-card p-4 space-y-3"
           >
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: k.color }}
-              aria-hidden="true"
-            >
-              <span
-                className="text-2xl font-bold text-card"
-                style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
+            {/* Identity row */}
+            <div className="flex items-center gap-3">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+                style={{ backgroundColor: k.color }}
+                aria-hidden="true"
               >
-                {k.name.charAt(0)}
-              </span>
+                <span
+                  className="text-2xl font-bold text-card"
+                  style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
+                >
+                  {k.name.charAt(0)}
+                </span>
+              </div>
+              <span className="font-bold text-ink text-lg flex-1 min-w-0 truncate">{k.name}</span>
             </div>
-            <span className="font-bold text-ink flex-1">{k.name}</span>
-            <div className="flex gap-2 text-xs">
+
+            {/* Actions — responsive grid so the chips never overflow on a
+                phone: 2 per row on mobile, more as the viewport widens. */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-xs">
               <Link
                 href={`/${lang}/admin/kids/${k.id}/tasks`}
-                className="px-3 py-2 rounded-full bg-lavender-pale text-lavender-dark font-bold hover:opacity-80 transition"
+                className="text-center px-3 py-2.5 rounded-xl bg-lavender-pale text-lavender-dark font-bold hover:opacity-80 transition"
               >
                 {t.admin.tasks}
               </Link>
               <Link
                 href={`/${lang}/admin/kids/${k.id}/pin`}
-                className="px-3 py-2 rounded-full bg-pink-pale text-pink-dark font-bold hover:bg-pink-soft transition"
+                className="text-center px-3 py-2.5 rounded-xl bg-pink-pale text-pink-dark font-bold hover:bg-pink-soft transition"
               >
                 {t.admin.setPin}
               </Link>
               <Link
                 href={`/${lang}/admin/kids/${k.id}/devices`}
-                className="px-3 py-2 rounded-full bg-sky-pale text-sky-dark font-bold hover:bg-sky-soft transition"
+                className="text-center px-3 py-2.5 rounded-xl bg-sky-pale text-sky-dark font-bold hover:bg-sky-soft transition"
               >
                 {t.admin.devices}
               </Link>
               <Link
                 href={`/${lang}/admin/kids/${k.id}/ledger`}
-                className="px-3 py-2 rounded-full bg-mint-pale text-mint-dark font-bold hover:bg-mint-soft transition"
+                className="text-center px-3 py-2.5 rounded-xl bg-mint-pale text-mint-dark font-bold hover:bg-mint-soft transition"
               >
                 {t.admin.ledger}
               </Link>
               <Link
                 href={`/${lang}/admin/kids/${k.id}/wallet/adjust`}
-                className="px-3 py-2 rounded-full bg-yellow-pale text-[#7A5D10] font-bold hover:opacity-80 transition"
+                className="text-center px-3 py-2.5 rounded-xl bg-yellow-pale text-[#7A5D10] font-bold hover:opacity-80 transition"
               >
                 {t.admin.joker}
               </Link>

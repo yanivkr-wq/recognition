@@ -22,9 +22,11 @@ import {
   badgeImagePathFor,
   ensureBadgeImageDirFor,
   freshBadgeImageFilename,
+  freshBadgeSvgFilename,
   isAllowedBadgeMime,
   MAX_BADGE_IMAGE_BYTES,
 } from '../badge-images/paths';
+import { generateBadgeIconSvg } from '../llm/generate-icon';
 
 export type UploadBadgeImageState =
   | { ok: true; badgeId: string }
@@ -91,6 +93,79 @@ export async function uploadBadgeImageAction(
     });
   } catch (err) {
     console.error('uploadBadgeImageAction: DB update failed', err);
+    return { ok: false, error: 'internal' };
+  }
+
+  revalidatePath('/[lang]/admin', 'layout');
+  revalidatePath('/[lang]/badges', 'page');
+  return { ok: true, badgeId };
+}
+
+export type GenerateBadgeIconState =
+  | { ok: true; badgeId: string }
+  | { ok: false; error: 'forbidden' | 'not_found' | 'missing_title' | 'llm_failed' | 'internal' };
+
+/**
+ * Generate an original SVG icon from the badge title via Claude and set it as
+ * the badge's custom image. Edit-only (needs a saved badge id). The title +
+ * color come from the live form so an admin can tweak then generate before
+ * saving the row.
+ */
+export async function generateBadgeIconAction(
+  _prev: GenerateBadgeIconState | undefined,
+  formData: FormData,
+): Promise<GenerateBadgeIconState> {
+  const badgeId = String(formData.get('badgeId') ?? '');
+  const titleHe = String(formData.get('titleHe') ?? '').trim();
+  const titleEn = String(formData.get('titleEn') ?? '').trim();
+  const color = String(formData.get('color') ?? '').trim();
+  if (!badgeId) return { ok: false, error: 'not_found' };
+  if (!titleHe && !titleEn) return { ok: false, error: 'missing_title' };
+
+  let admin;
+  try {
+    admin = await requireAdmin();
+  } catch (err) {
+    if (err instanceof UnauthorizedError) return { ok: false, error: 'forbidden' };
+    throw err;
+  }
+
+  const db = getDb();
+  const rows = await db
+    .select({ id: badge.id, oldPath: badge.imagePath })
+    .from(badge)
+    .where(and(eq(badge.id, badgeId), eq(badge.householdId, admin.householdId)))
+    .limit(1);
+  const b = rows[0];
+  if (!b) return { ok: false, error: 'not_found' };
+
+  let svg: string;
+  try {
+    svg = await generateBadgeIconSvg({ titleHe, titleEn: titleEn || undefined, color });
+  } catch (err) {
+    console.error('generateBadgeIconAction: LLM failed', err);
+    return { ok: false, error: 'llm_failed' };
+  }
+
+  const filename = freshBadgeSvgFilename();
+  try {
+    await ensureBadgeImageDirFor(filename);
+    await writeFile(badgeImagePathFor(filename), svg, { encoding: 'utf8', mode: 0o644 });
+    await db.update(badge).set({ imagePath: filename }).where(eq(badge.id, badgeId));
+    const hdrs = await headers();
+    await db.insert(auditLog).values({
+      householdId: admin.householdId,
+      actorUserId: admin.userId,
+      action: 'badge.icon_generated',
+      targetKind: 'badge',
+      targetId: badgeId,
+      beforeJson: { imagePath: b.oldPath },
+      afterJson: { imagePath: filename, generated: true },
+      requestIp: hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+      userAgent: hdrs.get('user-agent') ?? null,
+    });
+  } catch (err) {
+    console.error('generateBadgeIconAction: write/update failed', err);
     return { ok: false, error: 'internal' };
   }
 
