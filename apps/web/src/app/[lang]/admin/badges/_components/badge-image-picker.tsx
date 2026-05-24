@@ -136,6 +136,11 @@ export function BadgeImagePicker({ badgeId, currentImageUrl, titleHe, titleEn, c
         {genState?.ok === false && (
           <p className="text-xs text-pink-dark" role="alert">
             {t.admin.badgeGenerateFailed}
+            {genState.detail && (
+              <span className="block text-[10px] text-ink-faded mt-0.5 num" dir="ltr">
+                {genState.detail}
+              </span>
+            )}
           </p>
         )}
       </form>

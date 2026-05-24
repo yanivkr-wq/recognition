@@ -5,11 +5,12 @@
  * GENERATES a one-off vector icon for badges that need something the set
  * doesn't cover. Stays within the existing Anthropic vendor — no image model.
  *
- * Output is untrusted markup, so we sanitize hard: slice to the outer <svg>,
- * reject anything that could execute or fetch (script, event handlers,
- * <image>/<use>/<foreignObject>, href, data:/javascript: URIs), and cap size.
- * The result is stored as a .svg file and rendered via <img>, which itself
- * neutralizes any script in SVG — defense in depth.
+ * Output is untrusted markup. Rather than hard-reject (which made valid icons
+ * fail when Claude added a comment / <style> / data: accent), we STRIP unsafe
+ * or unnecessary constructs: comments, XML decls, <script>/<style>/
+ * <foreignObject> blocks, and on*= event handlers. The file is stored as .svg
+ * and only ever rendered via <img> + nosniff + a sandbox CSP, so scripts can't
+ * execute anyway — this is defense in depth, not the only line.
  */
 
 import 'server-only';
@@ -22,20 +23,35 @@ export interface GenerateIconInput {
   color: string;
 }
 
-const FORBIDDEN = /<script|<\/script|<image|<use\b|<foreignobject|on[a-z]+\s*=|href|javascript:|data:|<!|<iframe|<style/i;
-const MAX_SVG_BYTES = 6000;
+const MAX_SVG_BYTES = 16000;
 
 function sanitizeSvg(raw: string): string {
-  const start = raw.indexOf('<svg');
-  const end = raw.lastIndexOf('</svg>');
+  // Drop markdown fences Claude sometimes wraps around code.
+  let s = raw.replace(/```(?:svg|xml|html)?/gi, '').trim();
+
+  const start = s.search(/<svg[\s>]/i);
+  const end = s.toLowerCase().lastIndexOf('</svg>');
   if (start === -1 || end === -1 || end < start) {
-    throw new Error('LLM did not return an <svg> element');
+    throw new Error('LLM output had no complete <svg> element');
   }
-  const svg = raw.slice(start, end + '</svg>'.length).trim();
-  if (svg.length > MAX_SVG_BYTES) throw new Error('generated SVG too large');
-  if (FORBIDDEN.test(svg)) throw new Error('generated SVG contains a disallowed token');
-  if (!/viewbox/i.test(svg)) throw new Error('generated SVG missing viewBox');
-  return svg;
+  s = s.slice(start, end + '</svg>'.length);
+
+  // Strip (don't reject) anything unsafe or noisy.
+  s = s
+    .replace(/<!--[\s\S]*?-->/g, '') // comments
+    .replace(/<\?[\s\S]*?\?>/g, '') // xml declarations
+    .replace(/<!DOCTYPE[^>]*>/gi, '') // doctype
+    .replace(/<script[\s\S]*?<\/script>/gi, '') // scripts
+    .replace(/<style[\s\S]*?<\/style>/gi, '') // styles
+    .replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi, '') // html-in-svg
+    .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, '') // event handlers (")
+    .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, '') // event handlers (')
+    .replace(/javascript:/gi, '')
+    .trim();
+
+  if (s.length > MAX_SVG_BYTES) throw new Error('generated SVG too large');
+  if (!/^<svg[\s>]/i.test(s)) throw new Error('sanitized output is not an <svg> root');
+  return s;
 }
 
 export async function generateBadgeIconSvg(input: GenerateIconInput): Promise<string> {
@@ -51,16 +67,17 @@ Hard requirements:
   - Use the color ${color} for the main shapes. You MAY use white (#FFFFFF) or a
     slightly darker/lighter shade of that color for small accents. NO gradients.
   - Allowed elements ONLY: path, circle, rect, ellipse, line, polyline, polygon, g.
-  - NO <text>, NO <image>, NO <use>, NO <script>, NO external references, NO href, NO data: URIs.
+  - NO <text>, NO <image>, NO <use>, NO <script>, NO <style>, NO comments, NO external references.
+  - Keep it COMPACT — a handful of shapes, well under 1500 characters.
   - Centered, with a little padding inside the 24×24 box. Rounded, friendly shapes.`;
 
   const user = `Badge name (Hebrew): ${input.titleHe.trim()}${
     input.titleEn?.trim() ? `\nBadge name (English): ${input.titleEn.trim()}` : ''
-  }\nDraw an icon that represents this achievement.`;
+  }\nDraw an icon that represents this achievement. Output only the SVG.`;
 
   const res = await anthropic().messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 1200,
+    max_tokens: 2048,
     system,
     messages: [{ role: 'user', content: user }],
   });

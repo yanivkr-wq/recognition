@@ -103,7 +103,13 @@ export async function uploadBadgeImageAction(
 
 export type GenerateBadgeIconState =
   | { ok: true; badgeId: string }
-  | { ok: false; error: 'forbidden' | 'not_found' | 'missing_title' | 'llm_failed' | 'internal' };
+  | {
+      ok: false;
+      error: 'forbidden' | 'not_found' | 'missing_title' | 'llm_failed' | 'internal';
+      /** Short underlying reason, surfaced to the (trusted) admin to aid
+       *  debugging — e.g. the LLM error or a sanitize rejection. */
+      detail?: string;
+    };
 
 /**
  * Generate an original SVG icon from the badge title via Claude and set it as
@@ -144,7 +150,7 @@ export async function generateBadgeIconAction(
     svg = await generateBadgeIconSvg({ titleHe, titleEn: titleEn || undefined, color });
   } catch (err) {
     console.error('generateBadgeIconAction: LLM failed', err);
-    return { ok: false, error: 'llm_failed' };
+    return { ok: false, error: 'llm_failed', detail: (err as Error)?.message?.slice(0, 200) };
   }
 
   const filename = freshBadgeSvgFilename();
@@ -166,7 +172,7 @@ export async function generateBadgeIconAction(
     });
   } catch (err) {
     console.error('generateBadgeIconAction: write/update failed', err);
-    return { ok: false, error: 'internal' };
+    return { ok: false, error: 'internal', detail: (err as Error)?.message?.slice(0, 200) };
   }
 
   revalidatePath('/[lang]/admin', 'layout');
