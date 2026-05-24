@@ -346,7 +346,14 @@
     "invalidCampaign": "כל השדות נדרשים",
     "badges": "תגים",
     "badgesHeading": "אוסף תגים",
-    "noBadges": "אין עדיין תגים"
+    "noBadges": "אין עדיין תגים",
+    "newBadge": "תג חדש",
+    "editBadge": "עריכת תג",
+    "invalidBadge": "כל השדות נדרשים",
+    "emblem": "סמל",
+    "awardedVia": "אופן הזכייה",
+    "awardedViaCampaign": "במסע",
+    "awardedViaManual": "ידני"
   },
   "meta": {
     "locale": "he",

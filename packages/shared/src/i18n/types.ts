@@ -360,6 +360,13 @@ export interface Dictionary {
     badges: string;
     badgesHeading: string;
     noBadges: string;
+    newBadge: string;
+    editBadge: string;
+    invalidBadge: string;
+    emblem: string;
+    awardedVia: string;
+    awardedViaCampaign: string;
+    awardedViaManual: string;
   };
   meta: {
     locale: 'he' | 'en';

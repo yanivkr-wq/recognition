@@ -346,7 +346,14 @@
     "invalidCampaign": "All fields required",
     "badges": "Badges",
     "badgesHeading": "Badge collection",
-    "noBadges": "No badges yet"
+    "noBadges": "No badges yet",
+    "newBadge": "New badge",
+    "editBadge": "Edit badge",
+    "invalidBadge": "All fields required",
+    "emblem": "Emblem",
+    "awardedVia": "Awarded via",
+    "awardedViaCampaign": "Campaign",
+    "awardedViaManual": "Manual"
   },
   "meta": {
     "locale": "en",

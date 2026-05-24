@@ -73,6 +73,13 @@ export default async function AdminHome({
           <p className="text-sm text-ink-soft mt-1">{t.admin.campaignsHeading}</p>
         </Link>
         <Link
+          href={`/${lang}/admin/badges`}
+          className="bg-card rounded-2xl shadow-card p-5 hover:-translate-y-px transition border border-rule"
+        >
+          <p className="text-lg font-bold text-ink">{t.admin.badges}</p>
+          <p className="text-sm text-ink-soft mt-1">{t.admin.badgesHeading}</p>
+        </Link>
+        <Link
           href={`/${lang}/admin/audit`}
           className="bg-card rounded-2xl shadow-card p-5 hover:-translate-y-px transition border border-rule"
         >
