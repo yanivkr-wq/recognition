@@ -23,6 +23,7 @@ import {
   type TaskFormError,
 } from '../../../../../lib/admin-tasks/actions';
 import { IconPicker } from '../../../../../components/icon-picker';
+import { AutofillButton } from '../../../../../components/autofill-button';
 
 interface InitialValues {
   id?: string;
@@ -83,6 +84,13 @@ export function TaskForm({ mode, initial, lang, t, submitLabel }: Props) {
   // Color drives the icon-picker preview tile so the admin sees exactly
   // what the kid will see — pastel tile + chosen glyph.
   const [color, setColor] = useState<string>(initial?.color ?? '#ECE4F8');
+  // Title + description + icon are also state so the LLM autofill button
+  // can programmatically populate them after the admin types HE only.
+  const [titleHe, setTitleHe] = useState<string>(initial?.titleHe ?? '');
+  const [titleEn, setTitleEn] = useState<string>(initial?.titleEn ?? '');
+  const [descriptionHe, setDescriptionHe] = useState<string>(initial?.descriptionHe ?? '');
+  const [descriptionEn, setDescriptionEn] = useState<string>(initial?.descriptionEn ?? '');
+  const [iconKey, setIconKey] = useState<string>(initial?.iconKey ?? 'ic-bed');
 
   return (
     <form action={formAction} className="space-y-4 max-w-xl">
@@ -113,27 +121,44 @@ export function TaskForm({ mode, initial, lang, t, submitLabel }: Props) {
         <Field
           label={t.admin.titleHe}
           name="titleHe"
-          defaultValue={initial?.titleHe ?? ''}
+          value={titleHe}
+          onChange={setTitleHe}
           required
         />
         <Field
           label={t.admin.titleEn}
           name="titleEn"
-          defaultValue={initial?.titleEn ?? ''}
+          value={titleEn}
+          onChange={setTitleEn}
           required
         />
       </div>
+
+      {/* LLM autofill — admin types HE, taps button, gets EN + icon + color
+          populated. Everything is still editable after. */}
+      <AutofillButton
+        family="task"
+        getHe={() => ({ titleHe, descriptionHe })}
+        onResult={(data) => {
+          setTitleEn(data.titleEn);
+          setDescriptionEn(data.descriptionEn);
+          setIconKey(data.iconKey);
+          setColor(data.suggestedColor);
+        }}
+      />
 
       <div className="grid sm:grid-cols-2 gap-4">
         <Field
           label={t.admin.descriptionHe}
           name="descriptionHe"
-          defaultValue={initial?.descriptionHe ?? ''}
+          value={descriptionHe}
+          onChange={setDescriptionHe}
         />
         <Field
           label={t.admin.descriptionEn}
           name="descriptionEn"
-          defaultValue={initial?.descriptionEn ?? ''}
+          value={descriptionEn}
+          onChange={setDescriptionEn}
         />
       </div>
 
@@ -167,9 +192,11 @@ export function TaskForm({ mode, initial, lang, t, submitLabel }: Props) {
         <IconPicker
           name="iconKey"
           defaultValue={initial?.iconKey ?? 'ic-bed'}
+          value={iconKey}
           family="task"
           lang={lang as 'he' | 'en'}
           previewColor={color}
+          onChange={setIconKey}
         />
       </div>
 
@@ -310,6 +337,8 @@ function Field({
   label,
   name,
   defaultValue,
+  value,
+  onChange,
   type = 'text',
   required,
   min,
@@ -318,20 +347,29 @@ function Field({
 }: {
   label: string;
   name: string;
-  defaultValue: string;
+  /** Uncontrolled initial value — for fields the form doesn't mirror into
+   *  React state (numeric / long-term fields). */
+  defaultValue?: string;
+  /** Controlled value — pair with onChange. Used for fields the LLM
+   *  autofill button can populate (title HE/EN + description HE/EN). */
+  value?: string;
+  onChange?: (v: string) => void;
   type?: string;
   required?: boolean;
   min?: number;
   dir?: 'ltr' | 'rtl';
   hint?: string;
 }) {
+  const controlled = value !== undefined;
   return (
     <label className="block">
       <span className="block text-sm text-ink-soft mb-1">{label}</span>
       <input
         name={name}
         type={type}
-        defaultValue={defaultValue}
+        {...(controlled
+          ? { value, onChange: (e) => onChange?.(e.currentTarget.value) }
+          : { defaultValue })}
         required={required}
         min={min}
         dir={dir}

@@ -20,6 +20,7 @@ import {
   type RewardFormError,
 } from '../../../../../lib/admin-rewards/actions';
 import { IconPicker } from '../../../../../components/icon-picker';
+import { AutofillButton } from '../../../../../components/autofill-button';
 import { RewardImagePicker } from './reward-image-picker';
 import { RewardPreview } from './reward-preview';
 
@@ -92,6 +93,18 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
         onChange={setTitleHe}
         required
       />
+      {/* LLM autofill — fills EN translation + icon + color from the HE
+          fields. Admin can override anything after. */}
+      <AutofillButton
+        family="reward"
+        getHe={() => ({ titleHe, descriptionHe })}
+        onResult={(data) => {
+          setTitleEn(data.titleEn);
+          setDescriptionEn(data.descriptionEn);
+          setIconKey(data.iconKey);
+          setColor(data.suggestedColor);
+        }}
+      />
       <Field
         label={t.admin.titleEn}
         name="titleEn"
@@ -141,6 +154,7 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
         <IconPicker
           name="iconKey"
           defaultValue={initial.iconKey}
+          value={iconKey}
           family="reward"
           lang={lang}
           previewColor={color}

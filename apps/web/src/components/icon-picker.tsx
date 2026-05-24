@@ -15,7 +15,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ICON_LIBRARY, getIcon, type IconEntry } from './icon-library';
 
 interface Props {
@@ -31,10 +31,32 @@ interface Props {
    *  its own live state for richer previews (e.g. a kid-eye reward tile).
    *  Optional — the hidden input still carries the value into FormData. */
   onChange?: (iconKey: string) => void;
+  /** Optional controlled value — when provided, the picker syncs to it
+   *  whenever it changes (e.g. parent's LLM autofill button programmatically
+   *  swaps the selection). When omitted, the picker stays uncontrolled. */
+  value?: string;
 }
 
-export function IconPicker({ name, defaultValue, family, lang, previewColor, onChange }: Props) {
-  const [selected, setSelected] = useState<string>(defaultValue);
+export function IconPicker({
+  name,
+  defaultValue,
+  family,
+  lang,
+  previewColor,
+  onChange,
+  value,
+}: Props) {
+  const [selected, setSelected] = useState<string>(value ?? defaultValue);
+  // Mirror externally-driven prop changes into internal state. We don't
+  // go fully controlled because IconCell still calls setSelected on click —
+  // keeping both knobs avoids an effect war between user clicks and prop
+  // updates from the parent.
+  useEffect(() => {
+    if (value !== undefined && value !== selected) {
+      setSelected(value);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
   const pick = (key: string) => {
     setSelected(key);
     onChange?.(key);
