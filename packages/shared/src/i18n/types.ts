@@ -315,6 +315,8 @@ export interface Dictionary {
     rewardImageBadMime: string;
     rewardImageNoFile: string;
     rewardImageFailed: string;
+    rewardPreviewHeading: string;
+    rewardPreviewKidEye: string;
     joker: string;
     jokerHeading: string;
     jokerIntro: string;

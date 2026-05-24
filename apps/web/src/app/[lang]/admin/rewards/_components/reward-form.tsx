@@ -21,6 +21,7 @@ import {
 } from '../../../../../lib/admin-rewards/actions';
 import { IconPicker } from '../../../../../components/icon-picker';
 import { RewardImagePicker } from './reward-image-picker';
+import { RewardPreview } from './reward-preview';
 
 interface Initial {
   id?: string;
@@ -65,12 +66,21 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
     FormData
   >(mode === 'create' ? createRewardAction : updateRewardAction, undefined);
 
-  // Color is mirrored as state so the IconPicker preview tile reflects
-  // exactly what the kid will see in the shop.
+  // Live form state — every field that drives the kid-eye preview is
+  // mirrored here so the <RewardPreview /> updates as the admin types.
+  // The form still posts via FormData (controlled inputs preserve their
+  // value attribute), so server-action shape is unchanged.
+  const [titleHe, setTitleHe] = useState<string>(initial.titleHe);
+  const [titleEn, setTitleEn] = useState<string>(initial.titleEn);
+  const [descriptionHe, setDescriptionHe] = useState<string>(initial.descriptionHe ?? '');
+  const [descriptionEn, setDescriptionEn] = useState<string>(initial.descriptionEn ?? '');
   const [color, setColor] = useState<string>(initial.color);
+  const [iconKey, setIconKey] = useState<string>(initial.iconKey);
+  const [coinCost, setCoinCost] = useState<number>(initial.coinCost);
 
   return (
-    <div className="space-y-4 max-w-xl">
+    <div className="grid md:grid-cols-[1fr_220px] gap-6 max-w-3xl items-start">
+    <div className="space-y-4">
     <form action={action} className="space-y-4">
       <input type="hidden" name="lang" value={lang} />
       {initial.id && <input type="hidden" name="id" value={initial.id} />}
@@ -78,25 +88,29 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
       <Field
         label={t.admin.titleHe}
         name="titleHe"
-        defaultValue={initial.titleHe}
+        value={titleHe}
+        onChange={setTitleHe}
         required
       />
       <Field
         label={t.admin.titleEn}
         name="titleEn"
-        defaultValue={initial.titleEn}
+        value={titleEn}
+        onChange={setTitleEn}
         required
         ltr
       />
       <Field
         label={t.admin.descriptionHe}
         name="descriptionHe"
-        defaultValue={initial.descriptionHe ?? ''}
+        value={descriptionHe}
+        onChange={setDescriptionHe}
       />
       <Field
         label={t.admin.descriptionEn}
         name="descriptionEn"
-        defaultValue={initial.descriptionEn ?? ''}
+        value={descriptionEn}
+        onChange={setDescriptionEn}
         ltr
       />
       <div className="grid grid-cols-[1fr_auto] items-end gap-3">
@@ -130,13 +144,18 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
           family="reward"
           lang={lang}
           previewColor={color}
+          onChange={setIconKey}
         />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <Field
           label={t.admin.coinCost}
           name="coinCost"
-          defaultValue={String(initial.coinCost)}
+          value={String(coinCost)}
+          onChange={(v) => {
+            const n = Number.parseInt(v, 10);
+            setCoinCost(Number.isFinite(n) ? n : 0);
+          }}
           ltr
           required
           inputMode="numeric"
@@ -203,24 +222,54 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
       </p>
     )}
     </div>
+
+    {/* Kid-eye live preview — sits in the right column on wide screens,
+        stacks below on narrow. Reflects every keystroke in the form so the
+        admin sees exactly what the kid will see before saving. */}
+    <aside className="md:sticky md:top-4">
+      <RewardPreview
+        titleHe={titleHe}
+        titleEn={titleEn}
+        descriptionHe={descriptionHe}
+        descriptionEn={descriptionEn}
+        iconKey={iconKey}
+        color={color}
+        coinCost={coinCost}
+        imageUrl={initial.currentImageUrl ?? null}
+        lang={lang}
+        t={t}
+      />
+    </aside>
+    </div>
   );
 }
 
 function Field(props: {
   label: string;
   name: string;
-  defaultValue: string;
+  /** Controlled value — pair with onChange. Either this or defaultValue. */
+  value?: string;
+  onChange?: (v: string) => void;
+  /** Uncontrolled initial value — for fields the form doesn't need to
+   *  mirror into the kid-eye preview (stockQuantity, displayOrder). */
+  defaultValue?: string;
   required?: boolean;
   ltr?: boolean;
   inputMode?: 'numeric' | 'text';
 }) {
+  const controlled = props.value !== undefined;
   return (
     <label className="block">
       <span className="block text-xs text-ink-soft mb-1">{props.label}</span>
       <input
         type="text"
         name={props.name}
-        defaultValue={props.defaultValue}
+        {...(controlled
+          ? {
+              value: props.value,
+              onChange: (e) => props.onChange?.(e.currentTarget.value),
+            }
+          : { defaultValue: props.defaultValue })}
         required={props.required}
         inputMode={props.inputMode}
         dir={props.ltr ? 'ltr' : undefined}

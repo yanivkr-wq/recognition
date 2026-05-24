@@ -302,6 +302,8 @@
     "rewardImageBadMime": "סוג קובץ לא נתמך — נסי JPG/PNG/WEBP",
     "rewardImageNoFile": "יש לבחור קובץ",
     "rewardImageFailed": "ההעלאה לא הצליחה",
+    "rewardPreviewHeading": "תצוגה מקדימה",
+    "rewardPreviewKidEye": "כפי שהילדה רואה",
     "joker": "ג׳וקר",
     "jokerHeading": "התאמת ארנק",
     "jokerIntro": "הוסיפי או הורידי מטבעות עם סיבה. כל פעולה נרשמת ביומן.",

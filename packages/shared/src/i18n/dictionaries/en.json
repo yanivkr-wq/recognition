@@ -302,6 +302,8 @@
     "rewardImageBadMime": "Unsupported file — try JPG/PNG/WEBP",
     "rewardImageNoFile": "Pick a file",
     "rewardImageFailed": "Upload failed",
+    "rewardPreviewHeading": "Preview",
+    "rewardPreviewKidEye": "Kid's view",
     "joker": "Joker",
     "jokerHeading": "Wallet adjustment",
     "jokerIntro": "Add or remove coins with a reason. Every action is logged.",

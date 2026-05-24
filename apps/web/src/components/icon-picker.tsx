@@ -27,10 +27,18 @@ interface Props {
    *  kid will actually see in the shop / task list. Falls back to the
    *  brandbook neutral pastel if not supplied. */
   previewColor?: string;
+  /** Fires when the admin picks a different icon, so a parent form can keep
+   *  its own live state for richer previews (e.g. a kid-eye reward tile).
+   *  Optional — the hidden input still carries the value into FormData. */
+  onChange?: (iconKey: string) => void;
 }
 
-export function IconPicker({ name, defaultValue, family, lang, previewColor }: Props) {
+export function IconPicker({ name, defaultValue, family, lang, previewColor, onChange }: Props) {
   const [selected, setSelected] = useState<string>(defaultValue);
+  const pick = (key: string) => {
+    setSelected(key);
+    onChange?.(key);
+  };
   const family_icons = ICON_LIBRARY.filter((i) => i.family === family);
   const chosen = getIcon(selected);
   const tileColor = previewColor && /^#[0-9a-fA-F]{6}$/.test(previewColor) ? previewColor : '#ECE4F8';
@@ -67,7 +75,7 @@ export function IconPicker({ name, defaultValue, family, lang, previewColor }: P
             key={entry.key}
             entry={entry}
             selected={selected === entry.key}
-            onSelect={() => setSelected(entry.key)}
+            onSelect={() => pick(entry.key)}
             lang={lang}
           />
         ))}

@@ -20,6 +20,7 @@ import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, taskTemplate } from '@reco/db';
 import { auth } from '../../../../auth';
 import { Coin } from '../../../../components/coin';
+import { TaskIcon } from '../../../../components/task-icon';
 
 export const dynamic = 'force-dynamic';
 
@@ -62,15 +63,10 @@ export default async function AdminTasksPage({
                 archived ? 'opacity-50' : ''
               }`}
             >
-              <div
-                className="w-10 h-10 rounded-2xl shrink-0 flex items-center justify-center"
-                style={{ backgroundColor: r.color }}
-                aria-hidden="true"
-              >
-                <span className="text-xl font-bold text-ink">
-                  {title.charAt(0)}
-                </span>
-              </div>
+              {/* Real task icon (was a single-letter placeholder pre-2026-05-23).
+                  Matches what the kid sees on /he, so admin previews the
+                  full task identity at a glance. */}
+              <TaskIcon iconKey={r.iconKey} color={r.color} title={title} size={40} />
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-ink truncate">{title}</p>
                 <p className="text-xs text-ink-soft truncate">
