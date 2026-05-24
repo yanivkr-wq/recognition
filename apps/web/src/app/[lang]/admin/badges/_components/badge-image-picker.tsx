@@ -14,10 +14,8 @@ import { useActionState, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { Dictionary } from '@reco/shared/i18n';
 import {
-  generateBadgeIconAction,
   removeBadgeImageAction,
   uploadBadgeImageAction,
-  type GenerateBadgeIconState,
   type UploadBadgeImageState,
 } from '../../../../../lib/admin-badges/image-actions';
 
@@ -27,10 +25,6 @@ const ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 interface Props {
   badgeId: string;
   currentImageUrl: string | null;
-  /** Live form values, so "generate with AI" uses the latest title + color. */
-  titleHe: string;
-  titleEn: string;
-  color: string;
   t: Dictionary;
 }
 
@@ -46,16 +40,11 @@ const ERROR_KEY: Record<
   internal: 'rewardImageFailed',
 };
 
-export function BadgeImagePicker({ badgeId, currentImageUrl, titleHe, titleEn, color, t }: Props) {
+export function BadgeImagePicker({ badgeId, currentImageUrl, t }: Props) {
   const [state, action] = useActionState<UploadBadgeImageState | undefined, FormData>(
     uploadBadgeImageAction,
     undefined,
   );
-  const [genState, genAction, genPending] = useActionState<
-    GenerateBadgeIconState | undefined,
-    FormData
-  >(generateBadgeIconAction, undefined);
-  const noTitle = !titleHe.trim() && !titleEn.trim();
   const [clientError, setClientError] = useState<keyof Dictionary['admin'] | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -115,33 +104,6 @@ export function BadgeImagePicker({ badgeId, currentImageUrl, titleHe, titleEn, c
         )}
         {state?.ok === true && !clientError && (
           <p className="text-xs text-mint-dark">{t.common.save} ✓</p>
-        )}
-      </form>
-
-      {/* Generate an original icon from the badge title via Claude. Writes the
-          SVG as the badge image, so it flows through the same render path. */}
-      <form action={genAction} className="space-y-1 border-t border-rule/60 pt-3">
-        <input type="hidden" name="badgeId" value={badgeId} />
-        <input type="hidden" name="titleHe" value={titleHe} />
-        <input type="hidden" name="titleEn" value={titleEn} />
-        <input type="hidden" name="color" value={color} />
-        <button
-          type="submit"
-          disabled={genPending || noTitle}
-          className="inline-flex items-center gap-1.5 bg-lavender-pale text-lavender-dark font-bold rounded-full py-1.5 px-3 text-xs hover:opacity-80 transition disabled:opacity-60"
-        >
-          {genPending ? t.admin.badgeGeneratingIcon : t.admin.badgeGenerateIcon}
-        </button>
-        {noTitle && <p className="text-[11px] text-ink-faded">{t.admin.badgeGenerateNoTitle}</p>}
-        {genState?.ok === false && (
-          <p className="text-xs text-pink-dark" role="alert">
-            {t.admin.badgeGenerateFailed}
-            {genState.detail && (
-              <span className="block text-[10px] text-ink-faded mt-0.5 num" dir="ltr">
-                {genState.detail}
-              </span>
-            )}
-          </p>
         )}
       </form>
     </div>

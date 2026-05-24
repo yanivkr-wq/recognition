@@ -11,13 +11,15 @@
 
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Dictionary } from '@reco/shared/i18n';
 import {
   createBadgeAction,
   updateBadgeAction,
   type BadgeFormError,
 } from '../../../../../lib/admin-badges/actions';
+import { generateBadgeIconAction } from '../../../../../lib/admin-badges/image-actions';
 import { BADGE_EMBLEMS } from '../../../../../lib/admin-badges/emblems';
 import { AutofillButton } from '../../../../../components/autofill-button';
 import { BadgeEmblem } from '../../../../../components/badge-emblem';
@@ -79,6 +81,27 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
   const [color, setColor] = useState<string>(initial.color);
   const [iconKey, setIconKey] = useState<string>(initial.iconKey);
 
+  // AI icon generation (edit-only — needs a saved badge id to store onto).
+  const router = useRouter();
+  const [genPending, startGen] = useTransition();
+  const [genErr, setGenErr] = useState<string | null>(null);
+  const hasTitle = !!(titleHe.trim() || titleEn.trim());
+
+  function generateIcon() {
+    if (!initial.id || !hasTitle) return;
+    setGenErr(null);
+    const fd = new FormData();
+    fd.set('badgeId', initial.id);
+    fd.set('titleHe', titleHe);
+    fd.set('titleEn', titleEn);
+    fd.set('color', color);
+    startGen(async () => {
+      const res = await generateBadgeIconAction(undefined, fd);
+      if (res.ok) router.refresh();
+      else setGenErr(res.detail ?? t.admin.badgeGenerateFailed);
+    });
+  }
+
   const previewTitle = lang === 'he' ? titleHe : titleEn;
 
   return (
@@ -96,9 +119,17 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
           onChange={setTitleHe}
           required
         />
-        {/* LLM autofill — fills EN translation + emblem + brand color from the
-            HE fields, picking the emblem from the locked em-* set. Admin can
-            override anything after. */}
+        <Field
+          label={t.admin.titleEn}
+          name="titleEn"
+          value={titleEn}
+          onChange={setTitleEn}
+          required
+          ltr
+        />
+        {/* LLM autofill — sits under the English title since it fills the EN
+            translation + emblem + brand color from the HE fields (admin can
+            override anything after). */}
         <AutofillButton
           family="badge"
           getHe={() => ({ titleHe, descriptionHe })}
@@ -108,14 +139,6 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
             setIconKey(data.iconKey);
             setColor(data.suggestedColor);
           }}
-        />
-        <Field
-          label={t.admin.titleEn}
-          name="titleEn"
-          value={titleEn}
-          onChange={setTitleEn}
-          required
-          ltr
         />
         <Field
           label={t.admin.descriptionHe}
@@ -162,6 +185,34 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
                 </button>
               );
             })}
+          </div>
+
+          {/* AI icon generator — sits with the emblem picker. Edit-only (needs
+              a saved badge id); generates an original SVG from the title and
+              sets it as the badge image, overriding the chosen emblem. */}
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            {initial.id ? (
+              <>
+                <button
+                  type="button"
+                  onClick={generateIcon}
+                  disabled={genPending || !hasTitle}
+                  className="inline-flex items-center gap-1.5 bg-lavender-pale text-lavender-dark font-bold rounded-full py-1.5 px-3 text-xs hover:opacity-80 transition disabled:opacity-60"
+                >
+                  {genPending ? t.admin.badgeGeneratingIcon : t.admin.badgeGenerateIcon}
+                </button>
+                {!hasTitle && (
+                  <span className="text-[11px] text-ink-faded">{t.admin.badgeGenerateNoTitle}</span>
+                )}
+                {genErr && (
+                  <span className="text-[11px] text-pink-dark num" dir="ltr">
+                    {genErr}
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="text-[11px] text-ink-faded">{t.admin.badgeImageCreateFirst}</span>
+            )}
           </div>
         </div>
 
@@ -252,9 +303,6 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
         <BadgeImagePicker
           badgeId={initial.id}
           currentImageUrl={initial.currentImageUrl ?? null}
-          titleHe={titleHe}
-          titleEn={titleEn}
-          color={color}
           t={t}
         />
       ) : (
