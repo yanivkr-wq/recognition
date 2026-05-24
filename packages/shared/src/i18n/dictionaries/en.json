@@ -361,6 +361,8 @@
     "badgeImageCurrent": "Current image",
     "badgeImageCreateFirst": "Save the badge first to upload an image.",
     "badgeGenerateIcon": "✨ Generate icon with AI",
+    "badgeRegenerateIcon": "✨ Regenerate icon",
+    "badgeRemoveIcon": "Remove generated icon",
     "badgeGeneratingIcon": "Generating…",
     "badgeGenerateFailed": "Icon generation failed, try again",
     "badgeGenerateNoTitle": "Add a title first",

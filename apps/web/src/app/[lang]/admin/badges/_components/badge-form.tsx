@@ -19,7 +19,10 @@ import {
   updateBadgeAction,
   type BadgeFormError,
 } from '../../../../../lib/admin-badges/actions';
-import { generateBadgeIconAction } from '../../../../../lib/admin-badges/image-actions';
+import {
+  generateBadgeIconAction,
+  removeBadgeImageAction,
+} from '../../../../../lib/admin-badges/image-actions';
 import { BADGE_EMBLEMS } from '../../../../../lib/admin-badges/emblems';
 import { AutofillButton } from '../../../../../components/autofill-button';
 import { BadgeEmblem } from '../../../../../components/badge-emblem';
@@ -82,24 +85,50 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
   const [iconKey, setIconKey] = useState<string>(initial.iconKey);
 
   // AI icon generation (edit-only — needs a saved badge id to store onto).
+  // `hideImage` lets the preview drop the custom image the instant the admin
+  // picks an emblem, before the server clear + refresh lands.
   const router = useRouter();
   const [genPending, startGen] = useTransition();
   const [genErr, setGenErr] = useState<string | null>(null);
+  const [hideImage, setHideImage] = useState(false);
   const hasTitle = !!(titleHe.trim() || titleEn.trim());
+  const showImage = !hideImage && !!initial.currentImageUrl;
 
   function generateIcon() {
     if (!initial.id || !hasTitle) return;
     setGenErr(null);
+    setHideImage(false);
     const fd = new FormData();
     fd.set('badgeId', initial.id);
     fd.set('titleHe', titleHe);
     fd.set('titleEn', titleEn);
+    fd.set('descriptionHe', descriptionHe);
+    fd.set('descriptionEn', descriptionEn);
     fd.set('color', color);
     startGen(async () => {
       const res = await generateBadgeIconAction(undefined, fd);
       if (res.ok) router.refresh();
       else setGenErr(res.detail ?? t.admin.badgeGenerateFailed);
     });
+  }
+
+  // Clear the custom/AI image so the chosen emblem shows instead.
+  function clearCustomImage() {
+    if (!initial.id) return;
+    setHideImage(true);
+    setGenErr(null);
+    const fd = new FormData();
+    fd.set('badgeId', initial.id);
+    startGen(async () => {
+      await removeBadgeImageAction(fd);
+      router.refresh();
+    });
+  }
+
+  // Picking an emblem replaces any AI/custom image.
+  function pickEmblem(key: string) {
+    setIconKey(key);
+    if (initial.id && initial.currentImageUrl && !hideImage) clearCustomImage();
   }
 
   const previewTitle = lang === 'he' ? titleHe : titleEn;
@@ -167,7 +196,7 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
                 <button
                   key={em.key}
                   type="button"
-                  onClick={() => setIconKey(em.key)}
+                  onClick={() => pickEmblem(em.key)}
                   role="radio"
                   aria-checked={selected}
                   title={lang === 'he' ? em.labelHe : em.labelEn}
@@ -199,8 +228,22 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
                   disabled={genPending || !hasTitle}
                   className="inline-flex items-center gap-1.5 bg-lavender-pale text-lavender-dark font-bold rounded-full py-1.5 px-3 text-xs hover:opacity-80 transition disabled:opacity-60"
                 >
-                  {genPending ? t.admin.badgeGeneratingIcon : t.admin.badgeGenerateIcon}
+                  {genPending
+                    ? t.admin.badgeGeneratingIcon
+                    : showImage
+                      ? t.admin.badgeRegenerateIcon
+                      : t.admin.badgeGenerateIcon}
                 </button>
+                {showImage && (
+                  <button
+                    type="button"
+                    onClick={clearCustomImage}
+                    disabled={genPending}
+                    className="text-[11px] text-ink-soft underline-offset-2 hover:underline disabled:opacity-60"
+                  >
+                    {t.admin.badgeRemoveIcon}
+                  </button>
+                )}
                 {!hasTitle && (
                   <span className="text-[11px] text-ink-faded">{t.admin.badgeGenerateNoTitle}</span>
                 )}
@@ -318,7 +361,7 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
             iconKey={iconKey}
             color={color}
             title={previewTitle}
-            imageUrl={initial.currentImageUrl ?? null}
+            imageUrl={showImage ? initial.currentImageUrl ?? null : null}
             size={80}
           />
           <p className="text-sm font-bold text-ink text-center">

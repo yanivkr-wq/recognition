@@ -374,6 +374,8 @@ export interface Dictionary {
     badgeImageCurrent: string;
     badgeImageCreateFirst: string;
     badgeGenerateIcon: string;
+    badgeRegenerateIcon: string;
+    badgeRemoveIcon: string;
     badgeGeneratingIcon: string;
     badgeGenerateFailed: string;
     badgeGenerateNoTitle: string;

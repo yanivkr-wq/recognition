@@ -155,7 +155,10 @@ export default async function CampaignsPage({
       badgeTitleEn: r.badgeTitleEn,
       badgeIconKey: r.badgeIconKey,
       badgeColor: r.badgeColor,
-      badgeImageUrl: r.badgeId && r.badgeImagePath ? `/api/badge-images/${r.badgeId}` : null,
+      badgeImageUrl:
+        r.badgeId && r.badgeImagePath
+          ? `/api/badge-images/${r.badgeId}?v=${(r.badgeImagePath.split('/').pop() ?? '').split('.')[0]}`
+          : null,
     };
   });
 

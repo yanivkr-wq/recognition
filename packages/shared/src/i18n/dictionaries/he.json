@@ -361,6 +361,8 @@
     "badgeImageCurrent": "התמונה הנוכחית",
     "badgeImageCreateFirst": "שמרי קודם את התג כדי להעלות תמונה.",
     "badgeGenerateIcon": "✨ צור אייקון עם AI",
+    "badgeRegenerateIcon": "✨ צור אייקון מחדש",
+    "badgeRemoveIcon": "הסרת האייקון שנוצר",
     "badgeGeneratingIcon": "יוצר…",
     "badgeGenerateFailed": "יצירת האייקון נכשלה, נסי שוב",
     "badgeGenerateNoTitle": "יש להזין כותרת תחילה",

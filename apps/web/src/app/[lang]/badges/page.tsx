@@ -111,7 +111,9 @@ export default async function BadgesPage({
     titleEn: r.titleEn,
     iconKey: r.iconKey,
     color: r.color,
-    imageUrl: r.imagePath ? `/api/badge-images/${r.badgeId}` : null,
+    imageUrl: r.imagePath
+      ? `/api/badge-images/${r.badgeId}?v=${(r.imagePath.split('/').pop() ?? '').split('.')[0]}`
+      : null,
     awardedAt: r.awardedAt.toISOString(),
     awardedForYear: r.awardedForYear,
   }));
@@ -121,7 +123,9 @@ export default async function BadgesPage({
     titleEn: r.titleEn,
     iconKey: r.iconKey,
     color: r.color,
-    imageUrl: r.imagePath ? `/api/badge-images/${r.id}` : null,
+    imageUrl: r.imagePath
+      ? `/api/badge-images/${r.id}?v=${(r.imagePath.split('/').pop() ?? '').split('.')[0]}`
+      : null,
   }));
 
   return (

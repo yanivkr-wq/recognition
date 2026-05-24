@@ -67,7 +67,11 @@ export default async function AdminBadgesPage({
                     iconKey={b.iconKey}
                     color={b.color}
                     title={title}
-                    imageUrl={b.imagePath ? `/api/badge-images/${b.id}` : null}
+                    imageUrl={
+                      b.imagePath
+                        ? `/api/badge-images/${b.id}?v=${(b.imagePath.split('/').pop() ?? '').split('.')[0]}`
+                        : null
+                    }
                     size={52}
                   />
                 </div>

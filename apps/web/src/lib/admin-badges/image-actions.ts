@@ -124,6 +124,8 @@ export async function generateBadgeIconAction(
   const badgeId = String(formData.get('badgeId') ?? '');
   const titleHe = String(formData.get('titleHe') ?? '').trim();
   const titleEn = String(formData.get('titleEn') ?? '').trim();
+  const descriptionHe = String(formData.get('descriptionHe') ?? '').trim() || undefined;
+  const descriptionEn = String(formData.get('descriptionEn') ?? '').trim() || undefined;
   const color = String(formData.get('color') ?? '').trim();
   if (!badgeId) return { ok: false, error: 'not_found' };
   if (!titleHe && !titleEn) return { ok: false, error: 'missing_title' };
@@ -147,7 +149,13 @@ export async function generateBadgeIconAction(
 
   let svg: string;
   try {
-    svg = await generateBadgeIconSvg({ titleHe, titleEn: titleEn || undefined, color });
+    svg = await generateBadgeIconSvg({
+      titleHe,
+      titleEn: titleEn || undefined,
+      descriptionHe,
+      descriptionEn,
+      color,
+    });
   } catch (err) {
     console.error('generateBadgeIconAction: LLM failed', err);
     return { ok: false, error: 'llm_failed', detail: (err as Error)?.message?.slice(0, 200) };
