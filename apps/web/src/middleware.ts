@@ -136,5 +136,10 @@ function passThrough(
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  // Skip locale routing for PWA / icon files at the app root. Without
+  // these exclusions the middleware redirects /icon1 → /he/icon1 (404
+  // there — Next 16 auto-emits those files at root, not per-lang).
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|icon0|icon1|apple-icon).*)',
+  ],
 };
