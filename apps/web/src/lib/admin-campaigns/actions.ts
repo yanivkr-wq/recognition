@@ -64,7 +64,11 @@ interface ParsedCampaign {
   kidIds: string[];
 }
 
-function parseCampaignForm(formData: FormData): ParsedCampaign | CampaignFormError {
+function parseCampaignForm(
+  formData: FormData,
+  opts: { requireKids?: boolean } = {},
+): ParsedCampaign | CampaignFormError {
+  const requireKids = opts.requireKids ?? true;
   const titleHe = String(formData.get('titleHe') ?? '').trim();
   const titleEn = String(formData.get('titleEn') ?? '').trim();
   if (!titleHe || !titleEn) return 'invalid_title';
@@ -123,7 +127,7 @@ function parseCampaignForm(formData: FormData): ParsedCampaign | CampaignFormErr
   if (feedingTemplateIds.length === 0) return 'no_feeding_tasks';
 
   const kidIds = formData.getAll('kidIds').map(String).filter(Boolean);
-  if (kidIds.length === 0) return 'no_kids';
+  if (requireKids && kidIds.length === 0) return 'no_kids';
 
   return {
     titleHe,
@@ -244,6 +248,110 @@ export async function createCampaignAction(
   }
 
   revalidatePath('/[lang]/admin', 'layout');
+  redirect(`/${lang}/admin/campaigns`);
+}
+
+export async function updateCampaignAction(
+  _prev: CampaignFormError | undefined,
+  formData: FormData,
+): Promise<CampaignFormError | undefined> {
+  const id = String(formData.get('id') ?? '');
+  const lang = String(formData.get('lang') ?? 'he');
+  if (!id) return 'not_found';
+
+  let admin;
+  try {
+    admin = await requireAdmin();
+  } catch (err) {
+    if (err instanceof UnauthorizedError) return 'forbidden';
+    throw err;
+  }
+
+  // Enrolled kids + kind are immutable post-creation (changing either would
+  // silently invalidate the engine-derived enrollment state). The form locks
+  // both; we re-validate kind against the stored row below.
+  const parsed = parseCampaignForm(formData, { requireKids: false });
+  if (typeof parsed === 'string') return parsed;
+
+  const db = getDb();
+  const before = await db
+    .select()
+    .from(campaignTable)
+    .where(and(eq(campaignTable.id, id), eq(campaignTable.householdId, admin.householdId)))
+    .limit(1);
+  if (!before[0]) return 'not_found';
+  if (before[0].kind !== parsed.kind) return 'invalid_kind';
+
+  const client = await getPool().connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(
+      `UPDATE campaign SET
+         title_he = $2, title_en = $3, description_he = $4, description_en = $5,
+         start_date = $6::date, end_date = $7::date, bonus_coins = $8, badge_id = $9,
+         streak_target_days = $10, streak_freezes_allowed = $11,
+         streak_per_day_threshold = $12, total_target_quantity = $13,
+         nudge_cadence = $14
+       WHERE id = $1`,
+      [
+        id,
+        parsed.titleHe,
+        parsed.titleEn,
+        parsed.descriptionHe,
+        parsed.descriptionEn,
+        parsed.startDate,
+        parsed.endDate,
+        parsed.bonusCoins,
+        parsed.badgeId,
+        parsed.streakTargetDays,
+        parsed.streakFreezesAllowed,
+        parsed.streakPerDayThreshold,
+        parsed.totalTargetQuantity,
+        parsed.nudgeCadence,
+      ],
+    );
+
+    // Replace the feeding-task set: drop the old links, insert the new
+    // selection. Enrollments and completion history are untouched.
+    await client.query(`DELETE FROM campaign_feeding_task WHERE campaign_id = $1`, [id]);
+    for (const tid of parsed.feedingTemplateIds) {
+      await client.query(
+        `INSERT INTO campaign_feeding_task (campaign_id, template_id) VALUES ($1, $2)
+         ON CONFLICT DO NOTHING`,
+        [id, tid],
+      );
+    }
+
+    const hdrs = await headers();
+    await client.query(
+      `INSERT INTO audit_log (
+         household_id, actor_user_id, action, target_kind, target_id,
+         before_json, after_json, request_ip, user_agent
+       ) VALUES (
+         $1, $2, 'campaign.updated', 'campaign', $3, $4, $5, $6, $7
+       )`,
+      [
+        admin.householdId,
+        admin.userId,
+        id,
+        JSON.stringify(before[0]),
+        JSON.stringify(parsed),
+        hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+        hdrs.get('user-agent') ?? null,
+      ],
+    );
+
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    console.error('updateCampaignAction failed', err);
+    return 'internal';
+  } finally {
+    client.release();
+  }
+
+  revalidatePath('/[lang]/admin', 'layout');
+  revalidatePath('/[lang]/campaigns', 'page');
   redirect(`/${lang}/admin/campaigns`);
 }
 

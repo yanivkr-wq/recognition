@@ -83,6 +83,7 @@ export default async function NewCampaignPage({
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-ink">{t.admin.newCampaign}</h1>
       <CampaignForm
+        mode="create"
         lang={lang as 'he' | 'en'}
         t={t}
         defaults={{

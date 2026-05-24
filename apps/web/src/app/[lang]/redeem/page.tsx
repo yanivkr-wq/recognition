@@ -54,7 +54,8 @@ export default async function RedeemPage({
   const k = kRows[0];
   if (!k) redirect(`/${lang}/pick`);
 
-  // Visible, non-archived rewards in display order.
+  // Visible, non-archived rewards, cheapest first (Lily: shop sorts small →
+  // big by coin value). display_order is the tiebreaker for equal-cost items.
   const rewardRows = await db
     .select({
       id: rewardItemTable.id,
@@ -77,7 +78,7 @@ export default async function RedeemPage({
         isNull(rewardItemTable.archivedAt),
       ),
     )
-    .orderBy(asc(rewardItemTable.displayOrder), asc(rewardItemTable.titleHe));
+    .orderBy(asc(rewardItemTable.coinCost), asc(rewardItemTable.displayOrder));
 
   // Per-day cap usage — only matters for rewards with a non-null cap.
   // Single query for the kid against all reward ids (saves N round-trips).

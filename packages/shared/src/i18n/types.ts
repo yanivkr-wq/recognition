@@ -354,6 +354,7 @@ export interface Dictionary {
     nudgeCadence: string;
     feedingTasks: string;
     enrolledKids: string;
+    enrolledKidsLocked: string;
     pickBadge: string;
     noBadge: string;
     invalidCampaign: string;
@@ -367,6 +368,38 @@ export interface Dictionary {
     awardedVia: string;
     awardedViaCampaign: string;
     awardedViaManual: string;
+    feedback: string;
+  };
+  feedback: {
+    button: string;
+    title: string;
+    categoryLabel: string;
+    categoryBug: string;
+    categoryUiUx: string;
+    categoryFeature: string;
+    bodyLabel: string;
+    bodyPlaceholder: string;
+    attachImage: string;
+    submit: string;
+    sending: string;
+    success: string;
+    close: string;
+    errorGeneric: string;
+    errorBody: string;
+    errorTooLarge: string;
+    errorMime: string;
+    heading: string;
+    empty: string;
+    statusLabel: string;
+    statusNew: string;
+    statusInProgress: string;
+    statusInValidation: string;
+    statusCompleted: string;
+    filterByStatus: string;
+    copy: string;
+    copied: string;
+    submittedBy: string;
+    attachment: string;
   };
   meta: {
     locale: 'he' | 'en';

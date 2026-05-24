@@ -5,8 +5,8 @@
  * kind chip (streak/total), date window, bonus + badge, count of enrolled
  * kids, link to edit/archive. The "+ New" CTA opens the create form.
  *
- * v1: edit form is minimal (toggle archive only). Adding a per-row "edit"
- * stub now keeps the future room — for now the link goes to archive.
+ * Each row links to the edit form (title/dates/bonus/badge/targets/feeding
+ * tasks; kind + enrolled kids are immutable) and has an archive toggle.
  */
 
 import Link from 'next/link';
@@ -115,6 +115,12 @@ export default async function AdminCampaignsPage({
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
                   +<span dir="ltr">{c.bonusCoins}</span>
                 </span>
+                <Link
+                  href={`/${lang}/admin/campaigns/${c.id}/edit`}
+                  className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
+                >
+                  {t.common.edit}
+                </Link>
                 <form action={toggleArchiveCampaignAction}>
                   <input type="hidden" name="id" value={c.id} />
                   <input type="hidden" name="lang" value={lang} />

@@ -95,3 +95,49 @@ export async function requireAdmin(): Promise<AdminPrincipal> {
     email: session.user.email ?? '',
   };
 }
+
+/** Either principal — used by surfaces both kids and parents can act on
+ *  (e.g. the in-app feedback button). Resolves the kid session first (same
+ *  precedence as the image routes: a kid PWA can run on a parent's phone),
+ *  then falls back to the admin session. `label` is a display name captured
+ *  at action time so callers can denormalize it. */
+export type EitherPrincipal =
+  | {
+      principal: 'kid';
+      householdId: string;
+      kidId: string;
+      userId: null;
+      label: string;
+    }
+  | {
+      principal: 'admin';
+      householdId: string;
+      kidId: null;
+      userId: string;
+      label: string;
+    };
+
+export async function requireKidOrAdmin(): Promise<EitherPrincipal> {
+  const hdrs = await headers();
+  if (hdrs.get('x-reco-principal') === 'kid') {
+    const k = await requireKid();
+    return {
+      principal: 'kid',
+      householdId: k.householdId,
+      kidId: k.kidId,
+      userId: null,
+      label: k.name,
+    };
+  }
+  const session = await auth();
+  if (session?.user) {
+    return {
+      principal: 'admin',
+      householdId: session.user.householdId,
+      kidId: null,
+      userId: session.user.id,
+      label: session.user.name ?? session.user.email ?? 'admin',
+    };
+  }
+  throw new UnauthorizedError('kid or admin session required', 'either');
+}

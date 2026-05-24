@@ -86,6 +86,13 @@ export default async function AdminHome({
           <p className="text-lg font-bold text-ink">{t.admin.audit}</p>
           <p className="text-sm text-ink-soft mt-1">{t.admin.auditHeading}</p>
         </Link>
+        <Link
+          href={`/${lang}/admin/feedback`}
+          className="bg-card rounded-2xl shadow-card p-5 hover:-translate-y-px transition border border-rule"
+        >
+          <p className="text-lg font-bold text-ink">{t.admin.feedback}</p>
+          <p className="text-sm text-ink-soft mt-1">{t.feedback.heading}</p>
+        </Link>
       </div>
     </div>
   );

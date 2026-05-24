@@ -1,12 +1,18 @@
 /**
- * Admin · new campaign form.
+ * Admin · campaign form (shared by create + edit).
  *
  * Kind toggle (streak / total) reveals the kind-specific fields. Feeding
  * tasks + enrolled kids use multi-select via stacked checkboxes (mobile-
  * friendly, no native multi-select). Badge picker is a single dropdown
  * with a "no badge" option.
  *
- * The form posts to createCampaignAction via useActionState; on success
+ * In EDIT mode two things are immutable (BUILD-PLAN / actions.ts note):
+ *   - kind — changing streak ↔ total would invalidate enrollment state, so
+ *     it renders as a static chip + hidden input.
+ *   - enrolled kids — shown read-only; admins archive + recreate to swap kids.
+ * Everything else (title, dates, bonus, badge, targets, feeding tasks) edits.
+ *
+ * The form posts to create/updateCampaignAction via useActionState; on success
  * the action redirects to /admin/campaigns. Error states render inline.
  */
 
@@ -16,6 +22,7 @@ import { useActionState, useState } from 'react';
 import type { Dictionary } from '@reco/shared/i18n';
 import {
   createCampaignAction,
+  updateCampaignAction,
   type CampaignFormError,
 } from '../../../../../lib/admin-campaigns/actions';
 
@@ -38,13 +45,34 @@ interface BadgeOpt {
   color: string;
 }
 
+export interface CampaignInitial {
+  id: string;
+  titleHe: string;
+  titleEn: string;
+  descriptionHe: string | null;
+  descriptionEn: string | null;
+  kind: 'streak' | 'total';
+  startDate: string;
+  endDate: string;
+  bonusCoins: number;
+  badgeId: string | null;
+  streakTargetDays: number | null;
+  streakFreezesAllowed: number;
+  streakPerDayThreshold: number | null;
+  totalTargetQuantity: number | null;
+  feedingTemplateIds: string[];
+  enrolledKidIds: string[];
+}
+
 interface Props {
+  mode: 'create' | 'edit';
   lang: 'he' | 'en';
   t: Dictionary;
   defaults: { startDate: string; endDate: string };
   kids: KidOpt[];
   templates: TemplateOpt[];
   badges: BadgeOpt[];
+  initial?: CampaignInitial;
 }
 
 const ERROR_MESSAGES: Record<CampaignFormError, keyof Dictionary['admin']> = {
@@ -62,63 +90,81 @@ const ERROR_MESSAGES: Record<CampaignFormError, keyof Dictionary['admin']> = {
 };
 
 export function CampaignForm(props: Props) {
-  const { lang, t, defaults, kids, templates, badges } = props;
-  const [kind, setKind] = useState<'streak' | 'total'>('streak');
-  const [state, action, pending] = useActionState<
-    CampaignFormError | undefined,
-    FormData
-  >(createCampaignAction, undefined);
+  const { mode, lang, t, defaults, kids, templates, badges, initial } = props;
+  const isEdit = mode === 'edit';
+  const [kind, setKind] = useState<'streak' | 'total'>(initial?.kind ?? 'streak');
+  const [state, action, pending] = useActionState<CampaignFormError | undefined, FormData>(
+    isEdit ? updateCampaignAction : createCampaignAction,
+    undefined,
+  );
+
+  const enrolledSet = new Set(initial?.enrolledKidIds ?? []);
+  const feedingSet = new Set(initial?.feedingTemplateIds ?? []);
 
   return (
     <form action={action} className="space-y-5 max-w-2xl">
       <input type="hidden" name="lang" value={lang} />
+      {isEdit && initial && <input type="hidden" name="id" value={initial.id} />}
 
       {/* Title (bilingual) */}
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label={t.admin.titleHe} name="titleHe" required />
-        <Field label={t.admin.titleEn} name="titleEn" required ltr />
+        <Field label={t.admin.titleHe} name="titleHe" required defaultValue={initial?.titleHe} />
+        <Field label={t.admin.titleEn} name="titleEn" required ltr defaultValue={initial?.titleEn} />
       </div>
       <div className="grid sm:grid-cols-2 gap-3">
-        <Field label={t.admin.descriptionHe} name="descriptionHe" />
-        <Field label={t.admin.descriptionEn} name="descriptionEn" ltr />
+        <Field label={t.admin.descriptionHe} name="descriptionHe" defaultValue={initial?.descriptionHe ?? ''} />
+        <Field label={t.admin.descriptionEn} name="descriptionEn" ltr defaultValue={initial?.descriptionEn ?? ''} />
       </div>
 
-      {/* Kind toggle */}
+      {/* Kind toggle — locked in edit mode */}
       <fieldset className="space-y-2">
         <legend className="text-xs text-ink-soft">{t.admin.campaignKind}</legend>
-        <div className="flex gap-2">
-          <label
-            className={`flex-1 rounded-full py-2 px-4 text-sm font-bold text-center cursor-pointer transition ${
-              kind === 'streak' ? 'bg-mint text-card shadow-cta-mint' : 'bg-card text-ink border border-rule'
-            }`}
-          >
-            <input
-              type="radio"
-              name="kind"
-              value="streak"
-              checked={kind === 'streak'}
-              onChange={() => setKind('streak')}
-              className="sr-only"
-            />
-            {t.admin.campaignKindStreak}
-          </label>
-          <label
-            className={`flex-1 rounded-full py-2 px-4 text-sm font-bold text-center cursor-pointer transition ${
-              kind === 'total' ? 'bg-lavender text-card' : 'bg-card text-ink border border-rule'
-            }`}
-            style={kind === 'total' ? { boxShadow: '0 4px 12px rgba(181, 159, 229, 0.35)' } : {}}
-          >
-            <input
-              type="radio"
-              name="kind"
-              value="total"
-              checked={kind === 'total'}
-              onChange={() => setKind('total')}
-              className="sr-only"
-            />
-            {t.admin.campaignKindTotal}
-          </label>
-        </div>
+        {isEdit ? (
+          <>
+            <input type="hidden" name="kind" value={kind} />
+            <span
+              className={`inline-block rounded-full py-2 px-4 text-sm font-bold ${
+                kind === 'streak' ? 'bg-mint text-card' : 'bg-lavender text-card'
+              }`}
+            >
+              {kind === 'streak' ? t.admin.campaignKindStreak : t.admin.campaignKindTotal}
+            </span>
+          </>
+        ) : (
+          <div className="flex gap-2">
+            <label
+              className={`flex-1 rounded-full py-2 px-4 text-sm font-bold text-center cursor-pointer transition ${
+                kind === 'streak' ? 'bg-mint text-card shadow-cta-mint' : 'bg-card text-ink border border-rule'
+              }`}
+            >
+              <input
+                type="radio"
+                name="kind"
+                value="streak"
+                checked={kind === 'streak'}
+                onChange={() => setKind('streak')}
+                className="sr-only"
+              />
+              {t.admin.campaignKindStreak}
+            </label>
+            <label
+              className={`flex-1 rounded-full py-2 px-4 text-sm font-bold text-center cursor-pointer transition ${
+                kind === 'total' ? 'bg-lavender text-card' : 'bg-card text-ink border border-rule'
+              }`}
+              style={kind === 'total' ? { boxShadow: '0 4px 12px rgba(181, 159, 229, 0.35)' } : {}}
+            >
+              <input
+                type="radio"
+                name="kind"
+                value="total"
+                checked={kind === 'total'}
+                onChange={() => setKind('total')}
+                className="sr-only"
+              />
+              {t.admin.campaignKindTotal}
+            </label>
+          </div>
+        )}
       </fieldset>
 
       {/* Dates */}
@@ -127,7 +173,7 @@ export function CampaignForm(props: Props) {
           label={t.admin.startDate}
           name="startDate"
           type="date"
-          defaultValue={defaults.startDate}
+          defaultValue={initial?.startDate ?? defaults.startDate}
           required
           ltr
         />
@@ -135,7 +181,7 @@ export function CampaignForm(props: Props) {
           label={t.admin.endDate}
           name="endDate"
           type="date"
-          defaultValue={defaults.endDate}
+          defaultValue={initial?.endDate ?? defaults.endDate}
           required
           ltr
         />
@@ -152,7 +198,7 @@ export function CampaignForm(props: Props) {
               label={t.admin.streakTargetDays}
               name="streakTargetDays"
               type="number"
-              defaultValue="5"
+              defaultValue={initial?.streakTargetDays?.toString() ?? '5'}
               required
               ltr
             />
@@ -160,7 +206,7 @@ export function CampaignForm(props: Props) {
               label={t.admin.streakFreezesAllowed}
               name="streakFreezesAllowed"
               type="number"
-              defaultValue="1"
+              defaultValue={initial?.streakFreezesAllowed?.toString() ?? '1'}
               required
               ltr
             />
@@ -168,6 +214,7 @@ export function CampaignForm(props: Props) {
               label={t.admin.streakPerDayThreshold}
               name="streakPerDayThreshold"
               type="number"
+              defaultValue={initial?.streakPerDayThreshold?.toString() ?? ''}
               ltr
             />
           </div>
@@ -182,7 +229,7 @@ export function CampaignForm(props: Props) {
             label={t.admin.totalTargetQuantity}
             name="totalTargetQuantity"
             type="number"
-            defaultValue="30"
+            defaultValue={initial?.totalTargetQuantity?.toString() ?? '30'}
             required
             ltr
           />
@@ -195,7 +242,7 @@ export function CampaignForm(props: Props) {
           label={t.admin.bonusCoins}
           name="bonusCoins"
           type="number"
-          defaultValue="50"
+          defaultValue={initial?.bonusCoins?.toString() ?? '50'}
           required
           ltr
         />
@@ -203,7 +250,7 @@ export function CampaignForm(props: Props) {
           <span className="block text-xs text-ink-soft mb-1">{t.admin.pickBadge}</span>
           <select
             name="badgeId"
-            defaultValue=""
+            defaultValue={initial?.badgeId ?? ''}
             className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-sm text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
           >
             <option value="">{t.admin.noBadge}</option>
@@ -229,6 +276,7 @@ export function CampaignForm(props: Props) {
                 type="checkbox"
                 name="feedingTemplateIds"
                 value={tt.id}
+                defaultChecked={feedingSet.has(tt.id)}
                 className="w-4 h-4 accent-pink"
               />
               <span className="flex-1 truncate">
@@ -242,30 +290,56 @@ export function CampaignForm(props: Props) {
         </div>
       </fieldset>
 
-      {/* Enrolled kids */}
+      {/* Enrolled kids — editable on create, read-only on edit */}
       <fieldset className="space-y-2">
         <legend className="text-xs text-ink-soft">{t.admin.enrolledKids}</legend>
         <div className="flex flex-wrap gap-2">
-          {kids.map((k) => (
-            <label
-              key={k.id}
-              className="flex items-center gap-2 bg-card border border-rule rounded-xl px-3 py-2 text-sm cursor-pointer hover:border-pink-pale transition"
-            >
-              <input
-                type="checkbox"
-                name="kidIds"
-                value={k.id}
-                className="w-4 h-4 accent-pink"
-              />
-              <span
-                className="w-5 h-5 rounded-full shrink-0"
-                style={{ backgroundColor: k.color }}
-                aria-hidden="true"
-              />
-              {k.name}
-            </label>
-          ))}
+          {kids.map((k) => {
+            const enrolled = enrolledSet.has(k.id);
+            if (isEdit) {
+              // Read-only chip; not submitted (kids are immutable post-create).
+              return (
+                <span
+                  key={k.id}
+                  className={`flex items-center gap-2 border rounded-xl px-3 py-2 text-sm ${
+                    enrolled
+                      ? 'bg-card border-rule text-ink'
+                      : 'bg-bg border-rule text-ink-faded opacity-60'
+                  }`}
+                >
+                  <span
+                    className="w-5 h-5 rounded-full shrink-0"
+                    style={{ backgroundColor: k.color }}
+                    aria-hidden="true"
+                  />
+                  {k.name}
+                </span>
+              );
+            }
+            return (
+              <label
+                key={k.id}
+                className="flex items-center gap-2 bg-card border border-rule rounded-xl px-3 py-2 text-sm cursor-pointer hover:border-pink-pale transition"
+              >
+                <input
+                  type="checkbox"
+                  name="kidIds"
+                  value={k.id}
+                  className="w-4 h-4 accent-pink"
+                />
+                <span
+                  className="w-5 h-5 rounded-full shrink-0"
+                  style={{ backgroundColor: k.color }}
+                  aria-hidden="true"
+                />
+                {k.name}
+              </label>
+            );
+          })}
         </div>
+        {isEdit && (
+          <p className="text-[11px] text-ink-faded">{t.admin.enrolledKidsLocked}</p>
+        )}
       </fieldset>
 
       {state && (
@@ -279,7 +353,7 @@ export function CampaignForm(props: Props) {
         disabled={pending}
         className="bg-pink text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
       >
-        {pending ? '…' : t.admin.create}
+        {pending ? '…' : isEdit ? t.common.save : t.admin.create}
       </button>
     </form>
   );
