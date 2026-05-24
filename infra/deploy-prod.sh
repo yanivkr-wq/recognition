@@ -140,6 +140,9 @@ SENTRY_DSN_WEB="${SENTRY_DSN_WEB:-}"
 SENTRY_DSN_WORKER="${SENTRY_DSN_WORKER:-}"
 SENTRY_ENVIRONMENT="production"
 
+# Anthropic API (LLM autofill for admin: HE→EN translate + icon suggest)
+ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}"
+
 # Cron schedules (defaults from docs/CRON.md)
 DISPATCHER_CRON="${DISPATCHER_CRON:-*/5 * * * *}"
 DAILY_RESET_CRON="${DAILY_RESET_CRON:-0 0 * * *}"
