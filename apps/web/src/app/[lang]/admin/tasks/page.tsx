@@ -59,41 +59,53 @@ export default async function AdminTasksPage({
           return (
             <li
               key={r.id}
-              className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
+              className={`bg-card rounded-2xl shadow-card border border-rule p-4 space-y-3 ${
                 archived ? 'opacity-50' : ''
               }`}
             >
-              {/* Real task icon (was a single-letter placeholder pre-2026-05-23).
-                  Matches what the kid sees on /he, so admin previews the
-                  full task identity at a glance. */}
-              <TaskIcon iconKey={r.iconKey} color={r.color} title={title} size={40} />
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-ink truncate">{title}</p>
-                <p className="text-xs text-ink-soft truncate">
-                  {r.kind} · {r.evidenceRequired ? t.admin.evidenceRequired : '—'}
-                  {archived && (
-                    <span className="ms-2 inline-block text-[10px] uppercase tracking-wider text-ink-faded">
-                      {t.admin.archived}
-                    </span>
-                  )}
-                </p>
+              {/* Top: icon + full (wrapping) title. The title gets the whole
+                  row width — coin + actions live in the footer below — so it's
+                  fully readable on a phone instead of truncated to one line. */}
+              <div className="flex items-start gap-3">
+                {/* Real task icon (was a single-letter placeholder pre-2026-05-23).
+                    Matches what the kid sees on /he, so admin previews the
+                    full task identity at a glance. */}
+                <TaskIcon iconKey={r.iconKey} color={r.color} title={title} size={40} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-ink leading-snug break-words">{title}</p>
+                  <p className="text-xs text-ink-soft mt-1">
+                    {r.kind} · {r.evidenceRequired ? t.admin.evidenceRequired : '—'}
+                    {archived && (
+                      <span className="ms-2 inline-block text-[10px] uppercase tracking-wider text-ink-faded">
+                        {t.admin.archived}
+                      </span>
+                    )}
+                  </p>
+                </div>
               </div>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
-                <Coin size={14} />
-                <span dir="ltr">{r.coinValue}</span>
-              </span>
-              <Link
-                href={`/${lang}/admin/tasks/${r.id}/edit`}
-                className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold"
-              >
-                {t.common.edit}
-              </Link>
-              <Link
-                href={`/${lang}/admin/tasks/${r.id}/assign`}
-                className="text-xs text-sky-dark underline-offset-2 hover:underline font-bold"
-              >
-                {t.admin.assignments}
-              </Link>
+
+              {/* Footer: coin value + actions, divided from the title block.
+                  Actions get comfortable tap targets on mobile. */}
+              <div className="flex items-center justify-between gap-3 pt-3 border-t border-rule/60">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
+                  <Coin size={14} />
+                  <span dir="ltr">{r.coinValue}</span>
+                </span>
+                <div className="flex items-center gap-4">
+                  <Link
+                    href={`/${lang}/admin/tasks/${r.id}/edit`}
+                    className="text-sm text-pink-dark underline-offset-2 hover:underline font-bold py-1"
+                  >
+                    {t.common.edit}
+                  </Link>
+                  <Link
+                    href={`/${lang}/admin/tasks/${r.id}/assign`}
+                    className="text-sm text-sky-dark underline-offset-2 hover:underline font-bold py-1"
+                  >
+                    {t.admin.assignments}
+                  </Link>
+                </div>
+              </div>
             </li>
           );
         })}
