@@ -1,11 +1,13 @@
 /**
- * PWA standard 512x512 icon (Android / web manifest / iOS).
+ * PWA standard 512x512 icon (Android / web manifest / iOS, + maskable).
  *
- * Same design as icon0 but at the largest standard PWA size. iOS and
- * splash screens prefer this size on hi-DPI displays.
+ * Same RecoMark as icon0 at the largest standard size. The full-bleed
+ * pink-soft tile satisfies the maskable safe-zone (the mark sits well inside
+ * the center, so a circular mask won't clip the coin or stitched ring).
  */
 
 import { ImageResponse } from 'next/og';
+import { RecoMark } from '../components/reco-mark';
 
 export const size = { width: 512, height: 512 };
 export const contentType = 'image/png';
@@ -13,23 +15,8 @@ export const contentType = 'image/png';
 export default function Icon() {
   return new ImageResponse(
     (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          background: '#FAF8F5',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderRadius: '24%',
-          color: '#E94B7F',
-          fontSize: 380,
-          fontWeight: 800,
-          fontFamily: 'system-ui, -apple-system, sans-serif',
-          letterSpacing: '-0.04em',
-        }}
-      >
-        R
+      <div style={{ display: 'flex', width: '100%', height: '100%' }}>
+        <RecoMark size={512} />
       </div>
     ),
     { ...size },

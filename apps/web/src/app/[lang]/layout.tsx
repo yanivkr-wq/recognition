@@ -10,6 +10,7 @@
 import { headers } from 'next/headers';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { FeedbackButton } from '../../components/feedback-button';
+import { SplashIntro } from '../../components/splash-intro';
 
 export async function generateStaticParams(): Promise<Array<{ lang: Locale }>> {
   return [{ lang: 'he' }, { lang: 'en' }];
@@ -30,6 +31,7 @@ export default async function LangLayout({
 
   return (
     <>
+      <SplashIntro />
       {children}
       {authed && <FeedbackButton t={t} />}
     </>
