@@ -18,11 +18,12 @@ import { useState, useTransition } from 'react';
 import {
   suggestTaskFieldsAction,
   suggestRewardFieldsAction,
+  suggestBadgeFieldsAction,
   type SuggestFieldsState,
 } from '../lib/llm/actions';
 
 interface Props {
-  family: 'task' | 'reward';
+  family: 'task' | 'reward' | 'badge';
   /** Reads the current HE inputs at click time so we don't have to mirror
    *  the parent's React state here. */
   getHe: () => { titleHe: string; descriptionHe?: string };
@@ -53,7 +54,11 @@ export function AutofillButton({ family, getHe, onResult }: Props) {
 
     startTransition(async () => {
       const action =
-        family === 'task' ? suggestTaskFieldsAction : suggestRewardFieldsAction;
+        family === 'task'
+          ? suggestTaskFieldsAction
+          : family === 'reward'
+            ? suggestRewardFieldsAction
+            : suggestBadgeFieldsAction;
       const result = await action(undefined, fd);
       setState(result);
       if (result.ok) onResult(result.data);

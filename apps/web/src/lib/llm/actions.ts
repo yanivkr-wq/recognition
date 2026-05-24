@@ -21,7 +21,7 @@ export type SuggestFieldsState =
   | { ok: false; error: 'forbidden' | 'missing_title' | 'llm_failed' };
 
 async function run(
-  family: 'task' | 'reward',
+  family: 'task' | 'reward' | 'badge',
   formData: FormData,
 ): Promise<SuggestFieldsState> {
   const titleHe = String(formData.get('titleHe') ?? '').trim();
@@ -56,4 +56,11 @@ export async function suggestRewardFieldsAction(
   formData: FormData,
 ): Promise<SuggestFieldsState> {
   return run('reward', formData);
+}
+
+export async function suggestBadgeFieldsAction(
+  _prev: SuggestFieldsState | undefined,
+  formData: FormData,
+): Promise<SuggestFieldsState> {
+  return run('badge', formData);
 }

@@ -19,6 +19,7 @@ import {
   type BadgeFormError,
 } from '../../../../../lib/admin-badges/actions';
 import { BADGE_EMBLEMS } from '../../../../../lib/admin-badges/emblems';
+import { AutofillButton } from '../../../../../components/autofill-button';
 
 interface Initial {
   id?: string;
@@ -77,6 +78,19 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
           value={titleHe}
           onChange={setTitleHe}
           required
+        />
+        {/* LLM autofill — fills EN translation + emblem + brand color from the
+            HE fields, picking the emblem from the locked em-* set. Admin can
+            override anything after. */}
+        <AutofillButton
+          family="badge"
+          getHe={() => ({ titleHe, descriptionHe })}
+          onResult={(data) => {
+            setTitleEn(data.titleEn);
+            setDescriptionEn(data.descriptionEn);
+            setIconKey(data.iconKey);
+            setColor(data.suggestedColor);
+          }}
         />
         <Field
           label={t.admin.titleEn}

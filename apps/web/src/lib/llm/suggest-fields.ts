@@ -38,7 +38,7 @@ interface IconMeta {
   key: string;
   labelHe: string;
   labelEn: string;
-  family: 'task' | 'reward';
+  family: 'task' | 'reward' | 'badge';
 }
 
 const ICONS: IconMeta[] = [
@@ -79,6 +79,17 @@ const ICONS: IconMeta[] = [
   { key: 'rw-balloon', labelHe: 'בלון', labelEn: 'Balloon', family: 'reward' },
   { key: 'rw-toy', labelHe: 'בובה', labelEn: 'Toy', family: 'reward' },
   { key: 'rw-trophy', labelHe: 'גביע', labelEn: 'Trophy', family: 'reward' },
+  // Badge emblems — the locked em-* set (BRANDBOOK §5 / lib/admin-badges/
+  // emblems.ts). Mirrored here so the server LLM module stays React-free; the
+  // two lists are both short + locked, so drift risk is low.
+  { key: 'em-crown', labelHe: 'כתר', labelEn: 'Crown', family: 'badge' },
+  { key: 'em-trophy', labelHe: 'גביע', labelEn: 'Trophy', family: 'badge' },
+  { key: 'em-medal', labelHe: 'מדליה', labelEn: 'Medal', family: 'badge' },
+  { key: 'em-diamond', labelHe: 'יהלום', labelEn: 'Diamond', family: 'badge' },
+  { key: 'em-cert', labelHe: 'תעודה', labelEn: 'Certificate', family: 'badge' },
+  { key: 'em-gift', labelHe: 'מתנה', labelEn: 'Gift', family: 'badge' },
+  { key: 'em-star', labelHe: 'כוכב', labelEn: 'Star', family: 'badge' },
+  { key: 'em-torch', labelHe: 'לפיד', labelEn: 'Torch', family: 'badge' },
 ];
 
 // Pastel hex palette from BRANDBOOK §2.3 — the LLM picks one that matches
@@ -95,6 +106,18 @@ const COLORS = [
   '#F6F1FC', // lavender paler
 ] as const;
 
+// Badges render their emblem on a SATURATED brand color (not a wash-out
+// pastel), so they get their own palette — exactly the colors the seeded
+// badges use (migration 0002). The LLM picks one matching the badge's theme.
+const BADGE_COLORS = [
+  '#FF6B9D', // pink — royalty / champion / #1
+  '#E8B927', // yellow — milestone / trophy / gold
+  '#6EC9F4', // sky — calm achievement / reading
+  '#3DA8DD', // deep sky — long streak / rare
+  '#FF9F7A', // peach — warmth / effort / certificate
+  '#B59FE5', // lavender — campaigns / special / gift
+] as const;
+
 // ── Schema ──────────────────────────────────────────────────────────────
 
 const SuggestSchema = z.object({
@@ -108,9 +131,9 @@ const SuggestSchema = z.object({
     .enum(ICONS.map((i) => i.key) as [string, ...string[]])
     .describe('Closest matching icon key from the provided catalog.'),
   suggestedColor: z
-    .enum(COLORS)
+    .enum([...COLORS, ...BADGE_COLORS] as [string, ...string[]])
     .describe(
-      'Pastel hex color that complements the icon (e.g. food → yellow, sleep → lavender, sport → mint).',
+      'Hex color that complements the icon. Tasks/rewards use the pastel set; badges use the bold brand set.',
     ),
 });
 
@@ -118,13 +141,50 @@ export type SuggestResult = z.infer<typeof SuggestSchema>;
 
 // ── System prompt builder ──────────────────────────────────────────────
 
-function buildSystemPrompt(family: 'task' | 'reward'): string {
+function buildSystemPrompt(family: 'task' | 'reward' | 'badge'): string {
   // Only show the LLM icons from the relevant family so it never picks a
-  // reward icon for a task or vice versa.
+  // reward icon for a task, a task icon for a badge, etc.
   const familyIcons = ICONS.filter((i) => i.family === family);
+  const iconNoun = family === 'badge' ? 'emblem' : 'icon';
   const iconList = familyIcons
     .map((i) => `  - ${i.key}: "${i.labelHe}" / "${i.labelEn}"`)
     .join('\n');
+
+  if (family === 'badge') {
+    const colorList = BADGE_COLORS.map((c) => `  - ${c}`).join('\n');
+    return `You are an admin assistant for Reco, a bilingual (Hebrew + English) family chore + reward app.
+The parent has typed a Hebrew title (and maybe a Hebrew description) for a new achievement BADGE — a milestone award a kid earns by completing a journey/campaign (e.g. a streak, a reading goal, a birthday). Your job is to fill in:
+  1. titleEn — natural, concise English translation of the badge name (kid-readable, no jargon).
+  2. descriptionEn — English translation of the description if provided, else empty string.
+  3. iconKey — the emblem from the catalog below that best fits the badge's theme.
+  4. suggestedColor — a bold brand hex from the badge palette below.
+
+Translation rules:
+  - Keep it short and celebratory (a badge name, not a sentence).
+  - Use kid-readable English (ages 9-12). No idioms or rare words.
+
+Emblem picking:
+  - You MUST pick a key from the catalog below — no inventing keys.
+  - Match by theme: royalty/champion → em-crown; trophy/competition → em-trophy;
+    sport/skill medal → em-medal; rare/long streak → em-diamond; certificate/
+    completion → em-cert; birthday/gift/surprise → em-gift; general star/great →
+    em-star; perseverance/effort → em-torch.
+
+Emblem catalog (family: badge):
+${iconList}
+
+Badge color palette (pick exactly one):
+${colorList}
+Color rules of thumb:
+  - Royalty / champion / #1 → #FF6B9D
+  - Milestone / trophy / gold → #E8B927
+  - Reading / calm achievement → #6EC9F4
+  - Long streak / rare → #3DA8DD
+  - Warmth / effort / certificate → #FF9F7A
+  - Special / campaigns / gift → #B59FE5
+
+Return ONLY the structured object — no preamble, no explanation.`;
+  }
 
   return `You are an admin assistant for Reco, a bilingual (Hebrew + English) family chore + reward app.
 The parent has typed a Hebrew title (and maybe a Hebrew description) for a new ${family === 'task' ? 'task' : 'reward'}. Your job is to fill in:
@@ -161,7 +221,7 @@ Return ONLY the structured object — no preamble, no explanation.`;
 // ── Public entry point ─────────────────────────────────────────────────
 
 export interface SuggestInput {
-  family: 'task' | 'reward';
+  family: 'task' | 'reward' | 'badge';
   titleHe: string;
   descriptionHe?: string;
 }
