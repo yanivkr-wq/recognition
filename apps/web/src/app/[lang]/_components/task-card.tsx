@@ -246,6 +246,19 @@ export function TaskCard(props: Props) {
 
           {isDone && <BigDoneBadge label={t.home.done} />}
 
+          {/* needsPhoto state: kid tapped "I did it" but hasn't uploaded
+              the photo yet. The completion row exists; we offer a clear
+              "back out" affordance so a kid who can't / changed their
+              mind isn't stuck staring at a file picker. */}
+          {status === 'needsPhoto' && completionId && (
+            <UndoIconButton
+              completionId={completionId}
+              undoAction={undoAction}
+              undoing={undoing}
+              label={t.home.undo}
+            />
+          )}
+
           {status === 'denied' && completionId && (
             <form action={undoAction}>
               <input type="hidden" name="completionId" value={completionId} />

@@ -37,6 +37,23 @@ const quicksand = Quicksand({
 export const metadata: Metadata = {
   title: 'Reco',
   description: 'Reco — kids earn coins for everyday wins.',
+  // Hints for "Add to Home Screen". The manifest, icons, and apple-icon
+  // are auto-discovered by Next.js from app/manifest.ts, icon*.tsx, and
+  // apple-icon.tsx — we don't need to list them here.
+  applicationName: 'Reco',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Reco',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  // Pink-dark tint on the OS status bar when launched as PWA.
+  themeColor: '#E94B7F',
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
