@@ -20,6 +20,8 @@ import {
 } from '../../../../../lib/admin-badges/actions';
 import { BADGE_EMBLEMS } from '../../../../../lib/admin-badges/emblems';
 import { AutofillButton } from '../../../../../components/autofill-button';
+import { BadgeEmblem } from '../../../../../components/badge-emblem';
+import { BadgeImagePicker } from './badge-image-picker';
 
 interface Initial {
   id?: string;
@@ -31,6 +33,8 @@ interface Initial {
   color: string;
   awardedVia: 'campaign' | 'manual';
   displayOrder: number;
+  /** Resolved <img src> for the current custom image, or null. */
+  currentImageUrl?: string | null;
 }
 
 interface Props {
@@ -67,6 +71,7 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
 
   return (
     <div className="grid md:grid-cols-[1fr_220px] gap-6 max-w-3xl items-start">
+      <div className="space-y-4">
       <form action={action} className="space-y-4">
         <input type="hidden" name="lang" value={lang} />
         {initial.id && <input type="hidden" name="id" value={initial.id} />}
@@ -117,7 +122,7 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
         <div>
           <span className="block text-xs text-ink-soft mb-1">{t.admin.emblem}</span>
           <div
-            className="grid grid-cols-4 sm:grid-cols-8 gap-2 p-2 bg-bg rounded-2xl border border-rule"
+            className="grid grid-cols-4 sm:grid-cols-6 gap-2 p-2 bg-bg rounded-2xl border border-rule"
             role="radiogroup"
             aria-label={t.admin.emblem}
           >
@@ -132,22 +137,14 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
                   aria-checked={selected}
                   title={lang === 'he' ? em.labelHe : em.labelEn}
                   aria-label={lang === 'he' ? em.labelHe : em.labelEn}
-                  className={`aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition ${
+                  className={`rounded-xl flex flex-col items-center justify-center gap-1 py-2 transition ${
                     selected
-                      ? 'bg-pink-pale text-pink-dark ring-2 ring-pink'
-                      : 'bg-card text-ink hover:bg-pink-soft border border-rule'
+                      ? 'bg-pink-pale ring-2 ring-pink'
+                      : 'bg-card hover:bg-pink-soft border border-rule'
                   }`}
                 >
-                  <span
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-card text-sm font-bold"
-                    style={{
-                      backgroundColor: /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#B59FE5',
-                    }}
-                    aria-hidden="true"
-                  >
-                    {(lang === 'he' ? em.labelHe : em.labelEn).charAt(0)}
-                  </span>
-                  <span className="text-[8px] leading-none truncate w-full text-center px-0.5">
+                  <BadgeEmblem iconKey={em.key} color={color} size={40} />
+                  <span className="text-[8px] leading-none truncate w-full text-center px-0.5 text-ink">
                     {lang === 'he' ? em.labelHe : em.labelEn}
                   </span>
                 </button>
@@ -214,39 +211,35 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
         </button>
       </form>
 
-      {/* Kid-eye live preview — the placeholder Embroidered Patch (BRANDBOOK §5). */}
+      {/* Custom image picker lives OUTSIDE the main <form> (own file POST) and
+          is edit-only — needs a badge id to target. */}
+      {mode === 'edit' && initial.id ? (
+        <BadgeImagePicker
+          badgeId={initial.id}
+          currentImageUrl={initial.currentImageUrl ?? null}
+          t={t}
+        />
+      ) : (
+        <p className="text-xs text-ink-faded">{t.admin.badgeImageCreateFirst}</p>
+      )}
+      </div>
+
+      {/* Kid-eye live preview — the Embroidered Patch (BRANDBOOK §5). */}
       <aside className="md:sticky md:top-4">
         <div className="bg-card rounded-2xl shadow-card border border-rule p-5 flex flex-col items-center gap-2">
           <p className="text-xs text-ink-soft self-start">{t.admin.rewardPreviewKidEye}</p>
-          <PatchPreview color={color} title={previewTitle} />
+          <BadgeEmblem
+            iconKey={iconKey}
+            color={color}
+            title={previewTitle}
+            imageUrl={initial.currentImageUrl ?? null}
+            size={80}
+          />
           <p className="text-sm font-bold text-ink text-center">
             {previewTitle || (lang === 'he' ? 'תג' : 'Badge')}
           </p>
         </div>
       </aside>
-    </div>
-  );
-}
-
-function PatchPreview({ color, title }: { color: string; title: string }) {
-  const safe = /^#[0-9a-fA-F]{6}$/.test(color) ? color : '#B59FE5';
-  return (
-    <div
-      className="w-20 h-20 rounded-full flex items-center justify-center"
-      style={{ backgroundColor: safe + '33', border: `2px dashed ${safe}` }}
-      aria-hidden="true"
-    >
-      <div
-        className="w-12 h-12 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: safe }}
-      >
-        <span
-          className="text-2xl font-bold text-card"
-          style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
-        >
-          {(title || '?').charAt(0)}
-        </span>
-      </div>
     </div>
   );
 }

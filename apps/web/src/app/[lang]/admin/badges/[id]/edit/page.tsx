@@ -51,6 +51,7 @@ export default async function EditBadgePage({
           color: b.color,
           awardedVia: b.awardedVia,
           displayOrder: b.displayOrder,
+          currentImageUrl: b.imagePath ? `/api/badge-images/${b.id}` : null,
         }}
       />
       <form action={toggleArchiveBadgeAction}>

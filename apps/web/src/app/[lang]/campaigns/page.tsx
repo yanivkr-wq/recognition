@@ -82,6 +82,7 @@ export default async function CampaignsPage({
       badgeTitleEn: badgeTable.titleEn,
       badgeIconKey: badgeTable.iconKey,
       badgeColor: badgeTable.color,
+      badgeImagePath: badgeTable.imagePath,
     })
     .from(campaignEnrollment)
     .innerJoin(campaignTable, eq(campaignTable.id, campaignEnrollment.campaignId))
@@ -154,6 +155,7 @@ export default async function CampaignsPage({
       badgeTitleEn: r.badgeTitleEn,
       badgeIconKey: r.badgeIconKey,
       badgeColor: r.badgeColor,
+      badgeImageUrl: r.badgeId && r.badgeImagePath ? `/api/badge-images/${r.badgeId}` : null,
     };
   });
 

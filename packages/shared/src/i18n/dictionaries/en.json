@@ -355,6 +355,11 @@
     "awardedVia": "Awarded via",
     "awardedViaCampaign": "Campaign",
     "awardedViaManual": "Manual",
+    "badgeImage": "Custom badge image",
+    "badgeImageHint": "Your own image replaces the drawn emblem (JPG/PNG/WEBP, up to 5MB).",
+    "badgeImageNone": "No image — drawn emblem shown",
+    "badgeImageCurrent": "Current image",
+    "badgeImageCreateFirst": "Save the badge first to upload an image.",
     "feedback": "Feedback"
   },
   "feedback": {

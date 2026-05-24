@@ -13,6 +13,7 @@ import { asc, desc, eq } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, badge } from '@reco/db';
 import { auth } from '../../../../auth';
+import { BadgeEmblem } from '../../../../components/badge-emblem';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,7 +55,6 @@ export default async function AdminBadgesPage({
             const title = lang === 'he' ? b.titleHe : b.titleEn;
             const description = lang === 'he' ? b.descriptionHe : b.descriptionEn;
             const archived = b.archivedAt != null;
-            const safe = /^#[0-9a-fA-F]{6}$/.test(b.color) ? b.color : '#B59FE5';
             return (
               <li
                 key={b.id}
@@ -62,18 +62,15 @@ export default async function AdminBadgesPage({
                   archived ? 'opacity-50' : ''
                 }`}
               >
-                <span
-                  className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-                  style={{ backgroundColor: safe + '33', border: `2px dashed ${safe}` }}
-                  aria-hidden="true"
-                >
-                  <span
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-card text-sm font-bold"
-                    style={{ backgroundColor: safe }}
-                  >
-                    {title.charAt(0)}
-                  </span>
-                </span>
+                <div className="shrink-0">
+                  <BadgeEmblem
+                    iconKey={b.iconKey}
+                    color={b.color}
+                    title={title}
+                    imageUrl={b.imagePath ? `/api/badge-images/${b.id}` : null}
+                    size={52}
+                  />
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-ink truncate">{title}</p>
                   <p className="text-xs text-ink-soft truncate">

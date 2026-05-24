@@ -13,6 +13,7 @@ import type { Dictionary } from '@reco/shared/i18n';
 import { Coin } from '../../../../components/coin';
 import { BottomNav } from '../../_components/bottom-nav';
 import { Avatar } from '../../../../components/avatar';
+import { BadgeEmblem } from '../../../../components/badge-emblem';
 import { arrowForward } from '../../../../lib/rtl';
 
 export interface KidCampaign {
@@ -39,6 +40,7 @@ export interface KidCampaign {
   badgeTitleEn: string | null;
   badgeIconKey: string | null;
   badgeColor: string | null;
+  badgeImageUrl: string | null;
 }
 
 interface Props {
@@ -183,9 +185,12 @@ function CampaignCard({
           40px so it sits comfortably next to the badge name. */}
       {c.badgeId && c.badgeTitleHe && c.badgeColor && (
         <div className="flex items-center gap-2 pt-2 border-t border-rule/60">
-          <BadgePatch
+          <BadgeEmblem
+            iconKey={c.badgeIconKey ?? ''}
             color={c.badgeColor}
             title={lang === 'he' ? c.badgeTitleHe : c.badgeTitleEn ?? c.badgeTitleHe}
+            imageUrl={c.badgeImageUrl}
+            size={40}
           />
           <div className="flex-1 min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-ink-soft">
@@ -197,32 +202,6 @@ function CampaignCard({
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/** Mini embroidered-patch — same anatomy as /[lang]/badges but at 40px so
- *  it sits inline next to the badge name on the campaign card. The family-3
- *  SVG emblems land in Phase 9; until then this falls back to the kid-
- *  badge initial-letter pattern. */
-function BadgePatch({ color, title }: { color: string; title: string }) {
-  return (
-    <div
-      className="w-10 h-10 rounded-full flex items-center justify-center shrink-0"
-      style={{ backgroundColor: color + '33', border: `1.5px dashed ${color}` }}
-      aria-hidden="true"
-    >
-      <div
-        className="w-6 h-6 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: color }}
-      >
-        <span
-          className="text-sm font-bold text-card"
-          style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
-        >
-          {title.trim().charAt(0)}
-        </span>
-      </div>
     </div>
   );
 }

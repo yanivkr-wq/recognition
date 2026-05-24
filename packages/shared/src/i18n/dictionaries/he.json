@@ -355,6 +355,11 @@
     "awardedVia": "אופן הזכייה",
     "awardedViaCampaign": "במסע",
     "awardedViaManual": "ידני",
+    "badgeImage": "תמונת תג מותאמת",
+    "badgeImageHint": "תמונה משלך תחליף את הסמל המצויר (JPG/PNG/WEBP, עד 5MB).",
+    "badgeImageNone": "אין תמונה — הסמל המצויר מוצג",
+    "badgeImageCurrent": "התמונה הנוכחית",
+    "badgeImageCreateFirst": "שמרי קודם את התג כדי להעלות תמונה.",
     "feedback": "משוב"
   },
   "feedback": {

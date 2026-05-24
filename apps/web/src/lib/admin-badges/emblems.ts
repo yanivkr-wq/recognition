@@ -17,6 +17,7 @@ export interface EmblemEntry {
 }
 
 export const BADGE_EMBLEMS: EmblemEntry[] = [
+  // Achievement classics
   { key: 'em-crown', labelHe: 'כתר', labelEn: 'Crown' },
   { key: 'em-trophy', labelHe: 'גביע', labelEn: 'Trophy' },
   { key: 'em-medal', labelHe: 'מדליה', labelEn: 'Medal' },
@@ -24,7 +25,20 @@ export const BADGE_EMBLEMS: EmblemEntry[] = [
   { key: 'em-cert', labelHe: 'תעודה', labelEn: 'Certificate' },
   { key: 'em-gift', labelHe: 'מתנה', labelEn: 'Gift' },
   { key: 'em-star', labelHe: 'כוכב', labelEn: 'Star' },
-  { key: 'em-torch', labelHe: 'לפיד', labelEn: 'Torch' },
+  { key: 'em-torch', labelHe: 'לפיד', labelEn: 'Flame' },
+  // Sport & movement
+  { key: 'em-run', labelHe: 'ריצה', labelEn: 'Running' },
+  { key: 'em-ball', labelHe: 'כדורגל', labelEn: 'Ball' },
+  { key: 'em-bike', labelHe: 'אופניים', labelEn: 'Bike' },
+  // Reading & learning
+  { key: 'em-book', labelHe: 'ספר', labelEn: 'Book' },
+  { key: 'em-grad', labelHe: 'סיום לימודים', labelEn: 'Graduation' },
+  { key: 'em-pencil', labelHe: 'כתיבה', labelEn: 'Writing' },
+  // Music, art & nature
+  { key: 'em-music', labelHe: 'מוזיקה', labelEn: 'Music' },
+  { key: 'em-palette', labelHe: 'ציור', labelEn: 'Art' },
+  { key: 'em-plant', labelHe: 'צמח', labelEn: 'Plant' },
+  { key: 'em-sun', labelHe: 'שמש', labelEn: 'Sun' },
 ];
 
 export const BADGE_EMBLEM_KEYS = BADGE_EMBLEMS.map((e) => e.key);

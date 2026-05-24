@@ -7,10 +7,9 @@
  *      campaign enrollments that aren't earned yet. The kid sees what
  *      they're working toward.
  *
- * Brandbook §5 Embroidered Patch is the visual idiom. The placeholder
- * here renders a pastel-tile + emoji-stand-in until the family-3 SVG
- * library lands (Phase 9). The dashed-border + count-chip details from
- * §5.1 will follow.
+ * Brandbook §5 Embroidered Patch is the visual idiom. <BadgeEmblem> renders
+ * the family-3 SVG emblem (or an admin-uploaded custom image when set) on a
+ * pale disc inside the dashed ring.
  */
 
 import { headers } from 'next/headers';
@@ -61,6 +60,7 @@ export default async function BadgesPage({
       titleEn: badgeTable.titleEn,
       iconKey: badgeTable.iconKey,
       color: badgeTable.color,
+      imagePath: badgeTable.imagePath,
     })
     .from(kidBadge)
     .innerJoin(badgeTable, eq(badgeTable.id, kidBadge.badgeId))
@@ -95,6 +95,7 @@ export default async function BadgesPage({
             titleEn: badgeTable.titleEn,
             iconKey: badgeTable.iconKey,
             color: badgeTable.color,
+            imagePath: badgeTable.imagePath,
           })
           .from(badgeTable)
           .where(
@@ -110,6 +111,7 @@ export default async function BadgesPage({
     titleEn: r.titleEn,
     iconKey: r.iconKey,
     color: r.color,
+    imageUrl: r.imagePath ? `/api/badge-images/${r.badgeId}` : null,
     awardedAt: r.awardedAt.toISOString(),
     awardedForYear: r.awardedForYear,
   }));
@@ -119,6 +121,7 @@ export default async function BadgesPage({
     titleEn: r.titleEn,
     iconKey: r.iconKey,
     color: r.color,
+    imageUrl: r.imagePath ? `/api/badge-images/${r.id}` : null,
   }));
 
   return (

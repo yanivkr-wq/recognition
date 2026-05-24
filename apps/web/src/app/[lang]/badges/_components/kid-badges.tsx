@@ -12,6 +12,7 @@
 import type { Dictionary } from '@reco/shared/i18n';
 import { BottomNav } from '../../_components/bottom-nav';
 import { Avatar } from '../../../../components/avatar';
+import { BadgeEmblem } from '../../../../components/badge-emblem';
 import { arrowForward } from '../../../../lib/rtl';
 
 export interface EarnedBadge {
@@ -21,6 +22,7 @@ export interface EarnedBadge {
   titleEn: string;
   iconKey: string;
   color: string;
+  imageUrl: string | null;
   awardedAt: string;
   awardedForYear: number | null;
 }
@@ -31,6 +33,7 @@ export interface LockedBadge {
   titleEn: string;
   iconKey: string;
   color: string;
+  imageUrl: string | null;
 }
 
 interface Props {
@@ -81,10 +84,12 @@ export function KidBadges(props: Props) {
               <ul className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                 {earned.map((b) => (
                   <li key={b.id} className="flex flex-col items-center gap-1.5">
-                    <Patch
+                    <BadgeEmblem
+                      iconKey={b.iconKey}
                       color={b.color}
                       title={lang === 'he' ? b.titleHe : b.titleEn}
-                      locked={false}
+                      imageUrl={b.imageUrl}
+                      size={80}
                     />
                     <p className="text-xs font-bold text-ink text-center truncate w-full">
                       {lang === 'he' ? b.titleHe : b.titleEn}
@@ -106,10 +111,13 @@ export function KidBadges(props: Props) {
                 <ul className="grid grid-cols-3 sm:grid-cols-4 gap-4">
                   {locked.map((b) => (
                     <li key={b.id} className="flex flex-col items-center gap-1.5">
-                      <Patch
+                      <BadgeEmblem
+                        iconKey={b.iconKey}
                         color={b.color}
                         title={lang === 'he' ? b.titleHe : b.titleEn}
+                        imageUrl={b.imageUrl}
                         locked
+                        size={80}
                       />
                       <p className="text-xs font-bold text-ink-soft text-center truncate w-full">
                         {lang === 'he' ? b.titleHe : b.titleEn}
@@ -125,41 +133,6 @@ export function KidBadges(props: Props) {
     </main>
     <BottomNav lang={lang} t={t} />
     </>
-  );
-}
-
-function Patch({
-  color,
-  title,
-  locked,
-}: {
-  color: string;
-  title: string;
-  locked: boolean;
-}) {
-  return (
-    <div
-      className={`w-20 h-20 rounded-full flex items-center justify-center transition ${
-        locked ? 'opacity-40 grayscale' : ''
-      }`}
-      style={{
-        backgroundColor: color + '33', // ~20% alpha pastel ring
-        border: `2px dashed ${color}`,
-      }}
-      aria-hidden="true"
-    >
-      <div
-        className="w-12 h-12 rounded-full flex items-center justify-center"
-        style={{ backgroundColor: color }}
-      >
-        <span
-          className="text-2xl font-bold text-card"
-          style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
-        >
-          {title.charAt(0)}
-        </span>
-      </div>
-    </div>
   );
 }
 

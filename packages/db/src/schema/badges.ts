@@ -25,6 +25,9 @@ export const badge = pgTable('badge', {
   descriptionHe: text('description_he'),
   descriptionEn: text('description_en'),
   iconKey: text('icon_key').notNull(),
+  /** Optional admin-uploaded custom image (relative volume filename); when
+   *  set it overrides the em-* SVG emblem in iconKey. See 0008_badge_image.sql. */
+  imagePath: text('image_path'),
   color: text('color').notNull(),
   awardedVia: text('awarded_via').$type<BadgeAwardedVia>().notNull().default('campaign'),
   displayOrder: integer('display_order').notNull().default(0),

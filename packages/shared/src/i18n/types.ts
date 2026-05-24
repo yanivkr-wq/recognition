@@ -368,6 +368,11 @@ export interface Dictionary {
     awardedVia: string;
     awardedViaCampaign: string;
     awardedViaManual: string;
+    badgeImage: string;
+    badgeImageHint: string;
+    badgeImageNone: string;
+    badgeImageCurrent: string;
+    badgeImageCreateFirst: string;
     feedback: string;
   };
   feedback: {

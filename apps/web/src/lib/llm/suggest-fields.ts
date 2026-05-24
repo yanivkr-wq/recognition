@@ -89,7 +89,17 @@ const ICONS: IconMeta[] = [
   { key: 'em-cert', labelHe: 'תעודה', labelEn: 'Certificate', family: 'badge' },
   { key: 'em-gift', labelHe: 'מתנה', labelEn: 'Gift', family: 'badge' },
   { key: 'em-star', labelHe: 'כוכב', labelEn: 'Star', family: 'badge' },
-  { key: 'em-torch', labelHe: 'לפיד', labelEn: 'Torch', family: 'badge' },
+  { key: 'em-torch', labelHe: 'לפיד', labelEn: 'Flame', family: 'badge' },
+  { key: 'em-run', labelHe: 'ריצה', labelEn: 'Running', family: 'badge' },
+  { key: 'em-ball', labelHe: 'כדורגל', labelEn: 'Ball', family: 'badge' },
+  { key: 'em-bike', labelHe: 'אופניים', labelEn: 'Bike', family: 'badge' },
+  { key: 'em-book', labelHe: 'ספר', labelEn: 'Book', family: 'badge' },
+  { key: 'em-grad', labelHe: 'סיום לימודים', labelEn: 'Graduation', family: 'badge' },
+  { key: 'em-pencil', labelHe: 'כתיבה', labelEn: 'Writing', family: 'badge' },
+  { key: 'em-music', labelHe: 'מוזיקה', labelEn: 'Music', family: 'badge' },
+  { key: 'em-palette', labelHe: 'ציור', labelEn: 'Art', family: 'badge' },
+  { key: 'em-plant', labelHe: 'צמח', labelEn: 'Plant', family: 'badge' },
+  { key: 'em-sun', labelHe: 'שמש', labelEn: 'Sun', family: 'badge' },
 ];
 
 // Pastel hex palette from BRANDBOOK §2.3 — the LLM picks one that matches
@@ -165,10 +175,26 @@ Translation rules:
 
 Emblem picking:
   - You MUST pick a key from the catalog below — no inventing keys.
-  - Match by theme: royalty/champion → em-crown; trophy/competition → em-trophy;
-    sport/skill medal → em-medal; rare/long streak → em-diamond; certificate/
-    completion → em-cert; birthday/gift/surprise → em-gift; general star/great →
-    em-star; perseverance/effort → em-torch.
+  - Prefer an emblem that matches the badge's ACTIVITY/THEME, not just a
+    generic trophy. Guide:
+    · royalty / champion / #1 → em-crown
+    · competition / overall winner → em-trophy
+    · rare / very long streak → em-diamond
+    · certificate / course completion → em-cert
+    · birthday / surprise → em-gift
+    · perseverance / streak / "keep the flame" → em-torch
+    · general "great job" / star → em-star
+    · running / exercise / fitness → em-run
+    · ball sports / football / basketball → em-ball
+    · cycling / outdoor riding → em-bike
+    · reading / books → em-book
+    · school / graduation / finishing studies → em-grad
+    · writing / homework / journaling → em-pencil
+    · music / instrument / singing → em-music
+    · art / drawing / painting / crafts → em-palette
+    · gardening / nature / growth → em-plant
+    · outdoors / mornings / sunshine → em-sun
+    · medal / general skill award → em-medal
 
 Emblem catalog (family: badge):
 ${iconList}
