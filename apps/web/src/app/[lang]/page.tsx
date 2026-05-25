@@ -4,7 +4,7 @@
  *   kid    → KidHome (Phase 3): wallet card + today's daily-task list with
  *            tap-to-complete + same-day undo. Server-side fetches the
  *            kid's daily assignments and today's completion state.
- *   admin  → Phase 2 placeholder (admin home arrives in Phase 6).
+ *   admin  → redirect straight to /[lang]/admin (its layout is the admin home).
  *
  * Force-dynamic so the kid sees fresh state every navigation; the server
  * actions also `revalidatePath('/[lang]', 'layout')` after a coin event.
@@ -24,7 +24,7 @@ import {
   longTermProgress,
   submission,
 } from '@reco/db';
-import { auth, signOut } from '../../auth';
+import { auth } from '../../auth';
 import {
   KidHome,
   type KidHomeTask,
@@ -51,47 +51,11 @@ export default async function HomePage({
     return <KidView kidId={kidId} lang={lang as 'he' | 'en'} t={t} />;
   }
 
-  // Admin / parent fallback (Phase 2 placeholder; Phase 6 brings the real
-  // admin home).
+  // Admins land straight on the admin dashboard — its layout carries the Reco
+  // mark, parent name, and sign out, so no interstitial is needed.
   const session = await auth();
   if (!session?.user) redirect(`/${lang}/login`);
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-bg p-6">
-      <div className="w-full max-w-md text-center bg-card rounded-3xl shadow-card p-8">
-        <p
-          className="text-4xl font-bold text-pink"
-          style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
-          dir="ltr"
-        >
-          Reco
-        </p>
-        <h1 className="mt-4 text-2xl font-bold text-ink">
-          {t.auth.welcomeBack}, {session.user.name}
-        </h1>
-        <p className="mt-3 text-sm text-ink-soft leading-relaxed" dir="ltr">
-          Parent admin home arrives in Phase 6.
-          <br />
-          <a className="text-pink-dark underline" href={`/${lang}/admin`}>
-            Open admin
-          </a>
-        </p>
-        <form
-          action={async () => {
-            'use server';
-            await signOut({ redirectTo: `/${lang}/login` });
-          }}
-          className="mt-8"
-        >
-          <button
-            type="submit"
-            className="text-xs text-ink-soft underline-offset-4 hover:underline transition"
-          >
-            Sign out
-          </button>
-        </form>
-      </div>
-    </main>
-  );
+  redirect(`/${lang}/admin`);
 }
 
 async function KidView({
