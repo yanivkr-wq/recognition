@@ -18,7 +18,7 @@
 
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import type { Dictionary } from '@reco/shared/i18n';
 import {
   bulkAssignTasksAction,
@@ -51,6 +51,17 @@ export function KidTasksForm({ kidId, lang, t, templates, initiallyChecked }: Pr
     BulkAssignResult | undefined,
     FormData
   >(bulkAssignTasksAction, undefined);
+
+  // After a successful save, bulkAssignTasksAction revalidates this page and a
+  // fresh `initiallyChecked` arrives. useState ignores prop changes, so without
+  // this the checkboxes reflect the pre-save server truth until a manual
+  // refresh (Pattern B). Re-sync only when the actual id set changes — keyed on
+  // a stable sorted join so the admin's in-progress toggles aren't clobbered.
+  const serverKey = [...initiallyChecked].sort().join(',');
+  useEffect(() => {
+    setChecked(new Set(initiallyChecked));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverKey]);
 
   const toggleOne = (id: string, on: boolean) => {
     setChecked((prev) => {

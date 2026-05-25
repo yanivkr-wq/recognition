@@ -11,7 +11,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Dictionary } from '@reco/shared/i18n';
 import { Coin } from '../../../../components/coin';
 import { RewardTile } from './reward-tile';
@@ -54,6 +54,16 @@ export function Shop(props: Props) {
   const { lang, t, kidName, kidColor, kidAvatarKey, initialBalance, rewards, homeHref, historyHref } =
     props;
   const [balance, setBalance] = useState<number>(initialBalance);
+
+  // Re-sync with the server's freshly-rendered balance after every
+  // revalidatePath (redeem, refund, or a wallet change from another surface).
+  // useState ignores prop changes, so without this the hero stays stuck on the
+  // value it mounted with until a manual refresh (Pattern B — same fix as
+  // kid-home). The reward tiles also push an optimistic value via onBalance;
+  // the server value that follows matches it, so there's no flicker.
+  useEffect(() => {
+    setBalance(initialBalance);
+  }, [initialBalance]);
 
   return (
     <>
