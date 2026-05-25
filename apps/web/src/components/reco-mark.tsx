@@ -1,7 +1,8 @@
 /**
  * RecoMark — the app mark: the embroidered patch (BRANDBOOK §5) wrapping a
- * gold coin with a white star. This is the chosen launcher identity
- * (Option 1, refined to an icon instead of a letter).
+ * gold coin with a white crown. This is the chosen launcher identity
+ * (Option 1, refined to an icon instead of a letter; emblem swapped from a
+ * star to a crown per Lily's pick).
  *
  * Pure inline SVG, no hooks — safe in server + client components AND inside
  * Next's ImageResponse (the PWA icon routes render it). In a browser the
@@ -45,13 +46,12 @@ export function RecoMark({ size = 96, bg = '#FFF0F6', title }: Props) {
       />
       {/* Coin */}
       <circle cx="50" cy="50" r="19" fill="#FFD75E" stroke="#E8B927" strokeWidth="3" />
-      {/* White star, centered in the coin */}
-      <g transform="translate(50 50) scale(0.62) translate(-12 -11.7)">
-        <path
-          d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 18.9 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"
-          fill="#FFFFFF"
-        />
-      </g>
+      {/* White crown, centered in the coin (Lily's pick over the star) */}
+      <path
+        d="M38.5 57.5L41 43.5l6 6.5 3-9.5 3 9.5 6-6.5 2.5 14z"
+        fill="#FFFFFF"
+      />
+      <rect x="40" y="58" width="20" height="3" rx="1.5" fill="#FFFFFF" />
     </svg>
   );
 }
