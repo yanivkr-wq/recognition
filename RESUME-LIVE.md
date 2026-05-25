@@ -59,23 +59,34 @@ Reco went **live on the Hetzner VPS** on 2026-05-24. We now **develop against pr
 
 ---
 
-## 🔜 IN-FLIGHT — pick up here (two open requests from Lily)
+## ✅ Shipped 2026-05-24/25 (post-launch — DONE, all live)
+These were the two open requests from the previous handoff; both done, plus branding:
+- **Badge management** (`/admin/badges` CRUD + form) — DONE. Real `em-*` SVG emblems (themed), color picker, **AI emblem + EN + color suggestion** in the badge form (autofill `family: 'badge'`), custom image upload, emblem-replaces-image. Feeds the campaign badge picker so badges associate to journeys. Commits `e7eb3a8`, `371d03b`, `866672e`, `f984999`, `dae5356`, `2df6b0a`.
+- **Mobile** — `/admin/kids` redesigned mobile-first; `/admin/tasks` rows now wrap title + move actions to a footer (`32a0e64`, `866672e`). (Spot-check the *rest* of admin still — see audit below.)
+- **Branding** (`f72bfce`) — `RecoMark` component (embroidered patch + gold coin) replaces the letter-"R" launcher icon across icon0/icon1/apple-icon; splash intro; revamped pick page. `docs/logo-explorations.html` is a scratch file (untracked).
+- LLM autofill now covers task + reward + **badge** families (`lib/llm/suggest-fields.ts` has the `em-*` catalog + `BADGE_COLORS`).
 
-### 1. Badge management admin page (`/admin/badges`) — NOT STARTED
-Lily wants to **create + manage badges** so she can associate them with a journey (campaign). Investigation done:
-- `badge` table (`packages/db/src/schema/badges.ts`): id, householdId, titleHe/En, descriptionHe/En, **iconKey** (emblem, e.g. `em-crown`/`em-trophy`/`em-medal`/`em-diamond`/`em-cert`/`em-gift`/`em-star`/`em-torch` from the seed), color, awardedVia (`campaign`|`manual`), displayOrder, archivedAt.
-- The campaign form (`apps/web/src/app/[lang]/admin/campaigns/_components/campaign-form.tsx`) already has a **badge picker dropdown** (`t.admin.pickBadge` / `noBadge`) that selects from existing badges — so a new `/admin/badges` CRUD page feeds that picker.
-- Badges currently render as a **placeholder "Patch"** (pastel ring + dashed border + initial letter) — see `apps/web/src/app/[lang]/badges/_components/kid-badges.tsx`. The `em-*` SVG emblems are deferred (BRANDBOOK §5 / Phase 9); reuse the Patch placeholder in the admin preview too.
-- Dictionary keys already exist: `admin.badges`, `admin.badgesHeading`, `admin.noBadges`. Mirror the `/admin/rewards` CRUD shape (list page + new + [id]/edit + actions.ts with audit logging). Add a link from the admin home/nav.
-- **No emoji as emblems** (CLAUDE.md §6). Pick from the locked `em-*` set or use the Patch placeholder.
+---
 
-### 2. Mobile-readiness audit + fixes — NOT STARTED
-Lily reports "some pages aren't mobile ready, also admin side." Known/likely offenders:
-- **`/admin/kids`** — each kid row now has **5 inline action chips** (Tasks/PIN/Devices/Ledger/Joker) that overflow on a phone. Top priority — wrap/stack them.
-- Check too: `/admin/tasks` (edit+assign links per row), `/admin/rewards`, `/admin/campaigns` + `campaign-form`, `/admin/redemptions`, `/admin/audit`, the reward-form `md:grid-cols-[1fr_220px]` (preview aside), `/admin/kids/[id]/tasks` sticky save bar.
-- Kid surfaces are already mobile-first (built phone-first) but spot-check after the card redesign.
+## 🔜 IN-FLIGHT — pick up here
 
-(Both tasks are tracked in the session task list as #1 badge page, #2 mobile audit.)
+### Full refresh / revalidation audit (Task #3) — STARTED, NOT FIXED
+**Lily's report:** "many pages have a refresh issue — save works but the page doesn't update until a manual refresh; the feedback button can't send a second feedback without restarting the app." She wants a **full validation that every page saves + behaves correctly**.
+
+Two root-cause families identified:
+
+**PATTERN A — sticky `useActionState` success (re-submit blocked):**
+- **CONFIRMED** in `apps/web/src/components/feedback-button.tsx`: after a successful submit, `state.ok` stays `true` forever (useActionState has no built-in reset). The modal renders `{state?.ok ? <success> : <form>}`, so once it succeeds it's stuck on the success message — reopening the modal shows success, never a fresh form. That's the "can't send another feedback" bug.
+- **FIX:** extract the modal+form into a child component **keyed by an incrementing open-counter** so `useActionState` remounts (resets to `undefined`) every time the modal opens. Then audit every other `useActionState` form that renders a sticky success branch for the same trap.
+
+**PATTERN B — `useState(prop)` never re-syncs after `revalidatePath` (save persists, UI stale until manual refresh):**
+- Suspect: `KidTasksForm` (`/admin/kids/[id]/tasks`) seeds `checked` from the `initiallyChecked` prop via `useState`, never re-syncs → bulk-assign "only saves after manual refresh."
+- Memory already documents kid-home wallet had this *exact* bug (fixed with `useEffect(() => setX(prop), [prop])`). **Audit ALL `'use client'` components that initialize local state from a server prop.**
+
+**Progress so far:** grepped every `revalidatePath` call (all live in `lib/*/actions.ts` — paths look mostly right: `'/[lang]/admin'` layout + page-specific). Next steps: (1) fix feedback-button (Pattern A), (2) sweep all client forms for Pattern B, (3) verify each mutating action's `revalidatePath` targets the page that actually shows the data, (4) exercise the real flows on prod (feedback resubmit, bulk-assign save, task complete/undo, redeem, joker, badge create/edit, campaign create) to validate end-to-end.
+
+### Mobile — finish the sweep
+Mobile redesign done for `/admin/kids` + `/admin/tasks`. Still spot-check: `/admin/rewards`, `/admin/campaigns` + `campaign-form`, `/admin/redemptions`, `/admin/audit`, `/admin/feedback`, reward-form `md:grid-cols-[1fr_220px]` aside, `/admin/kids/[id]/tasks` sticky save bar, the new badge form/list.
 
 ---
 
