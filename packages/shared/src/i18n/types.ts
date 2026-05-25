@@ -206,6 +206,12 @@ export interface Dictionary {
   admin: {
     title: string;
     kids: string;
+    editKid: string;
+    kidNameLabel: string;
+    accentColor: string;
+    birthday: string;
+    birthdayHint: string;
+    kidUpdated: string;
     devices: string;
     setPin: string;
     resetPin: string;

@@ -193,6 +193,12 @@
   "admin": {
     "title": "ניהול הורים",
     "kids": "ילדות",
+    "editKid": "עריכת ילדה",
+    "kidNameLabel": "שם",
+    "accentColor": "צבע",
+    "birthday": "יום הולדת",
+    "birthdayHint": "אופציונלי. מפעיל את תג יום ההולדת השנתי.",
+    "kidUpdated": "נשמר",
     "devices": "מכשירים מהימנים",
     "setPin": "הגדרת קוד",
     "resetPin": "איפוס קוד",

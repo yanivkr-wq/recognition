@@ -193,6 +193,12 @@
   "admin": {
     "title": "Parent admin",
     "kids": "Kids",
+    "editKid": "Edit kid",
+    "kidNameLabel": "Name",
+    "accentColor": "Color",
+    "birthday": "Birthday",
+    "birthdayHint": "Optional. Drives the yearly birthday badge.",
+    "kidUpdated": "Saved",
     "devices": "Trusted devices",
     "setPin": "Set PIN",
     "resetPin": "Reset PIN",
