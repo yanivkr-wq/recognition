@@ -1,26 +1,22 @@
 /**
- * Admin · task templates list.
+ * Admin · task templates manager.
  *
- * Lists every template in the household (active + archived). Each row links
- * to edit / assign. The "+ New" CTA opens the create form. Archived rows are
- * visually muted but remain in the list so a parent can unarchive — and so
- * their history (completions referencing an archived template) is still
- * comprehensible.
+ * Loads every template in the household plus the active per-kid assignments,
+ * and hands them to the client TasksManager — which shows the assigned-kid
+ * chips, client-side filters (kid / kind / photo / status), and bulk
+ * operations (archive, edit, assign-to-kids) over a multi-select.
  *
- * Phase 4 adds the long-term-only fields to the create form; Phase 3 keeps
- * the create form daily-only (the seed already has a long-term template
- * which renders fine in this list even though the create form can't make a
- * new one yet).
+ * Assignment chips reflect ACTIVE assignments only (enabled + not archived,
+ * and the kid not archived) so the list matches what the kid actually sees.
  */
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq, isNull } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
-import { getDb, taskTemplate } from '@reco/db';
+import { getDb, taskTemplate, taskAssignment, kid as kidTable } from '@reco/db';
 import { auth } from '../../../../auth';
-import { Coin } from '../../../../components/coin';
-import { TaskIcon } from '../../../../components/task-icon';
+import { TasksManager, type ManagerTask, type ManagerKid } from './_components/tasks-manager';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,61 +29,59 @@ export default async function AdminTasksPage({
   const t = getDictionary(lang as Locale);
   const session = await auth();
   if (!session?.user) redirect(`/${lang}/login`);
+  const householdId = session.user.householdId;
+  const db = getDb();
 
-  const rows = await getDb()
-    .select()
-    .from(taskTemplate)
-    .where(eq(taskTemplate.householdId, session.user.householdId))
-    .orderBy(taskTemplate.displayOrder, desc(taskTemplate.createdAt));
+  const [rows, kids, assignmentRows] = await Promise.all([
+    db
+      .select()
+      .from(taskTemplate)
+      .where(eq(taskTemplate.householdId, householdId))
+      .orderBy(taskTemplate.displayOrder, desc(taskTemplate.createdAt)),
+    db
+      .select({ id: kidTable.id, name: kidTable.name, color: kidTable.color })
+      .from(kidTable)
+      .where(and(eq(kidTable.householdId, householdId), isNull(kidTable.archivedAt)))
+      .orderBy(kidTable.createdAt),
+    db
+      .select({
+        templateId: taskAssignment.templateId,
+        kidId: kidTable.id,
+        kidName: kidTable.name,
+        kidColor: kidTable.color,
+      })
+      .from(taskAssignment)
+      .innerJoin(kidTable, eq(kidTable.id, taskAssignment.kidId))
+      .where(
+        and(
+          eq(taskAssignment.householdId, householdId),
+          eq(taskAssignment.enabled, true),
+          isNull(taskAssignment.archivedAt),
+          isNull(kidTable.archivedAt),
+        ),
+      ),
+  ]);
 
-  // Active rows float to the top; archived collapse into their own section at
-  // the bottom (preserving the display-order sort within each group).
-  const active = rows.filter((r) => r.archivedAt == null);
-  const archived = rows.filter((r) => r.archivedAt != null);
+  // template id → assigned kid chips.
+  const assignedByTemplate = new Map<string, ManagerKid[]>();
+  for (const a of assignmentRows) {
+    const list = assignedByTemplate.get(a.templateId) ?? [];
+    list.push({ id: a.kidId, name: a.kidName, color: a.kidColor });
+    assignedByTemplate.set(a.templateId, list);
+  }
 
-  const renderRow = (r: (typeof rows)[number]) => {
-    const title = lang === 'he' ? r.titleHe : r.titleEn;
-    const isArchived = r.archivedAt != null;
-    return (
-      <li
-        key={r.id}
-        className={`bg-card rounded-2xl shadow-card border border-rule p-4 space-y-3 ${
-          isArchived ? 'opacity-50' : ''
-        }`}
-      >
-        {/* Top: icon + full (wrapping) title. The title gets the whole
-            row width — coin + actions live in the footer below — so it's
-            fully readable on a phone instead of truncated to one line. */}
-        <div className="flex items-start gap-3">
-          {/* Real task icon (was a single-letter placeholder pre-2026-05-23).
-              Matches what the kid sees on /he, so admin previews the
-              full task identity at a glance. */}
-          <TaskIcon iconKey={r.iconKey} color={r.color} title={title} size={40} />
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-ink leading-snug break-words">{title}</p>
-            <p className="text-xs text-ink-soft mt-1">
-              {r.kind} · {r.evidenceRequired ? t.admin.evidenceRequired : '—'}
-            </p>
-          </div>
-        </div>
-
-        {/* Footer: coin value + edit link (assignment now lives inside the
-            edit page), divided from the title block. */}
-        <div className="flex items-center justify-between gap-3 pt-3 border-t border-rule/60">
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
-            <Coin size={14} />
-            <span dir="ltr">{r.coinValue}</span>
-          </span>
-          <Link
-            href={`/${lang}/admin/tasks/${r.id}/edit`}
-            className="text-sm text-pink-dark underline-offset-2 hover:underline font-bold py-1"
-          >
-            {t.common.edit}
-          </Link>
-        </div>
-      </li>
-    );
-  };
+  const tasks: ManagerTask[] = rows.map((r) => ({
+    id: r.id,
+    titleHe: r.titleHe,
+    titleEn: r.titleEn,
+    iconKey: r.iconKey,
+    color: r.color,
+    coinValue: r.coinValue,
+    kind: r.kind as 'daily' | 'long_term',
+    evidenceRequired: r.evidenceRequired,
+    archived: r.archivedAt != null,
+    assignedKids: assignedByTemplate.get(r.id) ?? [],
+  }));
 
   return (
     <div className="space-y-6">
@@ -101,31 +95,7 @@ export default async function AdminTasksPage({
         </Link>
       </header>
 
-      {active.length > 0 && (
-        <section className="space-y-3">
-          <SectionHeader label={t.admin.sectionActive} count={active.length} />
-          <ul className="space-y-3">{active.map(renderRow)}</ul>
-        </section>
-      )}
-
-      {archived.length > 0 && (
-        <section className="space-y-3">
-          <SectionHeader label={t.admin.sectionArchived} count={archived.length} />
-          <ul className="space-y-3">{archived.map(renderRow)}</ul>
-        </section>
-      )}
+      <TasksManager lang={lang as 'he' | 'en'} t={t} tasks={tasks} kids={kids} />
     </div>
-  );
-}
-
-/** Small divider label between the active + archived groups on admin lists. */
-function SectionHeader({ label, count }: { label: string; count: number }) {
-  return (
-    <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
-      {label}{' '}
-      <span className="num text-ink-faded" dir="ltr">
-        ({count})
-      </span>
-    </h2>
   );
 }

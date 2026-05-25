@@ -22,7 +22,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull, inArray } from 'drizzle-orm';
 import {
   getDb,
   taskTemplate,
@@ -701,6 +701,245 @@ export async function bulkAssignTasksAction(
     return { ok: true, added, removed, unchanged };
   } catch (err) {
     console.error('bulkAssignTasksAction failed', err);
+    return { ok: false, error: 'internal' };
+  }
+}
+
+// ─── Bulk operations from the tasks-manager screen ─────────────────────────
+// All three take a set of templateIds (posted as repeated `templateId` fields)
+// and operate on the whole set in one save. Household-scoped; forged/foreign
+// ids are filtered out by the WHERE clause rather than erroring the batch.
+
+export type BulkOpResult =
+  | { ok: true; affected: number }
+  | { ok: false; error: 'forbidden' | 'none_selected' | 'no_fields' | 'internal' };
+
+/** Resolve the requesting admin, returning a typed error instead of throwing. */
+async function adminOrError(): Promise<
+  { ok: true; householdId: string; userId: string } | { ok: false; error: 'forbidden' }
+> {
+  try {
+    const admin = await requireAdmin();
+    return { ok: true, householdId: admin.householdId, userId: admin.userId };
+  } catch (err) {
+    if (err instanceof UnauthorizedError) return { ok: false, error: 'forbidden' };
+    throw err;
+  }
+}
+
+/** Validate the posted templateIds against the household, returning the subset
+ *  that actually belongs to it. */
+async function householdTemplateIds(
+  db: ReturnType<typeof getDb>,
+  householdId: string,
+  posted: string[],
+): Promise<string[]> {
+  if (posted.length === 0) return [];
+  const rows = await db
+    .select({ id: taskTemplate.id })
+    .from(taskTemplate)
+    .where(
+      and(eq(taskTemplate.householdId, householdId), inArray(taskTemplate.id, posted)),
+    );
+  return rows.map((r) => r.id);
+}
+
+/** Bulk archive / unarchive selected templates. `archive=1` archives, else
+ *  unarchives. */
+export async function bulkArchiveTasksAction(
+  _prev: BulkOpResult | undefined,
+  formData: FormData,
+): Promise<BulkOpResult> {
+  const admin = await adminOrError();
+  if (!admin.ok) return admin;
+
+  const posted = formData.getAll('templateId').map((v) => String(v));
+  const archive = formData.get('archive') === '1';
+  const db = getDb();
+  const ids = await householdTemplateIds(db, admin.householdId, posted);
+  if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+  try {
+    await db
+      .update(taskTemplate)
+      .set({ archivedAt: archive ? new Date() : null, updatedAt: new Date() })
+      .where(inArray(taskTemplate.id, ids));
+
+    await db.insert(auditLog).values({
+      householdId: admin.householdId,
+      actorUserId: admin.userId,
+      action: archive ? 'task_template.bulk_archived' : 'task_template.bulk_unarchived',
+      targetKind: 'task_template',
+      targetId: ids[0]!,
+      afterJson: { ids },
+    });
+
+    revalidatePath('/[lang]/admin', 'layout');
+    revalidatePath('/[lang]', 'layout');
+    return { ok: true, affected: ids.length };
+  } catch (err) {
+    console.error('bulkArchiveTasksAction failed', err);
+    return { ok: false, error: 'internal' };
+  }
+}
+
+/** Bulk edit selected templates. Only the fields the admin flagged are
+ *  changed (leave-the-rest semantics):
+ *    - `setCoinValue=1` + `coinValue` → applies to DAILY templates only
+ *      (long-term coin value stays 0 by contract).
+ *    - `setEvidence=1` + `evidenceValue` (on/off) → applies to all selected.
+ *  Kind is intentionally NOT bulk-editable: flipping daily↔long_term would
+ *  orphan existing completions / progress rows (same guard as single edit). */
+export async function bulkEditTasksAction(
+  _prev: BulkOpResult | undefined,
+  formData: FormData,
+): Promise<BulkOpResult> {
+  const admin = await adminOrError();
+  if (!admin.ok) return admin;
+
+  const posted = formData.getAll('templateId').map((v) => String(v));
+  const db = getDb();
+  const ids = await householdTemplateIds(db, admin.householdId, posted);
+  if (ids.length === 0) return { ok: false, error: 'none_selected' };
+
+  const setCoin = formData.get('setCoinValue') === '1';
+  const setEvidence = formData.get('setEvidence') === '1';
+  if (!setCoin && !setEvidence) return { ok: false, error: 'no_fields' };
+
+  let coinValue = 0;
+  if (setCoin) {
+    coinValue = Number.parseInt(String(formData.get('coinValue') ?? ''), 10);
+    if (!Number.isInteger(coinValue) || coinValue < 0) return { ok: false, error: 'no_fields' };
+  }
+  const evidenceValue = formData.get('evidenceValue') === 'on';
+
+  try {
+    if (setCoin) {
+      // Daily-only so long-term templates keep their 0 coin value.
+      await db
+        .update(taskTemplate)
+        .set({ coinValue, updatedAt: new Date() })
+        .where(
+          and(inArray(taskTemplate.id, ids), eq(taskTemplate.kind, 'daily')),
+        );
+    }
+    if (setEvidence) {
+      await db
+        .update(taskTemplate)
+        .set({ evidenceRequired: evidenceValue, updatedAt: new Date() })
+        .where(inArray(taskTemplate.id, ids));
+    }
+
+    await db.insert(auditLog).values({
+      householdId: admin.householdId,
+      actorUserId: admin.userId,
+      action: 'task_template.bulk_edited',
+      targetKind: 'task_template',
+      targetId: ids[0]!,
+      afterJson: {
+        ids,
+        ...(setCoin ? { coinValue } : {}),
+        ...(setEvidence ? { evidenceRequired: evidenceValue } : {}),
+      },
+    });
+
+    revalidatePath('/[lang]/admin', 'layout');
+    revalidatePath('/[lang]', 'layout');
+    return { ok: true, affected: ids.length };
+  } catch (err) {
+    console.error('bulkEditTasksAction failed', err);
+    return { ok: false, error: 'internal' };
+  }
+}
+
+/** Bulk assign selected templates to one or more kids. ADDITIVE only — it
+ *  enables (insert or re-enable) the (template, kid) assignments and never
+ *  disables anything, so it's safe to run from a multi-select without
+ *  accidentally un-assigning a kid's other tasks. */
+export async function bulkAssignTemplatesToKidsAction(
+  _prev: BulkOpResult | undefined,
+  formData: FormData,
+): Promise<BulkOpResult> {
+  const admin = await adminOrError();
+  if (!admin.ok) return admin;
+
+  const db = getDb();
+  const templateIds = await householdTemplateIds(
+    db,
+    admin.householdId,
+    formData.getAll('templateId').map((v) => String(v)),
+  );
+  if (templateIds.length === 0) return { ok: false, error: 'none_selected' };
+
+  const postedKidIds = formData.getAll('assignKidId').map((v) => String(v));
+  if (postedKidIds.length === 0) return { ok: false, error: 'none_selected' };
+
+  // Valid active kids in this household.
+  const kids = await db
+    .select({ id: kidTable.id })
+    .from(kidTable)
+    .where(
+      and(
+        eq(kidTable.householdId, admin.householdId),
+        isNull(kidTable.archivedAt),
+        inArray(kidTable.id, postedKidIds),
+      ),
+    );
+  const kidIds = kids.map((k) => k.id);
+  if (kidIds.length === 0) return { ok: false, error: 'none_selected' };
+
+  try {
+    // Existing rows for these templates + kids, keyed by "template|kid".
+    const existing = await db
+      .select({
+        id: taskAssignment.id,
+        templateId: taskAssignment.templateId,
+        kidId: taskAssignment.kidId,
+        enabled: taskAssignment.enabled,
+        archivedAt: taskAssignment.archivedAt,
+      })
+      .from(taskAssignment)
+      .where(
+        and(
+          inArray(taskAssignment.templateId, templateIds),
+          inArray(taskAssignment.kidId, kidIds),
+        ),
+      );
+    const existingByPair = new Map(existing.map((r) => [`${r.templateId}|${r.kidId}`, r]));
+
+    let affected = 0;
+    for (const templateId of templateIds) {
+      for (const kidId of kidIds) {
+        const row = existingByPair.get(`${templateId}|${kidId}`);
+        if (!row) {
+          await db
+            .insert(taskAssignment)
+            .values({ householdId: admin.householdId, templateId, kidId, enabled: true });
+          affected += 1;
+        } else if (!row.enabled || row.archivedAt) {
+          await db
+            .update(taskAssignment)
+            .set({ enabled: true, archivedAt: null })
+            .where(eq(taskAssignment.id, row.id));
+          affected += 1;
+        }
+      }
+    }
+
+    await db.insert(auditLog).values({
+      householdId: admin.householdId,
+      actorUserId: admin.userId,
+      action: 'task_assignment.bulk_assign',
+      targetKind: 'task_template',
+      targetId: templateIds[0]!,
+      afterJson: { templateIds, kidIds, affected },
+    });
+
+    revalidatePath('/[lang]/admin', 'layout');
+    revalidatePath('/[lang]', 'layout');
+    return { ok: true, affected };
+  } catch (err) {
+    console.error('bulkAssignTemplatesToKidsAction failed', err);
     return { ok: false, error: 'internal' };
   }
 }
