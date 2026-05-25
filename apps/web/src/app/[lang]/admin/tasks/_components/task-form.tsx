@@ -46,12 +46,23 @@ interface InitialValues {
   deadlineTime?: string | null;
 }
 
+interface AssignKid {
+  id: string;
+  name: string;
+  color: string;
+  assigned: boolean;
+}
+
 interface Props {
   mode: 'create' | 'edit';
   initial?: InitialValues;
   lang: string;
   t: Dictionary;
   submitLabel: string;
+  /** Edit-mode only: the household's active kids + whether this task is
+   *  currently assigned to each. When provided, the form renders the
+   *  per-kid assignment checkboxes and saves them with the main submit. */
+  assignKids?: AssignKid[];
 }
 
 function errorString(t: Dictionary, key: TaskFormError): string {
@@ -71,7 +82,7 @@ function errorString(t: Dictionary, key: TaskFormError): string {
   }
 }
 
-export function TaskForm({ mode, initial, lang, t, submitLabel }: Props) {
+export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Props) {
   const action = mode === 'create' ? createTaskTemplateAction : updateTaskTemplateAction;
   const [err, formAction, isPending] = useActionState<TaskFormError | undefined, FormData>(
     action,
@@ -277,6 +288,49 @@ export function TaskForm({ mode, initial, lang, t, submitLabel }: Props) {
               }
               min={0}
             />
+          </div>
+        </fieldset>
+      )}
+
+      {/* Per-kid assignment — folded in from the old standalone assign page.
+          Checkboxes post `assignKidId` for each ticked kid; the hidden
+          `assignmentsManaged` flag tells updateTaskTemplateAction to diff and
+          apply the assignment changes alongside the template edit. Saved with
+          the main submit below. */}
+      {assignKids && assignKids.length > 0 && (
+        <fieldset className="space-y-2 rounded-2xl border border-sky-pale bg-sky-soft p-4">
+          <legend className="text-sm font-bold text-sky-dark px-2">
+            {t.admin.assignTo}
+          </legend>
+          <input type="hidden" name="assignmentsManaged" value="1" />
+          <div className="flex flex-wrap gap-2">
+            {assignKids.map((k) => (
+              <label
+                key={k.id}
+                className="inline-flex items-center gap-2 bg-card rounded-full border border-rule ps-2 pe-3 py-1.5 cursor-pointer hover:border-sky-pale transition"
+              >
+                <input
+                  type="checkbox"
+                  name="assignKidId"
+                  value={k.id}
+                  defaultChecked={k.assigned}
+                  className="w-4 h-4 accent-sky-dark"
+                />
+                <span
+                  className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                  style={{ backgroundColor: k.color }}
+                  aria-hidden="true"
+                >
+                  <span
+                    className="text-xs font-bold text-card"
+                    style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
+                  >
+                    {k.name.charAt(0)}
+                  </span>
+                </span>
+                <span className="text-sm font-bold text-ink">{k.name}</span>
+              </label>
+            ))}
           </div>
         </fieldset>
       )}

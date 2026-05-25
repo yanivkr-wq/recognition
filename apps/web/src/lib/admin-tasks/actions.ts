@@ -295,13 +295,100 @@ export async function updateTaskTemplateAction(
       requestIp: hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
       userAgent: hdrs.get('user-agent') ?? null,
     });
+
+    // Per-kid assignment, folded in from the old standalone /assign page.
+    // Only runs when the form rendered the assignment checkboxes (edit mode);
+    // the hidden `assignmentsManaged` flag guards against an absent section
+    // silently un-assigning every kid. Same diff semantics as bulkAssign,
+    // but pivoted to one template across kids.
+    if (formData.get('assignmentsManaged') === '1') {
+      await applyAssignmentDiff(db, admin.householdId, admin.userId, id, formData);
+    }
   } catch (err) {
     console.error('updateTaskTemplateAction failed', err);
     return 'internal';
   }
 
   revalidatePath('/[lang]/admin', 'layout');
+  revalidatePath('/[lang]', 'layout');
   redirect(`/${lang}/admin/tasks`);
+}
+
+/**
+ * Diff the per-kid assignment checkboxes posted by the task edit form against
+ * the current task_assignment rows for one template, then INSERT / re-enable /
+ * disable to match. Checked kids that are forged / not in the household are
+ * silently ignored. Mirrors bulkAssignTasksAction's enabled+archived_at knob
+ * (never a second INSERT — the unique (template_id, kid_id) index forbids it).
+ */
+async function applyAssignmentDiff(
+  db: ReturnType<typeof getDb>,
+  householdId: string,
+  actorUserId: string,
+  templateId: string,
+  formData: FormData,
+): Promise<void> {
+  const checked = new Set(formData.getAll('assignKidId').map((v) => String(v)));
+
+  // Valid active kids in this household.
+  const kids = await db
+    .select({ id: kidTable.id })
+    .from(kidTable)
+    .where(and(eq(kidTable.householdId, householdId), isNull(kidTable.archivedAt)));
+  const validKidIds = new Set(kids.map((k) => k.id));
+
+  // Existing assignment rows for this template (any state) keyed by kid.
+  const existing = await db
+    .select({
+      id: taskAssignment.id,
+      kidId: taskAssignment.kidId,
+      enabled: taskAssignment.enabled,
+      archivedAt: taskAssignment.archivedAt,
+    })
+    .from(taskAssignment)
+    .where(eq(taskAssignment.templateId, templateId));
+  const existingByKid = new Map(existing.map((r) => [r.kidId, r]));
+
+  const auditAdded: string[] = [];
+  const auditRemoved: string[] = [];
+
+  // Pass 1: kids that should be assigned.
+  for (const kidId of checked) {
+    if (!validKidIds.has(kidId)) continue;
+    const row = existingByKid.get(kidId);
+    if (!row) {
+      await db.insert(taskAssignment).values({ householdId, templateId, kidId, enabled: true });
+      auditAdded.push(kidId);
+    } else if (!row.enabled || row.archivedAt) {
+      await db
+        .update(taskAssignment)
+        .set({ enabled: true, archivedAt: null })
+        .where(eq(taskAssignment.id, row.id));
+      auditAdded.push(kidId);
+    }
+  }
+  // Pass 2: currently-active assignments whose kid was un-checked.
+  for (const row of existing) {
+    if (checked.has(row.kidId)) continue;
+    if (row.enabled && !row.archivedAt) {
+      await db
+        .update(taskAssignment)
+        .set({ enabled: false, archivedAt: new Date() })
+        .where(eq(taskAssignment.id, row.id));
+      auditRemoved.push(row.kidId);
+    }
+  }
+
+  if (auditAdded.length > 0 || auditRemoved.length > 0) {
+    await db.insert(auditLog).values({
+      householdId,
+      actorUserId,
+      action: 'task_assignment.bulk',
+      targetKind: 'task_template',
+      targetId: templateId,
+      afterJson: { added: auditAdded, removed: auditRemoved },
+    });
+  }
 }
 
 export async function toggleArchiveTaskTemplateAction(formData: FormData): Promise<void> {
@@ -477,99 +564,6 @@ export async function adminCompleteForKidAction(
  *  isn't needed (the admin ledger reopen button is a fire-and-forget). */
 export async function adminCompleteForKidFormAction(formData: FormData): Promise<void> {
   await adminCompleteForKidAction(undefined, formData);
-}
-
-export type ToggleAssignmentResult =
-  | { ok: true; enabled: boolean }
-  | { ok: false; error: 'forbidden' | 'not_found' | 'internal' };
-
-export async function toggleAssignmentAction(
-  _prev: ToggleAssignmentResult | undefined,
-  formData: FormData,
-): Promise<ToggleAssignmentResult> {
-  const templateId = String(formData.get('templateId') ?? '');
-  const kidId = String(formData.get('kidId') ?? '');
-  if (!templateId || !kidId) return { ok: false, error: 'not_found' };
-
-  let admin;
-  try {
-    admin = await requireAdmin();
-  } catch (err) {
-    if (err instanceof UnauthorizedError) return { ok: false, error: 'forbidden' };
-    throw err;
-  }
-
-  const db = getDb();
-  // Verify both template and kid belong to this household.
-  const tRows = await db
-    .select({ id: taskTemplate.id })
-    .from(taskTemplate)
-    .where(and(eq(taskTemplate.id, templateId), eq(taskTemplate.householdId, admin.householdId)))
-    .limit(1);
-  if (!tRows[0]) return { ok: false, error: 'not_found' };
-  const kRows = await db
-    .select({ id: kidTable.id })
-    .from(kidTable)
-    .where(
-      and(
-        eq(kidTable.id, kidId),
-        eq(kidTable.householdId, admin.householdId),
-        isNull(kidTable.archivedAt),
-      ),
-    )
-    .limit(1);
-  if (!kRows[0]) return { ok: false, error: 'not_found' };
-
-  try {
-    const existing = await db
-      .select({ id: taskAssignment.id, enabled: taskAssignment.enabled })
-      .from(taskAssignment)
-      .where(
-        and(eq(taskAssignment.templateId, templateId), eq(taskAssignment.kidId, kidId)),
-      )
-      .limit(1);
-
-    let enabled: boolean;
-    if (existing[0]) {
-      enabled = !existing[0].enabled;
-      await db
-        .update(taskAssignment)
-        .set({ enabled, archivedAt: enabled ? null : new Date() })
-        .where(eq(taskAssignment.id, existing[0].id));
-    } else {
-      enabled = true;
-      await db.insert(taskAssignment).values({
-        householdId: admin.householdId,
-        templateId,
-        kidId,
-        enabled: true,
-      });
-    }
-
-    await db.insert(auditLog).values({
-      householdId: admin.householdId,
-      actorUserId: admin.userId,
-      action: enabled ? 'task_assignment.enabled' : 'task_assignment.disabled',
-      targetKind: 'task_assignment',
-      targetId: null,
-      afterJson: { templateId, kidId, enabled },
-    });
-
-    revalidatePath('/[lang]/admin', 'layout');
-    return { ok: true, enabled };
-  } catch (err) {
-    console.error('toggleAssignmentAction failed', err);
-    return { ok: false, error: 'internal' };
-  }
-}
-
-/**
- * Void wrapper for inline `<form action={...}>` usage where we don't need
- * to consume the result via useActionState. The page re-renders via
- * revalidatePath so the new state is visible after submission.
- */
-export async function toggleAssignmentFormAction(formData: FormData): Promise<void> {
-  await toggleAssignmentAction(undefined, formData);
 }
 
 // ─── Bulk per-kid assignment ──────────────────────────────────────────────

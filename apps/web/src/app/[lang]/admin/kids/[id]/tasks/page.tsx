@@ -7,8 +7,8 @@
  * (INSERT new, re-enable disabled, disable un-checked).
  *
  * Built for the "I just bulk-loaded 30 new tasks and want to assign them
- * to one kid in 10 seconds" case. The single-toggle action on
- * /admin/tasks/[id]/assign still exists for fine-grained per-template work.
+ * to one kid in 10 seconds" case. The inverse axis — assigning one task to
+ * many kids — lives in the task edit page (/admin/tasks/[id]/edit).
  */
 
 import { redirect } from 'next/navigation';

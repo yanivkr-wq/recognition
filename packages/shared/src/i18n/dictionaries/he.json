@@ -220,6 +220,8 @@
     "archive": "ארכוב",
     "unarchive": "שחזור",
     "archived": "בארכיון",
+    "sectionActive": "פעילות",
+    "sectionArchived": "ארכיון",
     "create": "יצירה",
     "assignments": "שיוכים",
     "assignTo": "שיוך אל",

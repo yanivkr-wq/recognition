@@ -52,6 +52,69 @@ export default async function AdminCampaignsPage({
     .where(eq(campaignTable.householdId, session.user.householdId))
     .orderBy(desc(campaignTable.startDate));
 
+  const active = rows.filter((c) => c.archivedAt == null);
+  const archived = rows.filter((c) => c.archivedAt != null);
+
+  const renderRow = (c: (typeof rows)[number]) => {
+    const title = lang === 'he' ? c.titleHe : c.titleEn;
+    const isArchived = c.archivedAt != null;
+    const targetLabel =
+      c.kind === 'streak'
+        ? `${c.streakTargetDays} ${t.campaign.targetDays}`
+        : `${c.totalTargetQuantity} ${t.campaign.targetTotal}`;
+    return (
+      <li
+        key={c.id}
+        className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
+          isArchived ? 'opacity-50' : ''
+        }`}
+      >
+        <span
+          className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${
+            c.kind === 'streak'
+              ? 'bg-mint-pale text-mint-dark'
+              : 'bg-lavender-pale text-lavender-dark'
+          }`}
+        >
+          {c.kind === 'streak'
+            ? t.admin.campaignKindStreak
+            : t.admin.campaignKindTotal}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-ink truncate">{title}</p>
+          <p className="text-xs text-ink-soft truncate">
+            <span dir="ltr" className="num">
+              {c.startDate} → {c.endDate}
+            </span>
+            {' · '}
+            {targetLabel}
+            {' · '}
+            <span className="num" dir="ltr">{c.enrolledCount}</span> {t.admin.enrolledKids}
+          </p>
+        </div>
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
+          +<span dir="ltr">{c.bonusCoins}</span>
+        </span>
+        <Link
+          href={`/${lang}/admin/campaigns/${c.id}/edit`}
+          className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
+        >
+          {t.common.edit}
+        </Link>
+        <form action={toggleArchiveCampaignAction}>
+          <input type="hidden" name="id" value={c.id} />
+          <input type="hidden" name="lang" value={lang} />
+          <button
+            type="submit"
+            className="text-xs text-ink-soft underline-offset-2 hover:underline font-bold"
+          >
+            {isArchived ? t.admin.unarchive : t.admin.archive}
+          </button>
+        </form>
+      </li>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
@@ -69,73 +132,33 @@ export default async function AdminCampaignsPage({
           <p className="text-ink-soft">{t.campaign.noActive}</p>
         </div>
       ) : (
-        <ul className="space-y-3">
-          {rows.map((c) => {
-            const title = lang === 'he' ? c.titleHe : c.titleEn;
-            const archived = c.archivedAt != null;
-            const targetLabel =
-              c.kind === 'streak'
-                ? `${c.streakTargetDays} ${t.campaign.targetDays}`
-                : `${c.totalTargetQuantity} ${t.campaign.targetTotal}`;
-            return (
-              <li
-                key={c.id}
-                className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
-                  archived ? 'opacity-50' : ''
-                }`}
-              >
-                <span
-                  className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${
-                    c.kind === 'streak'
-                      ? 'bg-mint-pale text-mint-dark'
-                      : 'bg-lavender-pale text-lavender-dark'
-                  }`}
-                >
-                  {c.kind === 'streak'
-                    ? t.admin.campaignKindStreak
-                    : t.admin.campaignKindTotal}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-ink truncate">{title}</p>
-                  <p className="text-xs text-ink-soft truncate">
-                    <span dir="ltr" className="num">
-                      {c.startDate} → {c.endDate}
-                    </span>
-                    {' · '}
-                    {targetLabel}
-                    {' · '}
-                    <span className="num" dir="ltr">{c.enrolledCount}</span> {t.admin.enrolledKids}
-                    {archived && (
-                      <span className="ms-2 inline-block text-[10px] uppercase tracking-wider text-ink-faded">
-                        {t.admin.archived}
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
-                  +<span dir="ltr">{c.bonusCoins}</span>
-                </span>
-                <Link
-                  href={`/${lang}/admin/campaigns/${c.id}/edit`}
-                  className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
-                >
-                  {t.common.edit}
-                </Link>
-                <form action={toggleArchiveCampaignAction}>
-                  <input type="hidden" name="id" value={c.id} />
-                  <input type="hidden" name="lang" value={lang} />
-                  <button
-                    type="submit"
-                    className="text-xs text-ink-soft underline-offset-2 hover:underline font-bold"
-                  >
-                    {archived ? t.admin.unarchive : t.admin.archive}
-                  </button>
-                </form>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          {active.length > 0 && (
+            <section className="space-y-3">
+              <SectionHeader label={t.admin.sectionActive} count={active.length} />
+              <ul className="space-y-3">{active.map(renderRow)}</ul>
+            </section>
+          )}
+          {archived.length > 0 && (
+            <section className="space-y-3">
+              <SectionHeader label={t.admin.sectionArchived} count={archived.length} />
+              <ul className="space-y-3">{archived.map(renderRow)}</ul>
+            </section>
+          )}
+        </>
       )}
     </div>
+  );
+}
+
+/** Small divider label between the active + archived groups on admin lists. */
+function SectionHeader({ label, count }: { label: string; count: number }) {
+  return (
+    <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
+      {label}{' '}
+      <span className="num text-ink-faded" dir="ltr">
+        ({count})
+      </span>
+    </h2>
   );
 }

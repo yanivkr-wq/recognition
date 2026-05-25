@@ -33,6 +33,47 @@ export default async function AdminBadgesPage({
     .where(eq(badge.householdId, session.user.householdId))
     .orderBy(asc(badge.displayOrder), desc(badge.createdAt));
 
+  const active = rows.filter((b) => b.archivedAt == null);
+  const archived = rows.filter((b) => b.archivedAt != null);
+
+  const renderRow = (b: (typeof rows)[number]) => {
+    const title = lang === 'he' ? b.titleHe : b.titleEn;
+    const description = lang === 'he' ? b.descriptionHe : b.descriptionEn;
+    const isArchived = b.archivedAt != null;
+    return (
+      <li
+        key={b.id}
+        className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
+          isArchived ? 'opacity-50' : ''
+        }`}
+      >
+        <div className="shrink-0">
+          <BadgeEmblem
+            iconKey={b.iconKey}
+            color={b.color}
+            title={title}
+            imageUrl={
+              b.imagePath
+                ? `/api/badge-images/${b.id}?v=${(b.imagePath.split('/').pop() ?? '').split('.')[0]}`
+                : null
+            }
+            size={52}
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-ink truncate">{title}</p>
+          <p className="text-xs text-ink-soft truncate">{description}</p>
+        </div>
+        <Link
+          href={`/${lang}/admin/badges/${b.id}/edit`}
+          className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
+        >
+          {t.common.edit}
+        </Link>
+      </li>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between gap-3">
@@ -50,53 +91,33 @@ export default async function AdminBadgesPage({
           <p className="font-bold text-ink">{t.admin.noBadges}</p>
         </div>
       ) : (
-        <ul className="space-y-3">
-          {rows.map((b) => {
-            const title = lang === 'he' ? b.titleHe : b.titleEn;
-            const description = lang === 'he' ? b.descriptionHe : b.descriptionEn;
-            const archived = b.archivedAt != null;
-            return (
-              <li
-                key={b.id}
-                className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
-                  archived ? 'opacity-50' : ''
-                }`}
-              >
-                <div className="shrink-0">
-                  <BadgeEmblem
-                    iconKey={b.iconKey}
-                    color={b.color}
-                    title={title}
-                    imageUrl={
-                      b.imagePath
-                        ? `/api/badge-images/${b.id}?v=${(b.imagePath.split('/').pop() ?? '').split('.')[0]}`
-                        : null
-                    }
-                    size={52}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-ink truncate">{title}</p>
-                  <p className="text-xs text-ink-soft truncate">
-                    {description}
-                    {archived && (
-                      <span className="ms-2 inline-block text-[10px] uppercase tracking-wider text-ink-faded">
-                        {t.admin.archived}
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <Link
-                  href={`/${lang}/admin/badges/${b.id}/edit`}
-                  className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
-                >
-                  {t.common.edit}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <>
+          {active.length > 0 && (
+            <section className="space-y-3">
+              <SectionHeader label={t.admin.sectionActive} count={active.length} />
+              <ul className="space-y-3">{active.map(renderRow)}</ul>
+            </section>
+          )}
+          {archived.length > 0 && (
+            <section className="space-y-3">
+              <SectionHeader label={t.admin.sectionArchived} count={archived.length} />
+              <ul className="space-y-3">{archived.map(renderRow)}</ul>
+            </section>
+          )}
+        </>
       )}
     </div>
+  );
+}
+
+/** Small divider label between the active + archived groups on admin lists. */
+function SectionHeader({ label, count }: { label: string; count: number }) {
+  return (
+    <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
+      {label}{' '}
+      <span className="num text-ink-faded" dir="ltr">
+        ({count})
+      </span>
+    </h2>
   );
 }

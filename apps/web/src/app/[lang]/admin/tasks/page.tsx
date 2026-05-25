@@ -40,6 +40,55 @@ export default async function AdminTasksPage({
     .where(eq(taskTemplate.householdId, session.user.householdId))
     .orderBy(taskTemplate.displayOrder, desc(taskTemplate.createdAt));
 
+  // Active rows float to the top; archived collapse into their own section at
+  // the bottom (preserving the display-order sort within each group).
+  const active = rows.filter((r) => r.archivedAt == null);
+  const archived = rows.filter((r) => r.archivedAt != null);
+
+  const renderRow = (r: (typeof rows)[number]) => {
+    const title = lang === 'he' ? r.titleHe : r.titleEn;
+    const isArchived = r.archivedAt != null;
+    return (
+      <li
+        key={r.id}
+        className={`bg-card rounded-2xl shadow-card border border-rule p-4 space-y-3 ${
+          isArchived ? 'opacity-50' : ''
+        }`}
+      >
+        {/* Top: icon + full (wrapping) title. The title gets the whole
+            row width — coin + actions live in the footer below — so it's
+            fully readable on a phone instead of truncated to one line. */}
+        <div className="flex items-start gap-3">
+          {/* Real task icon (was a single-letter placeholder pre-2026-05-23).
+              Matches what the kid sees on /he, so admin previews the
+              full task identity at a glance. */}
+          <TaskIcon iconKey={r.iconKey} color={r.color} title={title} size={40} />
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-ink leading-snug break-words">{title}</p>
+            <p className="text-xs text-ink-soft mt-1">
+              {r.kind} · {r.evidenceRequired ? t.admin.evidenceRequired : '—'}
+            </p>
+          </div>
+        </div>
+
+        {/* Footer: coin value + edit link (assignment now lives inside the
+            edit page), divided from the title block. */}
+        <div className="flex items-center justify-between gap-3 pt-3 border-t border-rule/60">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
+            <Coin size={14} />
+            <span dir="ltr">{r.coinValue}</span>
+          </span>
+          <Link
+            href={`/${lang}/admin/tasks/${r.id}/edit`}
+            className="text-sm text-pink-dark underline-offset-2 hover:underline font-bold py-1"
+          >
+            {t.common.edit}
+          </Link>
+        </div>
+      </li>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <header className="flex items-center justify-between">
@@ -52,64 +101,31 @@ export default async function AdminTasksPage({
         </Link>
       </header>
 
-      <ul className="space-y-3">
-        {rows.map((r) => {
-          const title = lang === 'he' ? r.titleHe : r.titleEn;
-          const archived = r.archivedAt != null;
-          return (
-            <li
-              key={r.id}
-              className={`bg-card rounded-2xl shadow-card border border-rule p-4 space-y-3 ${
-                archived ? 'opacity-50' : ''
-              }`}
-            >
-              {/* Top: icon + full (wrapping) title. The title gets the whole
-                  row width — coin + actions live in the footer below — so it's
-                  fully readable on a phone instead of truncated to one line. */}
-              <div className="flex items-start gap-3">
-                {/* Real task icon (was a single-letter placeholder pre-2026-05-23).
-                    Matches what the kid sees on /he, so admin previews the
-                    full task identity at a glance. */}
-                <TaskIcon iconKey={r.iconKey} color={r.color} title={title} size={40} />
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-ink leading-snug break-words">{title}</p>
-                  <p className="text-xs text-ink-soft mt-1">
-                    {r.kind} · {r.evidenceRequired ? t.admin.evidenceRequired : '—'}
-                    {archived && (
-                      <span className="ms-2 inline-block text-[10px] uppercase tracking-wider text-ink-faded">
-                        {t.admin.archived}
-                      </span>
-                    )}
-                  </p>
-                </div>
-              </div>
+      {active.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeader label={t.admin.sectionActive} count={active.length} />
+          <ul className="space-y-3">{active.map(renderRow)}</ul>
+        </section>
+      )}
 
-              {/* Footer: coin value + actions, divided from the title block.
-                  Actions get comfortable tap targets on mobile. */}
-              <div className="flex items-center justify-between gap-3 pt-3 border-t border-rule/60">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
-                  <Coin size={14} />
-                  <span dir="ltr">{r.coinValue}</span>
-                </span>
-                <div className="flex items-center gap-4">
-                  <Link
-                    href={`/${lang}/admin/tasks/${r.id}/edit`}
-                    className="text-sm text-pink-dark underline-offset-2 hover:underline font-bold py-1"
-                  >
-                    {t.common.edit}
-                  </Link>
-                  <Link
-                    href={`/${lang}/admin/tasks/${r.id}/assign`}
-                    className="text-sm text-sky-dark underline-offset-2 hover:underline font-bold py-1"
-                  >
-                    {t.admin.assignments}
-                  </Link>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      {archived.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeader label={t.admin.sectionArchived} count={archived.length} />
+          <ul className="space-y-3">{archived.map(renderRow)}</ul>
+        </section>
+      )}
     </div>
+  );
+}
+
+/** Small divider label between the active + archived groups on admin lists. */
+function SectionHeader({ label, count }: { label: string; count: number }) {
+  return (
+    <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
+      {label}{' '}
+      <span className="num text-ink-faded" dir="ltr">
+        ({count})
+      </span>
+    </h2>
   );
 }

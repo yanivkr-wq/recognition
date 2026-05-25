@@ -220,6 +220,8 @@
     "archive": "Archive",
     "unarchive": "Unarchive",
     "archived": "Archived",
+    "sectionActive": "Active",
+    "sectionArchived": "Archived",
     "create": "Create",
     "assignments": "Assignments",
     "assignTo": "Assign to",

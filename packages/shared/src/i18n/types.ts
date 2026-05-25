@@ -233,6 +233,8 @@ export interface Dictionary {
     archive: string;
     unarchive: string;
     archived: string;
+    sectionActive: string;
+    sectionArchived: string;
     create: string;
     assignments: string;
     assignTo: string;
