@@ -288,6 +288,9 @@ export interface Dictionary {
     ledgerFor: string;
     noLedger: string;
     walletBalance: string;
+    ledgerAdjust: string;
+    ledgerRevoke: string;
+    ledgerAddBack: string;
     backToAdmin: string;
     kind: string;
     kindDaily: string;

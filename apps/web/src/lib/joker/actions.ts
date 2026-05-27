@@ -17,6 +17,7 @@
 
 import 'server-only';
 import { headers } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getPool, adjustWalletOperation } from '@reco/db';
 import { requireAdmin, UnauthorizedError } from '../auth/guards';
@@ -100,4 +101,77 @@ export async function adjustWalletAction(
   } finally {
     client.release();
   }
+}
+
+/**
+ * One-click reverse of a single ledger entry, straight from the ledger page
+ * (Lily: "if I see someone earned points I can revoke them, or add back points
+ * that were revoked, right from that page").
+ *
+ * The reverse is a NEW joker entry (admin_credit / admin_debit) of the opposite
+ * sign — the append-only ledger is never mutated. The amount is computed
+ * server-side from the looked-up entry, so a client can't forge it, and an
+ * auto reason keeps the mandatory-reason contract satisfied + auditable.
+ */
+export async function reverseLedgerEntryAction(formData: FormData): Promise<void> {
+  const entryId = String(formData.get('entryId') ?? '');
+  const lang = String(formData.get('lang') ?? 'he');
+  if (!entryId) return;
+
+  const admin = await requireAdmin();
+  const pool = getPool();
+
+  // Scope to the household via the owning kid so a spoofed id can't reach
+  // another family's ledger.
+  const { rows } = await pool.query<{ kid_id: string; amount: number }>(
+    `SELECT le.kid_id, le.amount
+       FROM ledger_entry le
+       JOIN kid k ON k.id = le.kid_id
+      WHERE le.id = $1 AND k.household_id = $2
+      LIMIT 1`,
+    [entryId, admin.householdId],
+  );
+  const e = rows[0];
+  if (!e) return;
+
+  const orig = Number(e.amount);
+  const reverse = -orig;
+  if (reverse === 0) return;
+
+  const reason =
+    (lang === 'he' ? 'ביטול תנועה בספר החשבונות' : 'Reversed a ledger entry') +
+    ` (${orig > 0 ? '+' : ''}${orig})`;
+
+  const hdrs = await headers();
+  const requestIp = hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null;
+  const userAgent = hdrs.get('user-agent') ?? null;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await adjustWalletOperation(client, {
+      amount: reverse,
+      kidId: e.kid_id,
+      householdId: admin.householdId,
+      adminUserId: admin.userId,
+      reason,
+      requestIp,
+      userAgent,
+    });
+    if (!result.ok) {
+      await client.query('ROLLBACK');
+      return;
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    console.error('reverseLedgerEntryAction failed', err);
+    return;
+  } finally {
+    client.release();
+  }
+
+  revalidatePath('/[lang]/admin', 'layout');
+  revalidatePath('/[lang]', 'layout');
+  redirect(`/${lang}/admin/kids/${e.kid_id}/ledger`);
 }

@@ -27,7 +27,14 @@ import {
 import { auth } from '../../../../../../auth';
 import { Coin } from '../../../../../../components/coin';
 import { adminCompleteForKidFormAction } from '../../../../../../lib/admin-tasks/actions';
+import { reverseLedgerEntryAction } from '../../../../../../lib/joker/actions';
 import { arrowBack } from '../../../../../../lib/rtl';
+import { JokerForm } from '../wallet/adjust/_components/joker-form';
+
+/** Ledger kinds whose point movement can be reversed one-click (earned →
+ *  revoke, or revoked → add back). Redemptions/refunds/undo have their own
+ *  flows, so they don't get a quick-reverse button. */
+const REVERSIBLE_KINDS = new Set(['earn', 'admin_credit', 'admin_debit', 'campaign_bonus']);
 
 export const dynamic = 'force-dynamic';
 
@@ -168,6 +175,28 @@ export default async function AdminKidLedgerPage({
         </div>
       </header>
 
+      {/* Joker — credit / debit straight from the ledger page. Collapsed by
+          default so the page stays a clean history until the admin needs it. */}
+      <details className="bg-card rounded-2xl border border-rule shadow-card overflow-hidden group">
+        <summary className="cursor-pointer list-none px-5 py-3 flex items-center justify-between text-sm font-bold text-ink select-none">
+          <span className="inline-flex items-center gap-2">
+            <Coin size={16} />
+            {t.admin.ledgerAdjust}
+          </span>
+          <span className="text-ink-faded group-open:rotate-180 transition" aria-hidden="true">⌄</span>
+        </summary>
+        <div className="px-5 pb-5 pt-1 border-t border-rule">
+          <JokerForm
+            kidId={k.id}
+            kidName={k.name}
+            kidColor={k.color}
+            balance={balance}
+            lang={lang as 'he' | 'en'}
+            t={t}
+          />
+        </div>
+      </details>
+
       {/* Missed-today widget — only renders when at least one daily task
           with a deadline is locked-out for this kid today (Fix 12a). */}
       {missedRes.rows.length > 0 && (
@@ -213,6 +242,7 @@ export default async function AdminKidLedgerPage({
           {rows.map((r) => {
             const label = t.wallet[KIND_LABEL_KEYS[r.kind as keyof typeof KIND_LABEL_KEYS] ?? 'entryEarn'];
             const taskTitle = lang === 'he' ? r.taskTitleHe : r.taskTitleEn;
+            const reversible = REVERSIBLE_KINDS.has(r.kind) && r.amount !== 0;
             return (
               <li
                 key={r.id}
@@ -251,6 +281,25 @@ export default async function AdminKidLedgerPage({
                     </p>
                   )}
                 </div>
+                {/* One-click reverse: earned → revoke (debit), revoked → add
+                    back (credit). Posts the entry id; the server computes the
+                    opposite amount + an auto reason. */}
+                {reversible && (
+                  <form action={reverseLedgerEntryAction} className="shrink-0">
+                    <input type="hidden" name="entryId" value={r.id} />
+                    <input type="hidden" name="lang" value={lang} />
+                    <button
+                      type="submit"
+                      className={`text-xs font-bold rounded-full py-1.5 px-3 transition hover:-translate-y-px ${
+                        r.amount > 0
+                          ? 'bg-pink-pale text-pink-dark'
+                          : 'bg-mint-soft text-mint-dark'
+                      }`}
+                    >
+                      {r.amount > 0 ? t.admin.ledgerRevoke : t.admin.ledgerAddBack}
+                    </button>
+                  </form>
+                )}
               </li>
             );
           })}
