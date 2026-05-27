@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { auth, signOut } from '../../../auth';
-import { RecoWordmark } from '../../../components/reco-wordmark';
+import { TasKidzLogo } from '../../../components/taskidz-logo';
 import { getAdminNotificationCounts } from '../../../lib/admin/notifications';
 import { AdminBell } from './_components/admin-bell';
 import { AdminBottomNav } from './_components/admin-bottom-nav';
@@ -40,7 +40,7 @@ export default async function AdminLayout({
             className="flex items-center gap-3"
             aria-label="TasKidz admin"
           >
-            <RecoWordmark size={26} />
+            <TasKidzLogo height={40} animated />
             <span className="text-sm text-ink-soft">·</span>
             <span className="text-sm text-ink-soft">{t.admin.title}</span>
           </Link>

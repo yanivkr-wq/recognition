@@ -16,8 +16,7 @@ import { isNull } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, kid as kidTable } from '@reco/db';
 import { Avatar } from '../../../components/avatar';
-import { RecoMark } from '../../../components/reco-mark';
-import { RecoWordmark } from '../../../components/reco-wordmark';
+import { TasKidzLogo } from '../../../components/taskidz-logo';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,10 +51,7 @@ export default async function PickPage({
     >
       <header className="flex flex-col items-center text-center mb-9">
         <div className="motion-safe:animate-[recoPickPop_.5s_cubic-bezier(.34,1.56,.64,1)]">
-          <RecoMark size={88} />
-        </div>
-        <div className="mt-4">
-          <RecoWordmark size={44} />
+          <TasKidzLogo height={120} animated />
         </div>
         <h1 className="mt-5 text-3xl font-bold text-ink">{t.profilePicker.title}</h1>
         <p className="mt-1.5 text-sm text-ink-soft">{t.profilePicker.subtitle}</p>

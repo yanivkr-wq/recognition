@@ -1,28 +1,31 @@
 /**
- * Splash intro — a short, once-per-session launch animation.
+ * Splash intro — once-per-session launch animation for TasKidz.
  *
- * Just the embroidered patch (no wordmark): its stitched ring slowly turns
- * while the emblem inside cycles through what kids earn (coin → star → trophy
- * → crown → gift → medal), on the themed background. Fades out after ~2s and
- * unmounts so it never blocks interaction.
+ * Sequence (Lily's spec):
+ *   1. cycle — only the gold reward hexagon, centered, its emblem cycling
+ *      through the seven rewards.
+ *   2. dock  — the hexagon flies up to the logo's top-right corner and fades
+ *      as the full TasKidz logo (monogram + wordmark) scales in beneath it, so
+ *      the cycling icon "becomes" the gift badge of the finished logo.
+ *   3. fade  — the whole overlay fades out and unmounts.
  *
- * Everything that can carry the active theme does: the background, the patch
- * fill + ring, and the pink emblems (star/crown) follow the theme accent via
- * `currentColor`, so no fixed pink leaks through in Ocean/Sunset. The other
- * emblems keep their reward colors (coin gold, gift lavender, medal sky).
- *
- * Shown once per browser session (sessionStorage gate) and only after client
- * mount (no SSR flash). Respects prefers-reduced-motion by not showing at all.
- * Keyframes live in a scoped <style> tag so we don't touch globals.css.
+ * Shown once per browser session (sessionStorage) and only after client mount
+ * (no SSR flash). Respects prefers-reduced-motion by not showing at all.
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
+import { RewardHex } from './reward-hex';
+import { TasKidzLogo } from './taskidz-logo';
 
-const SESSION_KEY = 'reco-splash-shown';
+const SESSION_KEY = 'taskidz-splash-shown';
 
-type Phase = 'hidden' | 'show' | 'fade';
+type Phase = 'hidden' | 'cycle' | 'dock' | 'fade';
+
+const LOGO_H = 150;
+const LOGO_W = Math.round(LOGO_H * (289 / 241));
+const HEX = 104;
 
 export function SplashIntro() {
   const [phase, setPhase] = useState<Phase>('hidden');
@@ -34,20 +37,25 @@ export function SplashIntro() {
     if (sessionStorage.getItem(SESSION_KEY)) return;
     sessionStorage.setItem(SESSION_KEY, '1');
 
-    setPhase('show');
-    const t1 = setTimeout(() => setPhase('fade'), 2000);
-    const t2 = setTimeout(() => setPhase('hidden'), 2480);
+    setPhase('cycle');
+    const t1 = setTimeout(() => setPhase('dock'), 1700);
+    const t2 = setTimeout(() => setPhase('fade'), 2350);
+    const t3 = setTimeout(() => setPhase('hidden'), 2850);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
     };
   }, []);
 
   if (phase === 'hidden') return null;
 
+  const docked = phase === 'dock' || phase === 'fade';
+
   return (
     <div
       aria-hidden="true"
+      dir="ltr"
       style={{
         position: 'fixed',
         inset: 0,
@@ -61,64 +69,36 @@ export function SplashIntro() {
         pointerEvents: phase === 'fade' ? 'none' : 'auto',
       }}
     >
-      <style>{`
-        @keyframes recoSplashSpin { to { transform: rotate(360deg); } }
-        @keyframes recoSplashCyc {
-          0%   { opacity: 0; transform: scale(.5) rotate(-10deg); }
-          5%   { opacity: 1; transform: scale(1) rotate(0); }
-          14%  { opacity: 1; transform: scale(1) rotate(0); }
-          19%  { opacity: 0; transform: scale(.5) rotate(10deg); }
-          100% { opacity: 0; transform: scale(.5); }
-        }
-        @keyframes recoSplashRise {
-          from { opacity: 0; transform: translateY(8px) scale(.92); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        .reco-splash-patch {
-          width: 120px; height: 120px; border-radius: 30%;
-          background: var(--pink-soft, #FFF0F6); position: relative;
-          display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 16px 36px rgba(45,42,74,.16);
-          animation: recoSplashRise .5s ease both;
-          color: var(--pink, #FF6B9D);
-        }
-        .reco-splash-ring {
-          position: absolute; inset: 16px; border-radius: 50%;
-          border: 3px dashed var(--pink, #FF6B9D); animation: recoSplashSpin 3.2s linear infinite;
-        }
-        .reco-splash-glyphs { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--pink, #FF6B9D); }
-        .reco-splash-glyph { position: absolute; width: 52%; height: 52%; opacity: 0; animation: recoSplashCyc 2.4s ease-in-out infinite; }
-        .reco-splash-glyph:nth-child(1) { animation-delay: 0s; }
-        .reco-splash-glyph:nth-child(2) { animation-delay: .4s; }
-        .reco-splash-glyph:nth-child(3) { animation-delay: .8s; }
-        .reco-splash-glyph:nth-child(4) { animation-delay: 1.2s; }
-        .reco-splash-glyph:nth-child(5) { animation-delay: 1.6s; }
-        .reco-splash-glyph:nth-child(6) { animation-delay: 2.0s; }
-        .reco-splash-glyph svg { width: 100%; height: 100%; display: block; }
-      `}</style>
+      <div style={{ position: 'relative', width: LOGO_W, height: LOGO_H }}>
+        {/* Full logo — fades + scales in as the hex docks. */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            opacity: docked ? 1 : 0,
+            transform: docked ? 'scale(1)' : 'scale(.92)',
+            transition: 'opacity .5s ease, transform .5s ease',
+          }}
+        >
+          <TasKidzLogo height={LOGO_H} />
+        </div>
 
-      <div className="reco-splash-patch">
-        <span className="reco-splash-ring" />
-        <span className="reco-splash-glyphs">
-          <span className="reco-splash-glyph">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FFD75E" stroke="#E8B927" strokeWidth="2" /><path d="M12 5.4l1.9 3.9 4.3.6-3.1 3 .7 4.3L12 15.1 8.2 17.2l.7-4.3-3.1-3 4.3-.6z" fill="#fff" /></svg>
-          </span>
-          <span className="reco-splash-glyph">
-            <svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 18.9 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="currentColor" /></svg>
-          </span>
-          <span className="reco-splash-glyph">
-            <svg viewBox="0 0 24 24" fill="#FFD75E" stroke="#E8B927" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"><path d="M8 4h8v4a4 4 0 0 1-8 0z" /><path d="M8 5.5H5.5C5 8 6 9.5 8 9.5M16 5.5h2.5C19 8 18 9.5 16 9.5" fill="none" /><path d="M12 12v3M9.5 18h5" fill="none" /><path d="M10 15h4v3h-4z" /></svg>
-          </span>
-          <span className="reco-splash-glyph">
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"><path d="M5 18h14l1.3-9.2-4.3 3.1L12 5.6 8 11.9 3.7 8.8z" /></svg>
-          </span>
-          <span className="reco-splash-glyph">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8B72CE" strokeWidth="2" strokeLinejoin="round"><rect x="4" y="9" width="16" height="11" rx="1" fill="#ECE4F8" /><path d="M3 9h18v3.5H3zM12 9v11" /><path d="M12 9C12 6.5 9.5 4.5 8.3 6S9.8 9 12 9zM12 9c0-2.5 2.5-4.5 3.7-3S14.2 9 12 9z" /></svg>
-          </span>
-          <span className="reco-splash-glyph">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#3DA8DD" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"><path d="M8.5 3l2.5 5M15.5 3l-2.5 5" /><circle cx="12" cy="14.5" r="5.5" fill="#6EC9F4" /><circle cx="12" cy="14.5" r="2" fill="#fff" stroke="none" /></svg>
-          </span>
-        </span>
+        {/* Cycling gold hex — centered while cycling, then flies to the logo's
+            gift corner (top-right) and fades out. */}
+        <div
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: docked
+              ? `translate(-50%, -50%) translate(${0.235 * LOGO_W}px, ${-0.351 * LOGO_H}px) scale(${(0.2 * LOGO_W) / HEX})`
+              : 'translate(-50%, -50%)',
+            opacity: docked ? 0 : 1,
+            transition: 'transform .6s cubic-bezier(.5,.05,.4,1), opacity .55s ease',
+          }}
+        >
+          <RewardHex size={HEX} />
+        </div>
       </div>
     </div>
   );

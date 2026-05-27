@@ -21,7 +21,7 @@ import { getIcon } from '../../../components/icon-library';
 import { celebrate } from '../../../lib/celebrate';
 import { BottomNav } from './bottom-nav';
 import { Avatar } from '../../../components/avatar';
-import { RecoWordmark } from '../../../components/reco-wordmark';
+import { TasKidzLogo } from '../../../components/taskidz-logo';
 import { arrowForward } from '../../../lib/rtl';
 
 export interface KidHomeTask {
@@ -137,7 +137,7 @@ export function KidHome(props: Props) {
       {/* Top bar — Reco mark on top, then avatar + bell/switch-user row */}
       <header className="px-5 pt-10 pb-3">
         <div className="flex justify-center pb-3">
-          <RecoWordmark size={22} />
+          <TasKidzLogo height={44} animated />
         </div>
         <div className="flex items-center justify-between">
         <a href={avatarHref} className="flex items-center gap-3 group">
