@@ -287,7 +287,7 @@ export default async function AdminInsightsPage({
                 <span className="text-[11px] uppercase tracking-wider text-ink-soft shrink-0 w-20 truncate">
                   {r.kind === 'approval' ? t.insights.pendingApprovals : t.insights.pendingRedemptions}
                 </span>
-                <span className="flex-1 min-w-0 truncate text-sm text-ink">
+                <span className="flex-1 min-w-0 break-words text-sm text-ink">
                   {lang === 'he' ? r.title_he : r.title_en}
                 </span>
                 <span className="text-xs text-ink-soft truncate hidden sm:inline">{kidName.get(r.kid_id)}</span>

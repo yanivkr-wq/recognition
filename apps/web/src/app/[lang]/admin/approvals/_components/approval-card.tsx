@@ -77,12 +77,12 @@ export function ApprovalCard(props: Props) {
       <header className="flex items-center gap-3">
         <KidPip name={props.kidName} color={props.kidColor} />
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-ink truncate">{title}</h3>
+          <h3 className="font-bold text-ink break-words leading-snug">{title}</h3>
           <p className="text-xs text-ink-soft">
             {props.kidName} · <span dir="ltr" className="num">{props.submittedAt}</span>
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-pale text-[#7A5D10] num">
+        <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-pale text-[#7A5D10] num">
           <span dir="ltr">+{props.coinValue}</span>
         </span>
       </header>

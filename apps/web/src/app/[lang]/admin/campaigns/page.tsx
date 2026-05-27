@@ -65,52 +65,56 @@ export default async function AdminCampaignsPage({
     return (
       <li
         key={c.id}
-        className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
+        className={`bg-card rounded-2xl shadow-card border border-rule p-4 ${
           isArchived ? 'opacity-50' : ''
         }`}
       >
-        <span
-          className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${
-            c.kind === 'streak'
-              ? 'bg-mint-pale text-mint-dark'
-              : 'bg-lavender-pale text-lavender-dark'
-          }`}
-        >
-          {c.kind === 'streak'
-            ? t.admin.campaignKindStreak
-            : t.admin.campaignKindTotal}
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-ink truncate">{title}</p>
-          <p className="text-xs text-ink-soft truncate">
-            <span dir="ltr" className="num">
-              {c.startDate} → {c.endDate}
-            </span>
-            {' · '}
-            {targetLabel}
-            {' · '}
-            <span className="num" dir="ltr">{c.enrolledCount}</span> {t.admin.enrolledKids}
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
-          +<span dir="ltr">{c.bonusCoins}</span>
-        </span>
-        <Link
-          href={`/${lang}/admin/campaigns/${c.id}/edit`}
-          className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
-        >
-          {t.common.edit}
-        </Link>
-        <form action={toggleArchiveCampaignAction}>
-          <input type="hidden" name="id" value={c.id} />
-          <input type="hidden" name="lang" value={lang} />
-          <button
-            type="submit"
-            className="text-xs text-ink-soft underline-offset-2 hover:underline font-bold"
+        <div className="flex items-start gap-3">
+          <span
+            className={`shrink-0 inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${
+              c.kind === 'streak'
+                ? 'bg-mint-pale text-mint-dark'
+                : 'bg-lavender-pale text-lavender-dark'
+            }`}
           >
-            {isArchived ? t.admin.unarchive : t.admin.archive}
-          </button>
-        </form>
+            {c.kind === 'streak'
+              ? t.admin.campaignKindStreak
+              : t.admin.campaignKindTotal}
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-ink break-words leading-snug">{title}</p>
+            <p className="text-xs text-ink-soft mt-1 break-words">
+              <span dir="ltr" className="num">
+                {c.startDate} → {c.endDate}
+              </span>
+              {' · '}
+              {targetLabel}
+              {' · '}
+              <span className="num" dir="ltr">{c.enrolledCount}</span> {t.admin.enrolledKids}
+            </p>
+          </div>
+          <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
+            +<span dir="ltr">{c.bonusCoins}</span>
+          </span>
+        </div>
+        <div className="flex justify-end items-center gap-4 mt-3 pt-3 border-t border-rule">
+          <Link
+            href={`/${lang}/admin/campaigns/${c.id}/edit`}
+            className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold"
+          >
+            {t.common.edit}
+          </Link>
+          <form action={toggleArchiveCampaignAction}>
+            <input type="hidden" name="id" value={c.id} />
+            <input type="hidden" name="lang" value={lang} />
+            <button
+              type="submit"
+              className="text-xs text-ink-soft underline-offset-2 hover:underline font-bold"
+            >
+              {isArchived ? t.admin.unarchive : t.admin.archive}
+            </button>
+          </form>
+        </div>
       </li>
     );
   };

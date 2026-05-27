@@ -279,10 +279,10 @@ export function CampaignForm(props: Props) {
                 defaultChecked={feedingSet.has(tt.id)}
                 className="w-4 h-4 accent-pink"
               />
-              <span className="flex-1 truncate">
+              <span className="flex-1 min-w-0 break-words">
                 {lang === 'he' ? tt.titleHe : tt.titleEn}
               </span>
-              <span className="text-[10px] uppercase text-ink-faded">
+              <span className="shrink-0 text-[10px] uppercase text-ink-faded">
                 {tt.kind}
               </span>
             </label>

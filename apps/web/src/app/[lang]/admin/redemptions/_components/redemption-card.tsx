@@ -114,7 +114,7 @@ export function RedemptionCard(props: Props) {
         <header className="flex items-center gap-3">
           <KidPip name={props.kidName} color={props.kidColor} />
           <div className="flex-1 min-w-0">
-            <p className="font-bold text-ink text-sm truncate">{title}</p>
+            <p className="font-bold text-ink text-sm break-words leading-snug">{title}</p>
             <p className="text-[11px] text-ink-soft mt-0.5">
               {statusLabel} · <span dir="ltr">{ts ? fmt(ts, lang) : ''}</span>
               {by && ` · ${by}`}
@@ -142,7 +142,7 @@ export function RedemptionCard(props: Props) {
       <header className="flex items-center gap-3">
         <KidPip name={props.kidName} color={props.kidColor} />
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-ink truncate">{title}</h3>
+          <h3 className="font-bold text-ink break-words leading-snug">{title}</h3>
           <p className="text-xs text-ink-soft">
             {props.kidName} · {t.admin.redeemedAt}{' '}
             <span dir="ltr" className="num">
@@ -160,7 +160,7 @@ export function RedemptionCard(props: Props) {
             )}
           </p>
         </div>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-pale text-[#7A5D10] num">
+        <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-yellow-pale text-[#7A5D10] num">
           <span dir="ltr">{props.coinCost}</span>
         </span>
       </header>
