@@ -59,6 +59,8 @@ interface ParsedCampaign {
   streakFreezesAllowed: number;
   streakPerDayThreshold: number | null;
   totalTargetQuantity: number | null;
+  /** Display unit label for a 'total' journey target (hours / pages / …). */
+  measureUnit: string | null;
   nudgeCadence: 'standard' | 'aggressive' | 'gentle' | 'silent';
   feedingTemplateIds: string[];
   kidIds: string[];
@@ -102,6 +104,7 @@ function parseCampaignForm(
   let streakFreezesAllowed = 1;
   let streakPerDayThreshold: number | null = null;
   let totalTargetQuantity: number | null = null;
+  let measureUnit: string | null = null;
 
   if (kind === 'streak') {
     const t = Number.parseInt(String(formData.get('streakTargetDays') ?? ''), 10);
@@ -120,6 +123,7 @@ function parseCampaignForm(
     const q = Number.parseInt(String(formData.get('totalTargetQuantity') ?? ''), 10);
     if (!Number.isInteger(q) || q < 1) return 'invalid_total_fields';
     totalTargetQuantity = q;
+    measureUnit = String(formData.get('measureUnit') ?? '').trim() || null;
   }
 
   // formData.getAll returns the multi-select values verbatim.
@@ -143,6 +147,7 @@ function parseCampaignForm(
     streakFreezesAllowed,
     streakPerDayThreshold,
     totalTargetQuantity,
+    measureUnit,
     nudgeCadence,
     feedingTemplateIds,
     kidIds,
@@ -175,12 +180,12 @@ export async function createCampaignAction(
          household_id, title_he, title_en, description_he, description_en,
          kind, start_date, end_date, bonus_coins, badge_id,
          streak_target_days, streak_freezes_allowed, streak_per_day_threshold,
-         total_target_quantity, nudge_cadence
+         total_target_quantity, measure_unit, nudge_cadence
        ) VALUES (
          $1, $2, $3, $4, $5,
          $6, $7::date, $8::date, $9, $10,
          $11, $12, $13,
-         $14, $15
+         $14, $15, $16
        )
        RETURNING id`,
       [
@@ -198,6 +203,7 @@ export async function createCampaignAction(
         parsed.streakFreezesAllowed,
         parsed.streakPerDayThreshold,
         parsed.totalTargetQuantity,
+        parsed.measureUnit,
         parsed.nudgeCadence,
       ],
     );
@@ -291,7 +297,7 @@ export async function updateCampaignAction(
          start_date = $6::date, end_date = $7::date, bonus_coins = $8, badge_id = $9,
          streak_target_days = $10, streak_freezes_allowed = $11,
          streak_per_day_threshold = $12, total_target_quantity = $13,
-         nudge_cadence = $14
+         nudge_cadence = $14, measure_unit = $15
        WHERE id = $1`,
       [
         id,
@@ -308,6 +314,7 @@ export async function updateCampaignAction(
         parsed.streakPerDayThreshold,
         parsed.totalTargetQuantity,
         parsed.nudgeCadence,
+        parsed.measureUnit,
       ],
     );
 

@@ -108,6 +108,7 @@ export default async function EditCampaignPage({
           streakFreezesAllowed: c.streakFreezesAllowed,
           streakPerDayThreshold: c.streakPerDayThreshold,
           totalTargetQuantity: c.totalTargetQuantity,
+          measureUnit: c.measureUnit,
           feedingTemplateIds: feeding.map((f) => f.templateId),
           enrolledKidIds: enrollments.map((e) => e.kidId),
         }}

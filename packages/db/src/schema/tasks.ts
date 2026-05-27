@@ -40,6 +40,11 @@ export const taskTemplate = pgTable('task_template', {
   /** Times/day a daily task may be completed. NULL = unlimited; 1 = once
    *  (default). Only meaningful for kind='daily'. See 0011_repeatable_tasks. */
   maxPerDay: integer('max_per_day').default(1),
+  /** Amount one completion contributes to a journey it feeds (e.g. 15). NULL =
+   *  no measure → earns coins but doesn't count toward journeys. See 0012. */
+  measureAmount: integer('measure_amount'),
+  /** Display unit label for the measure (hours / pages / …). NULL = none. */
+  measureUnit: text('measure_unit'),
   longTermUnitLabelHe: text('long_term_unit_label_he'),
   longTermUnitLabelEn: text('long_term_unit_label_en'),
   longTermPerUnitCoins: integer('long_term_per_unit_coins'),

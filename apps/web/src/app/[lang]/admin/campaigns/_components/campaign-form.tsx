@@ -60,6 +60,7 @@ export interface CampaignInitial {
   streakFreezesAllowed: number;
   streakPerDayThreshold: number | null;
   totalTargetQuantity: number | null;
+  measureUnit?: string | null;
   feedingTemplateIds: string[];
   enrolledKidIds: string[];
 }
@@ -223,6 +224,11 @@ export function CampaignForm(props: Props) {
             defaultValue={initial?.totalTargetQuantity?.toString() ?? '30'}
             required
             ltr
+          />
+          <Field
+            label={t.admin.measureUnitPlaceholder}
+            name="measureUnit"
+            defaultValue={initial?.measureUnit ?? ''}
           />
         </fieldset>
       )}

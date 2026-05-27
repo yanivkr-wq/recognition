@@ -47,6 +47,9 @@ interface InitialValues {
   deadlineTime?: string | null;
   /** Times/day the task may be completed. null = unlimited; 1 = once. */
   maxPerDay?: number | null;
+  /** Journey measure: amount one completion adds + unit label. */
+  measureAmount?: number | null;
+  measureUnit?: string | null;
 }
 
 interface AssignKid {
@@ -264,6 +267,37 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
             {t.admin.maxPerDayHint}
           </span>
         </label>
+      )}
+
+      {/* Journey measure (optional): how much one completion adds to a journey
+          this task feeds, and the unit label. Empty = doesn't count toward
+          journeys. Daily only. */}
+      {kind === 'daily' && (
+        <div>
+          <span className="block text-sm text-ink-soft mb-1">{t.admin.measureLabel}</span>
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="number"
+              name="measureAmount"
+              min={0}
+              inputMode="numeric"
+              placeholder={t.admin.measureAmountPlaceholder}
+              defaultValue={initial?.measureAmount == null ? '' : String(initial.measureAmount)}
+              dir="ltr"
+              className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+            />
+            <input
+              type="text"
+              name="measureUnit"
+              placeholder={t.admin.measureUnitPlaceholder}
+              defaultValue={initial?.measureUnit ?? ''}
+              className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-sm text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+            />
+          </div>
+          <span className="block mt-1 text-[11px] text-ink-faded">
+            {t.admin.measureHint}
+          </span>
+        </div>
       )}
 
       {kind === 'long_term' && (

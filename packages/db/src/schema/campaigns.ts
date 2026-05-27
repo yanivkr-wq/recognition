@@ -45,6 +45,9 @@ export const campaign = pgTable('campaign', {
   streakFreezesAllowed: integer('streak_freezes_allowed').notNull().default(1),
   streakPerDayThreshold: integer('streak_per_day_threshold'),
   totalTargetQuantity: integer('total_target_quantity'),
+  /** Display unit label for a 'total' journey's target (hours / pages / …).
+   *  NULL = unitless count. See 0012_task_measure. */
+  measureUnit: text('measure_unit'),
   nudgeCadence: text('nudge_cadence').$type<NudgeCadence>().notNull().default('standard'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   archivedAt: timestamp('archived_at', { withTimezone: true }),

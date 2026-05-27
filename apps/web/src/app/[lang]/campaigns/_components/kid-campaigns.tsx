@@ -28,6 +28,8 @@ export interface KidCampaign {
   streakTargetDays: number | null;
   streakFreezesAllowed: number;
   totalTargetQuantity: number | null;
+  /** Display unit for a 'total' journey (hours / pages / …). null = none. */
+  measureUnit: string | null;
   currentStreak: number;
   freezesUsed: number;
   currentTotal: number;
@@ -142,9 +144,10 @@ function CampaignCard({
           <span>
             {isStreak ? t.campaign.streakChain : t.campaign.progress}
           </span>
-          {/* Fix 9: always show numeric breakdown — N / target · X% · (target-N) remaining */}
+          {/* Fix 9: always show numeric breakdown — N / target [unit] · X% */}
           <span className="num font-bold text-ink" dir="ltr">
-            {value} / {target} · {pct}%
+            {value} / {target}
+            {!isStreak && c.measureUnit ? ` ${c.measureUnit}` : ''} · {pct}%
           </span>
         </div>
         <div className="h-3 w-full rounded-full bg-card overflow-hidden">

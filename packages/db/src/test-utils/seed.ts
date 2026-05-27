@@ -98,6 +98,7 @@ export async function seedBaseFixtures(handle: TestDbHandle): Promise<SeedHandle
       titleEn: 'Daily task',
       iconKey: 'ic-bed',
       coinValue: 5,
+      measureAmount: 5,
       evidenceRequired: false,
     },
     {

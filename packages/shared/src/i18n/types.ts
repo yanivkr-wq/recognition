@@ -311,6 +311,10 @@ export interface Dictionary {
     deadlineTimeHint: string;
     maxPerDay: string;
     maxPerDayHint: string;
+    measureLabel: string;
+    measureAmountPlaceholder: string;
+    measureUnitPlaceholder: string;
+    measureHint: string;
     reopenForToday: string;
     reopenSuccess: string;
     approvals: string;

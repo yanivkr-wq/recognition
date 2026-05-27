@@ -56,6 +56,10 @@ interface ParsedDaily {
   deadlineTime: string | null;
   /** Times/day this task may be completed. null = unlimited; 1 = once. */
   maxPerDay: number | null;
+  /** Amount one completion contributes to a journey it feeds. null = none. */
+  measureAmount: number | null;
+  /** Display unit label for the measure (hours / pages / …). null = none. */
+  measureUnit: string | null;
 }
 
 interface ParsedLongTerm {
@@ -132,7 +136,24 @@ function parseTaskForm(formData: FormData): ParsedTask | TaskFormError {
       if (!Number.isInteger(v) || v < 1) return 'invalid_coin_value';
       maxPerDay = v;
     }
-    return { ...common, kind: 'daily', coinValue, deadlineTime, maxPerDay };
+    // Optional journey measure: amount one completion adds + a unit label.
+    const measureRaw = String(formData.get('measureAmount') ?? '').trim();
+    let measureAmount: number | null = null;
+    if (measureRaw !== '') {
+      const v = Number.parseInt(measureRaw, 10);
+      if (!Number.isInteger(v) || v < 0) return 'invalid_coin_value';
+      measureAmount = v;
+    }
+    const measureUnit = String(formData.get('measureUnit') ?? '').trim() || null;
+    return {
+      ...common,
+      kind: 'daily',
+      coinValue,
+      deadlineTime,
+      maxPerDay,
+      measureAmount,
+      measureUnit,
+    };
   }
 
   // long_term — all four required fields per DB CHECK + per-unit must be > 0.
@@ -210,6 +231,8 @@ export async function createTaskTemplateAction(
           parsed.kind === 'long_term' ? parsed.longTermBonusOnComplete : null,
         deadlineTime: parsed.kind === 'daily' ? parsed.deadlineTime : null,
         maxPerDay: parsed.kind === 'daily' ? parsed.maxPerDay : 1,
+        measureAmount: parsed.kind === 'daily' ? parsed.measureAmount : null,
+        measureUnit: parsed.kind === 'daily' ? parsed.measureUnit : null,
       })
       .returning({ id: taskTemplate.id });
 
@@ -290,6 +313,8 @@ export async function updateTaskTemplateAction(
           parsed.kind === 'long_term' ? parsed.longTermBonusOnComplete : null,
         deadlineTime: parsed.kind === 'daily' ? parsed.deadlineTime : null,
         maxPerDay: parsed.kind === 'daily' ? parsed.maxPerDay : 1,
+        measureAmount: parsed.kind === 'daily' ? parsed.measureAmount : null,
+        measureUnit: parsed.kind === 'daily' ? parsed.measureUnit : null,
         updatedAt: new Date(),
       })
       .where(eq(taskTemplate.id, id));
