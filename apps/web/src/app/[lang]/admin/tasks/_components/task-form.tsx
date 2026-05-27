@@ -45,6 +45,8 @@ interface InitialValues {
   longTermBonusOnComplete?: number | null;
   /** Phase 7.5: optional 'HH:MM:SS' deadline string from the DB. */
   deadlineTime?: string | null;
+  /** Times/day the task may be completed. null = unlimited; 1 = once. */
+  maxPerDay?: number | null;
 }
 
 interface AssignKid {
@@ -238,6 +240,28 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
           />
           <span className="block mt-1 text-[11px] text-ink-faded">
             {t.admin.deadlineTimeHint}
+          </span>
+        </label>
+      )}
+
+      {/* Repeatable: how many times/day this task may be completed. Empty =
+          unlimited; 1 = once. Daily only. */}
+      {kind === 'daily' && (
+        <label className="block">
+          <span className="block text-sm text-ink-soft mb-1">{t.admin.maxPerDay}</span>
+          <input
+            type="number"
+            name="maxPerDay"
+            min={1}
+            inputMode="numeric"
+            defaultValue={
+              initial?.maxPerDay === null ? '' : String(initial?.maxPerDay ?? 1)
+            }
+            dir="ltr"
+            className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+          />
+          <span className="block mt-1 text-[11px] text-ink-faded">
+            {t.admin.maxPerDayHint}
           </span>
         </label>
       )}

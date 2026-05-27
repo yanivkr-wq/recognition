@@ -58,7 +58,7 @@ function isUniqueViolation(err: unknown): boolean {
 
 export type CompleteTaskState =
   | { ok: true; completionId: string; balanceAfter: number; coinsAdded: number; evidenceRequired: boolean }
-  | { ok: false; error: 'already_done' | 'not_found' | 'wrong_kind' | 'forbidden' | 'deadline_passed' | 'internal' };
+  | { ok: false; error: 'already_done' | 'cap_reached' | 'not_found' | 'wrong_kind' | 'forbidden' | 'deadline_passed' | 'internal' };
 
 export async function completeTaskAction(
   _prev: CompleteTaskState | undefined,
@@ -88,6 +88,7 @@ export async function completeTaskAction(
       coinValue: taskTemplate.coinValue,
       evidenceRequired: taskTemplate.evidenceRequired,
       deadlineTime: taskTemplate.deadlineTime,
+      maxPerDay: taskTemplate.maxPerDay,
     })
     .from(taskAssignment)
     .innerJoin(taskTemplate, eq(taskTemplate.id, taskAssignment.templateId))
@@ -115,24 +116,48 @@ export async function completeTaskAction(
   try {
     await client.query('BEGIN');
 
+    // Serialize concurrent taps for this assignment so the cap check + ordinal
+    // computation can't race (the partial-unique index is the final backstop).
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [assignmentId]);
+
     const todayRes = await client.query<{ today: string }>(
       `SELECT (now() AT TIME ZONE $1)::date::text AS today`,
       [HOUSEHOLD_TZ],
     );
     const completionDate = todayRes.rows[0]!.today;
 
+    // Repeatable cap: count active occurrences today that hold a slot —
+    // approved/auto + pending (waiting) count; denied ones free their slot
+    // (the kid can retry). NULL max_per_day = unlimited.
+    const tallyRes = await client.query<{ used: number; max_ord: number }>(
+      `SELECT
+         count(*) FILTER (WHERE approval_status <> 'denied')::int AS used,
+         COALESCE(MAX(occurrence_ordinal), 0)::int AS max_ord
+         FROM task_completion
+        WHERE assignment_id = $1 AND completion_date = $2 AND undone_at IS NULL`,
+      [assignmentId, completionDate],
+    );
+    const used = tallyRes.rows[0]?.used ?? 0;
+    const maxOrd = tallyRes.rows[0]?.max_ord ?? 0;
+    if (a.maxPerDay != null && used >= a.maxPerDay) {
+      await client.query('ROLLBACK');
+      return { ok: false, error: a.maxPerDay <= 1 ? 'already_done' : 'cap_reached' };
+    }
+    const nextOrdinal = maxOrd + 1;
+
     let completionId: string;
     try {
       const inserted = await client.query<{ id: string }>(
         `INSERT INTO task_completion (
-           household_id, assignment_id, kid_id, completion_date, approval_status
-         ) VALUES ($1, $2, $3, $4, $5)
+           household_id, assignment_id, kid_id, completion_date, occurrence_ordinal, approval_status
+         ) VALUES ($1, $2, $3, $4, $5, $6)
          RETURNING id`,
         [
           kid.householdId,
           assignmentId,
           kid.kidId,
           completionDate,
+          nextOrdinal,
           a.evidenceRequired ? 'pending' : 'auto_approved',
         ],
       );

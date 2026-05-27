@@ -39,6 +39,12 @@ export interface KidHomeTask {
    *  countdown when set and the status is 'todo'; the page-level server
    *  query already flipped status to 'locked' if it's past the deadline. */
   deadlineTime: string | null;
+  /** Repeatable-task fields. maxPerDay null = unlimited; 1 = once (normal).
+   *  doneToday = approved + waiting occurrences; canDoAgain = a slot is free
+   *  (and not past the deadline). */
+  maxPerDay: number | null;
+  doneToday: number;
+  canDoAgain: boolean;
 }
 
 export interface KidHomeLongTermTask {

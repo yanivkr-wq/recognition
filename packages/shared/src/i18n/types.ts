@@ -90,6 +90,7 @@ export interface Dictionary {
     photoUploadError: string;
     deniedNeedsRetry: string;
     alreadyDone: string;
+    doAgain: string;
     noTasks: string;
     noTasksHint: string;
     switchUser: string;
@@ -308,6 +309,8 @@ export interface Dictionary {
     invalidLongTermFields: string;
     deadlineTime: string;
     deadlineTimeHint: string;
+    maxPerDay: string;
+    maxPerDayHint: string;
     reopenForToday: string;
     reopenSuccess: string;
     approvals: string;

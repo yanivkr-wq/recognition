@@ -20,9 +20,7 @@ import {
   kid as kidTable,
   taskAssignment,
   taskTemplate,
-  taskCompletion,
   longTermProgress,
-  submission,
 } from '@reco/db';
 import { auth } from '../../auth';
 import {
@@ -106,23 +104,10 @@ async function KidView({
       evidenceRequired: taskTemplate.evidenceRequired,
       deadlineTime: taskTemplate.deadlineTime,
       displayOrder: taskTemplate.displayOrder,
-      completionId: taskCompletion.id,
-      approvalStatus: taskCompletion.approvalStatus,
-      evidenceSubmissionId: taskCompletion.evidenceSubmissionId,
-      submissionStatus: submission.status,
-      submissionDenyReason: submission.denyReason,
+      maxPerDay: taskTemplate.maxPerDay,
     })
     .from(taskAssignment)
     .innerJoin(taskTemplate, eq(taskTemplate.id, taskAssignment.templateId))
-    .leftJoin(
-      taskCompletion,
-      and(
-        eq(taskCompletion.assignmentId, taskAssignment.id),
-        eq(taskCompletion.completionDate, today),
-        isNull(taskCompletion.undoneAt),
-      ),
-    )
-    .leftJoin(submission, eq(submission.id, taskCompletion.evidenceSubmissionId))
     .where(
       and(
         eq(taskAssignment.kidId, kidId),
@@ -134,10 +119,48 @@ async function KidView({
     )
     .orderBy(taskTemplate.displayOrder, taskTemplate.titleHe);
 
+  // Today's active completions for these assignments, aggregated per
+  // assignment so a repeatable task can hold several at once (each its own
+  // approval). One row per occurrence; we bucket by state in JS.
+  const dailyIds = dailyRows.map((r) => r.assignmentId);
+  type OccRow = {
+    assignment_id: string;
+    id: string;
+    approval_status: string;
+    evidence_submission_id: string | null;
+    deny_reason: string | null;
+  };
+  const occByAssignment = new Map<
+    string,
+    { approved: OccRow[]; waiting: OccRow[]; needsPhoto: OccRow[]; denied: OccRow[] }
+  >();
+  if (dailyIds.length > 0) {
+    const occRes = await getPool().query<OccRow>(
+      `SELECT tc.assignment_id, tc.id, tc.approval_status, tc.evidence_submission_id,
+              s.deny_reason
+         FROM task_completion tc
+         LEFT JOIN submission s ON s.id = tc.evidence_submission_id
+        WHERE tc.kid_id = $1 AND tc.completion_date = $2 AND tc.undone_at IS NULL
+          AND tc.assignment_id = ANY($3::uuid[])
+        ORDER BY tc.occurrence_ordinal`,
+      [kidId, today, dailyIds],
+    );
+    for (const o of occRes.rows) {
+      let b = occByAssignment.get(o.assignment_id);
+      if (!b) {
+        b = { approved: [], waiting: [], needsPhoto: [], denied: [] };
+        occByAssignment.set(o.assignment_id, b);
+      }
+      if (o.approval_status === 'denied') b.denied.push(o);
+      else if (o.approval_status === 'pending') {
+        if (o.evidence_submission_id) b.waiting.push(o);
+        else b.needsPhoto.push(o);
+      } else b.approved.push(o);
+    }
+  }
+
   // Phase 7.5: compute "is this task locked right now?" for each daily
-  // assignment with a deadline. Server-derived so the kid card doesn't have
-  // to ask "what time is it in IL?" at render. We do one tiny query for
-  // current IL time and reuse it across all the rows.
+  // assignment with a deadline. One tiny query for current IL time.
   const nowRes = await getPool().query<{ now_il: string }>(
     `SELECT to_char(now() AT TIME ZONE $1, 'HH24:MI:SS') AS now_il`,
     [HOUSEHOLD_TZ],
@@ -145,23 +168,44 @@ async function KidView({
   const nowIl = nowRes.rows[0]!.now_il;
 
   const tasks: KidHomeTask[] = dailyRows.map((r) => {
-    let status: KidHomeTask['status'] = 'todo';
-    if (r.completionId) {
-      if (r.approvalStatus === 'denied') status = 'denied';
-      else if (r.approvalStatus === 'pending') {
-        // Two pending sub-states based on whether a submission row exists:
-        //   - no submission yet → kid still needs to upload a photo
-        //   - submission exists → waiting for parent approval
-        status = r.evidenceSubmissionId ? 'pending' : 'needsPhoto';
-      } else status = 'done';
-    } else if (r.deadlineTime && nowIl > r.deadlineTime) {
-      // Past the deadline and no active completion = locked. Admin can
-      // still complete on the kid's behalf via the admin reopen action.
-      status = 'locked';
+    const occ = occByAssignment.get(r.assignmentId) ?? {
+      approved: [],
+      waiting: [],
+      needsPhoto: [],
+      denied: [],
+    };
+    // Slot usage: approved + waiting + open-needs-photo count; denied frees a
+    // slot (retry). NULL maxPerDay = unlimited.
+    const capUsed = occ.approved.length + occ.waiting.length + occ.needsPhoto.length;
+    const doneToday = occ.approved.length + occ.waiting.length;
+    const locked = !!(r.deadlineTime && nowIl > r.deadlineTime);
+    const underCap = r.maxPerDay == null || capUsed < r.maxPerDay;
+    const canDoAgain = underCap && !locked;
+
+    let status: KidHomeTask['status'];
+    let completionId: string | null = null;
+    let denyReason: string | null = null;
+    if (occ.needsPhoto.length > 0) {
+      status = 'needsPhoto';
+      completionId = occ.needsPhoto[0]!.id;
+    } else if (occ.denied.length > 0 && canDoAgain) {
+      const d = occ.denied[occ.denied.length - 1]!;
+      status = 'denied';
+      completionId = d.id;
+      denyReason = d.deny_reason;
+    } else if (capUsed === 0) {
+      status = locked ? 'locked' : 'todo';
+    } else if (occ.approved.length > 0) {
+      status = 'done';
+      completionId = occ.approved[occ.approved.length - 1]!.id;
+    } else {
+      status = 'pending';
+      completionId = occ.waiting[occ.waiting.length - 1]!.id;
     }
+
     return {
       assignmentId: r.assignmentId,
-      completionId: r.completionId,
+      completionId,
       status,
       titleHe: r.titleHe,
       titleEn: r.titleEn,
@@ -169,8 +213,11 @@ async function KidView({
       color: r.color,
       coinValue: r.coinValue,
       evidenceRequired: r.evidenceRequired,
-      denyReason: r.submissionDenyReason,
+      denyReason,
       deadlineTime: r.deadlineTime,
+      maxPerDay: r.maxPerDay,
+      doneToday,
+      canDoAgain,
     };
   });
 

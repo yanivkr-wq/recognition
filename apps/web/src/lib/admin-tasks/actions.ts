@@ -54,6 +54,8 @@ interface ParsedDaily {
   displayOrder: number;
   /** Phase 7.5: optional 'HH:MM' or 'HH:MM:SS' deadline. null = no deadline. */
   deadlineTime: string | null;
+  /** Times/day this task may be completed. null = unlimited; 1 = once. */
+  maxPerDay: number | null;
 }
 
 interface ParsedLongTerm {
@@ -120,7 +122,17 @@ function parseTaskForm(formData: FormData): ParsedTask | TaskFormError {
       if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(deadlineRaw)) return 'invalid_coin_value';
       deadlineTime = deadlineRaw + ':00';
     }
-    return { ...common, kind: 'daily', coinValue, deadlineTime };
+    // Times/day: '' or '0' = unlimited (null); otherwise a positive integer.
+    const maxRaw = String(formData.get('maxPerDay') ?? '').trim();
+    let maxPerDay: number | null = 1;
+    if (maxRaw === '' || maxRaw === '0') {
+      maxPerDay = null;
+    } else {
+      const v = Number.parseInt(maxRaw, 10);
+      if (!Number.isInteger(v) || v < 1) return 'invalid_coin_value';
+      maxPerDay = v;
+    }
+    return { ...common, kind: 'daily', coinValue, deadlineTime, maxPerDay };
   }
 
   // long_term — all four required fields per DB CHECK + per-unit must be > 0.
@@ -197,6 +209,7 @@ export async function createTaskTemplateAction(
         longTermBonusOnComplete:
           parsed.kind === 'long_term' ? parsed.longTermBonusOnComplete : null,
         deadlineTime: parsed.kind === 'daily' ? parsed.deadlineTime : null,
+        maxPerDay: parsed.kind === 'daily' ? parsed.maxPerDay : 1,
       })
       .returning({ id: taskTemplate.id });
 
@@ -276,6 +289,7 @@ export async function updateTaskTemplateAction(
         longTermBonusOnComplete:
           parsed.kind === 'long_term' ? parsed.longTermBonusOnComplete : null,
         deadlineTime: parsed.kind === 'daily' ? parsed.deadlineTime : null,
+        maxPerDay: parsed.kind === 'daily' ? parsed.maxPerDay : 1,
         updatedAt: new Date(),
       })
       .where(eq(taskTemplate.id, id));

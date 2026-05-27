@@ -28,6 +28,9 @@ export const taskCompletion = pgTable('task_completion', {
     .notNull()
     .references(() => kid.id, { onDelete: 'cascade' }),
   completionDate: date('completion_date').notNull(),
+  /** 1-based slot within (assignment, completion_date) for repeatable tasks.
+   *  Part of the partial-unique double-claim guard. See 0011. */
+  occurrenceOrdinal: integer('occurrence_ordinal').notNull().default(1),
   completedAt: timestamp('completed_at', { withTimezone: true }).notNull().defaultNow(),
   undoneAt: timestamp('undone_at', { withTimezone: true }),
   // Circular FKs — added in 0001_init.sql §16.

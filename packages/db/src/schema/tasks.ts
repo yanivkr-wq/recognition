@@ -37,6 +37,9 @@ export const taskTemplate = pgTable('task_template', {
   color: text('color').notNull().default('#94a3b8'),
   coinValue: integer('coin_value').notNull(),
   evidenceRequired: boolean('evidence_required').notNull().default(false),
+  /** Times/day a daily task may be completed. NULL = unlimited; 1 = once
+   *  (default). Only meaningful for kind='daily'. See 0011_repeatable_tasks. */
+  maxPerDay: integer('max_per_day').default(1),
   longTermUnitLabelHe: text('long_term_unit_label_he'),
   longTermUnitLabelEn: text('long_term_unit_label_en'),
   longTermPerUnitCoins: integer('long_term_per_unit_coins'),

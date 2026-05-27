@@ -112,6 +112,7 @@ export default async function EditTaskPage({
           longTermGoalQuantity: row.longTermGoalQuantity,
           longTermBonusOnComplete: row.longTermBonusOnComplete,
           deadlineTime: row.deadlineTime,
+          maxPerDay: row.maxPerDay,
         }}
         lang={lang}
         t={t}

@@ -68,6 +68,10 @@ interface Props {
   evidenceRequired: boolean;
   denyReason: string | null;
   deadlineTime?: string | null;
+  /** Repeatable-task fields (see kid-home). maxPerDay 1 = normal once-a-day. */
+  maxPerDay?: number | null;
+  doneToday?: number;
+  canDoAgain?: boolean;
   lang: 'he' | 'en';
   t: Dictionary;
   onBalance?: (newBalance: number) => void;
@@ -416,7 +420,81 @@ export function TaskCard(props: Props) {
           {props.denyReason}
         </p>
       )}
+
+      {/* Repeatable footer — for tasks doable more than once a day. Shows a
+          tally of how many times it's been done today and a "Do again" control
+          (photo tasks open the camera again; each repeat is its own approval).
+          Only appears once the kid has done it at least once; the first one
+          uses the normal action above. */}
+      {props.maxPerDay !== 1 && (props.doneToday ?? 0) > 0 && (
+        <div className="mt-3 pt-3 border-t border-rule/60 flex items-center justify-between gap-2">
+          <span className="inline-flex items-center gap-1 text-xs font-bold text-mint-dark num" dir="ltr">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M5 10.5l3.5 3.5L15 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {props.doneToday}
+            {props.maxPerDay != null ? ` / ${props.maxPerDay}` : ''}
+          </span>
+
+          {props.canDoAgain && (status === 'done' || status === 'pending') && (
+            props.evidenceRequired ? (
+              <label
+                aria-label={t.home.doAgain}
+                aria-disabled={photoBusy}
+                className="inline-flex items-center gap-1.5 rounded-full bg-pink text-card font-bold text-xs py-2 px-3 shadow-cta-pink cursor-pointer active:scale-95 transition aria-disabled:opacity-60"
+              >
+                <RepeatGlyph />
+                {photoBusy ? '…' : t.home.doAgain}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  capture="environment"
+                  disabled={photoBusy}
+                  onChange={(e) => {
+                    const f = e.currentTarget.files?.[0];
+                    if (f) captureForApproval(f);
+                    e.currentTarget.value = '';
+                  }}
+                  className="sr-only"
+                />
+              </label>
+            ) : (
+              <form action={completeAction}>
+                <input type="hidden" name="assignmentId" value={assignmentId} />
+                <button
+                  type="submit"
+                  disabled={completing}
+                  onClick={(e) => {
+                    const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                    void celebrate({
+                      intensity: 'small',
+                      origin: {
+                        x: (r.left + r.width / 2) / window.innerWidth,
+                        y: (r.top + r.height / 2) / window.innerHeight,
+                      },
+                    });
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-pink text-card font-bold text-xs py-2 px-3 shadow-cta-pink active:scale-95 transition disabled:opacity-60"
+                >
+                  <RepeatGlyph />
+                  {completing ? '…' : t.home.doAgain}
+                </button>
+              </form>
+            )
+          )}
+        </div>
+      )}
     </li>
+  );
+}
+
+/** Small circular-arrows "repeat" glyph for the Do-again control. */
+function RepeatGlyph() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M4 9a8 8 0 0 1 13-3l3 3M20 15a8 8 0 0 1-13 3l-3-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20 4v5h-5M4 20v-5h5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
