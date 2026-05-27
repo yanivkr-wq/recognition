@@ -213,9 +213,9 @@ export default async function AdminInsightsPage({
           <thead>
             <tr className="text-[11px] uppercase tracking-wider text-ink-faded border-b border-rule">
               <th className="text-start font-medium px-4 py-2">{t.insights.balanceByPlayer}</th>
-              <th className="text-center font-medium px-2 py-2 whitespace-nowrap">{t.insights.tasksToday}</th>
-              <th className="text-center font-medium px-2 py-2 whitespace-nowrap hidden sm:table-cell">{t.insights.activeJourneys}</th>
-              <th className="text-center font-medium px-2 py-2 whitespace-nowrap">{t.insights.needsAttention}</th>
+              <th className="text-start font-medium px-2 py-2 whitespace-nowrap">{t.insights.tasksToday}</th>
+              <th className="text-start font-medium px-2 py-2 whitespace-nowrap hidden sm:table-cell">{t.insights.activeJourneys}</th>
+              <th className="text-start font-medium px-2 py-2 whitespace-nowrap">{t.insights.needsAttention}</th>
               <th className="px-2 py-2"></th>
             </tr>
           </thead>
@@ -245,9 +245,9 @@ export default async function AdminInsightsPage({
                       </div>
                     </div>
                   </td>
-                  <td className="text-center num font-bold text-ink px-2 py-3" dir="ltr">{todayMap.get(k.id) ?? 0}</td>
-                  <td className="text-center num text-ink px-2 py-3 hidden sm:table-cell" dir="ltr">{journeyMap.get(k.id) ?? 0}</td>
-                  <td className="text-center px-2 py-3">
+                  <td className="text-start num font-bold text-ink px-2 py-3"><span dir="ltr">{todayMap.get(k.id) ?? 0}</span></td>
+                  <td className="text-start num text-ink px-2 py-3 hidden sm:table-cell"><span dir="ltr">{journeyMap.get(k.id) ?? 0}</span></td>
+                  <td className="text-start px-2 py-3">
                     {pending > 0 ? (
                       <span className="num inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-pink-pale text-pink-dark text-xs font-bold" dir="ltr">
                         {pending}
@@ -332,8 +332,8 @@ function Kpi({
           {icon}
           <span className="text-[11px] uppercase tracking-wider font-medium truncate">{label}</span>
         </div>
-        <p className="num font-extrabold text-ink text-3xl leading-tight mt-1" dir="ltr">
-          {value.toLocaleString('en-US')}
+        <p className="num font-extrabold text-ink text-3xl leading-tight mt-1 text-start">
+          <span dir="ltr">{value.toLocaleString('en-US')}</span>
         </p>
       </div>
     </div>

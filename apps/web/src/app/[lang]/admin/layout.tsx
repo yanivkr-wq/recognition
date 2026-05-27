@@ -13,6 +13,8 @@ import { redirect } from 'next/navigation';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { auth, signOut } from '../../../auth';
 import { RecoWordmark } from '../../../components/reco-wordmark';
+import { getAdminNotificationCounts } from '../../../lib/admin/notifications';
+import { AdminBell } from './_components/admin-bell';
 
 export default async function AdminLayout({
   children,
@@ -25,6 +27,8 @@ export default async function AdminLayout({
   const t = getDictionary(lang as Locale);
   const session = await auth();
   if (!session?.user) redirect(`/${lang}/login`);
+
+  const counts = await getAdminNotificationCounts(session.user.householdId);
 
   return (
     <div className="min-h-screen bg-bg">
@@ -41,7 +45,18 @@ export default async function AdminLayout({
           </Link>
 
           <div className="flex items-center gap-3 text-sm">
-            <span className="text-ink-soft">{session.user.name}</span>
+            <AdminBell
+              lang={lang}
+              initial={counts}
+              labels={{
+                notifications: t.admin.notifications,
+                approvals: t.admin.approvals,
+                redemptions: t.admin.redemptions,
+                feedback: t.admin.feedback,
+                allCaughtUp: t.admin.allCaughtUp,
+              }}
+            />
+            <span className="text-ink-soft hidden sm:inline">{session.user.name}</span>
             <form
               action={async () => {
                 'use server';

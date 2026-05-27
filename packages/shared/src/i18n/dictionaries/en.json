@@ -94,7 +94,8 @@
     "avatarSave": "Save",
     "avatarSaved": "Saved!",
     "avatarClear": "Clear",
-    "colorPickTitle": "Pick a color"
+    "colorPickTitle": "Pick a color",
+    "themePickTitle": "Pick a theme"
   },
   "longTerm": {
     "sectionTitle": "Long-term goals",
@@ -301,7 +302,7 @@
     "redemptionsHeading": "Reward redemptions",
     "noPendingRedemptions": "No pending redemptions",
     "redeemedAt": "Redeemed",
-    "markReceived": "Mark received",
+    "markReceived": "Done",
     "cancelRedemption": "Cancel",
     "refundRedemption": "Refund",
     "cancelReason": "Cancel reason",
@@ -407,7 +408,9 @@
     "groupOverview": "Overview",
     "groupPlayers": "Players",
     "groupContent": "Content",
-    "groupSystem": "System"
+    "groupSystem": "System",
+    "notifications": "Notifications",
+    "allCaughtUp": "All caught up!"
   },
   "feedback": {
     "button": "Feedback",

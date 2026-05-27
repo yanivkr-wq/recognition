@@ -21,6 +21,7 @@ import { eq } from 'drizzle-orm';
 import { getDb, kid as kidTable } from '@reco/db';
 import { AVATAR_LIBRARY } from '../../components/avatar-library';
 import { requireKid, UnauthorizedError } from '../auth/guards';
+import { THEME_IDS, type ThemeId } from '../theme';
 
 export type SetAvatarState =
   | { ok: true; avatarKey: string | null }
@@ -105,4 +106,42 @@ export async function setKidColorAction(
   // Color drives every avatar pip — same revalidate as setKidAvatarAction.
   revalidatePath('/[lang]', 'layout');
   return { ok: true, color };
+}
+
+export type SetThemeState =
+  | { ok: true; theme: ThemeId }
+  | { ok: false; error: 'forbidden' | 'invalid_theme' | 'internal' };
+
+const VALID_THEMES = new Set<string>(THEME_IDS);
+
+/** Kid picks an app-wide theme. Validated against the theme registry; the kid
+ *  principal gates the write to the kid's own row. The chosen theme recolors
+ *  every player surface (read back in the [lang] layout). */
+export async function setKidThemeAction(
+  _prev: SetThemeState | undefined,
+  formData: FormData,
+): Promise<SetThemeState> {
+  const theme = String(formData.get('theme') ?? '').trim();
+  if (!VALID_THEMES.has(theme)) {
+    return { ok: false, error: 'invalid_theme' };
+  }
+
+  let kid;
+  try {
+    kid = await requireKid();
+  } catch (err) {
+    if (err instanceof UnauthorizedError) return { ok: false, error: 'forbidden' };
+    throw err;
+  }
+
+  try {
+    await getDb().update(kidTable).set({ theme }).where(eq(kidTable.id, kid.kidId));
+  } catch (err) {
+    console.error('setKidThemeAction failed', err);
+    return { ok: false, error: 'internal' };
+  }
+  // The theme is read in the [lang] layout, so revalidate the whole kid surface
+  // to recolor every page on next navigation.
+  revalidatePath('/[lang]', 'layout');
+  return { ok: true, theme: theme as ThemeId };
 }

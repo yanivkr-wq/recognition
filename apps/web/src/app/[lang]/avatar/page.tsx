@@ -39,6 +39,7 @@ export default async function AvatarPage({
       name: kidTable.name,
       color: kidTable.color,
       avatarKey: kidTable.avatarKey,
+      theme: kidTable.theme,
     })
     .from(kidTable)
     .where(and(eq(kidTable.id, principal.kidId), isNull(kidTable.archivedAt)))
@@ -53,6 +54,7 @@ export default async function AvatarPage({
       kidName={k.name}
       kidColor={k.color}
       initialKey={k.avatarKey ?? null}
+      initialTheme={k.theme}
       backHref={`/${lang}`}
     />
   );

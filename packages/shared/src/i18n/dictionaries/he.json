@@ -94,7 +94,8 @@
     "avatarSave": "שמרי",
     "avatarSaved": "נשמר!",
     "avatarClear": "מחקי",
-    "colorPickTitle": "בחרי צבע"
+    "colorPickTitle": "בחרי צבע",
+    "themePickTitle": "בחרי ערכת צבעים"
   },
   "longTerm": {
     "sectionTitle": "יעדים ארוכי טווח",
@@ -301,7 +302,7 @@
     "redemptionsHeading": "מימושי פרסים",
     "noPendingRedemptions": "אין מימושים ממתינים",
     "redeemedAt": "נרכש",
-    "markReceived": "סמני כקיבלה",
+    "markReceived": "בוצע",
     "cancelRedemption": "ביטול",
     "refundRedemption": "החזר מטבעות",
     "cancelReason": "סיבת הביטול",
@@ -407,7 +408,9 @@
     "groupOverview": "סקירה",
     "groupPlayers": "שחקנים",
     "groupContent": "תוכן",
-    "groupSystem": "מערכת"
+    "groupSystem": "מערכת",
+    "notifications": "התראות",
+    "allCaughtUp": "הכל מטופל!"
   },
   "feedback": {
     "button": "משוב",

@@ -37,6 +37,8 @@ export interface KidPrincipal {
   locale: string;
   /** Phase 7.5: preset avatar key picked by the kid. Null = use initial fallback. */
   avatarKey: string | null;
+  /** App-wide theme id ('bubblegum' | 'ocean' | 'sunset'). Recolors surfaces. */
+  theme: string;
 }
 
 export async function requireKid(): Promise<KidPrincipal> {
@@ -58,6 +60,7 @@ export async function requireKid(): Promise<KidPrincipal> {
       color: kidTable.color,
       locale: kidTable.locale,
       avatarKey: kidTable.avatarKey,
+      theme: kidTable.theme,
     })
     .from(kidTable)
     .where(and(eq(kidTable.id, kidId), isNull(kidTable.archivedAt)))
@@ -73,6 +76,7 @@ export async function requireKid(): Promise<KidPrincipal> {
     color: k.color,
     locale: k.locale,
     avatarKey: k.avatarKey,
+    theme: k.theme,
   };
 }
 

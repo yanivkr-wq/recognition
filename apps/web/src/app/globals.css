@@ -107,6 +107,56 @@
   --rule-soft: #F7F5FA;
 }
 
+/*
+ * App-wide themes (lib/theme.ts). Applied via `data-theme` on a wrapper that
+ * surrounds a player's surfaces. Each theme overrides ONLY surfaces (bg / card
+ * tint / rules) + the action accent (pink family) + the pink CTA shadow.
+ * Semantic colors (mint / yellow / lavender / sky / peach) are intentionally
+ * left untouched so success/currency/campaign/identity meaning is preserved.
+ *
+ * 'bubblegum' is the default look already defined above, so it needs no block.
+ * Overriding both the Tailwind `--color-*` vars (used by bg-pink, text-pink-dark
+ * utilities) and the raw `--*` vars (used by inline var(--pink) styles) keeps
+ * both styling paths in sync.
+ */
+[data-theme="ocean"] {
+  --color-pink: #1EA7B5;
+  --color-pink-dark: #137E8A;
+  --color-pink-pale: #CDEEF1;
+  --color-pink-soft: #E9F8FA;
+  --color-bg: #F1F8F9;
+  --color-rule: #E2EEF0;
+  --color-rule-soft: #F0F6F7;
+  --shadow-cta-pink: 0 4px 12px rgba(30, 167, 181, 0.32);
+
+  --pink: #1EA7B5;
+  --pink-dark: #137E8A;
+  --pink-pale: #CDEEF1;
+  --pink-soft: #E9F8FA;
+  --bg: #F1F8F9;
+  --rule: #E2EEF0;
+  --rule-soft: #F0F6F7;
+}
+
+[data-theme="sunset"] {
+  --color-pink: #FF7A66;
+  --color-pink-dark: #E8553F;
+  --color-pink-pale: #FFE0D8;
+  --color-pink-soft: #FFF1EC;
+  --color-bg: #FCF5F1;
+  --color-rule: #F3E8E1;
+  --color-rule-soft: #FAF3EF;
+  --shadow-cta-pink: 0 4px 12px rgba(255, 122, 102, 0.34);
+
+  --pink: #FF7A66;
+  --pink-dark: #E8553F;
+  --pink-pale: #FFE0D8;
+  --pink-soft: #FFF1EC;
+  --bg: #FCF5F1;
+  --rule: #F3E8E1;
+  --rule-soft: #FAF3EF;
+}
+
 /* Base reset + brandbook defaults */
 @layer base {
   html {

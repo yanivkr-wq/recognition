@@ -18,13 +18,16 @@ import type { Dictionary } from '@reco/shared/i18n';
 import {
   setKidAvatarAction,
   setKidColorAction,
+  setKidThemeAction,
   type SetAvatarState,
   type SetColorState,
+  type SetThemeState,
 } from '../../../../lib/avatar/actions';
 import { AVATAR_LIBRARY } from '../../../../components/avatar-library';
 import { Avatar } from '../../../../components/avatar';
 import { BottomNav } from '../../_components/bottom-nav';
 import { arrowBack } from '../../../../lib/rtl';
+import { THEMES, asTheme, type ThemeId } from '../../../../lib/theme';
 
 /** Brandbook palette the kid can pick from. Mirrors the whitelist in
  *  `lib/avatar/actions.ts` so the server validates against the same set. */
@@ -45,15 +48,17 @@ interface Props {
   kidName: string;
   kidColor: string;
   initialKey: string | null;
+  initialTheme: string;
   backHref: string;
 }
 
 export function AvatarPickerView(props: Props) {
-  const { lang, t, kidName, kidColor, initialKey, backHref } = props;
+  const { lang, t, kidName, kidColor, initialKey, initialTheme, backHref } = props;
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(initialKey);
   const [selectedColor, setSelectedColor] = useState<string>(
     kidColor.toUpperCase(),
   );
+  const [selectedTheme, setSelectedTheme] = useState<ThemeId>(asTheme(initialTheme));
 
   const [avatarState, avatarAction, avatarPending] = useActionState<
     SetAvatarState | undefined,
@@ -63,13 +68,19 @@ export function AvatarPickerView(props: Props) {
     SetColorState | undefined,
     FormData
   >(setKidColorAction, undefined);
+  const [themeState, themeAction, themePending] = useActionState<
+    SetThemeState | undefined,
+    FormData
+  >(setKidThemeAction, undefined);
 
   const savedAny =
-    avatarState?.ok === true || colorState?.ok === true;
+    avatarState?.ok === true || colorState?.ok === true || themeState?.ok === true;
 
   return (
     <>
-      <main className="min-h-screen bg-bg pb-28">
+      {/* `data-theme` here previews the picked theme across this whole page
+          live, overriding the layout's theme until the change is saved. */}
+      <main className="min-h-screen bg-bg pb-28" data-theme={selectedTheme}>
         <header className="px-5 pt-10 pb-3 flex items-center justify-between">
           <a
             href={backHref}
@@ -142,6 +153,55 @@ export function AvatarPickerView(props: Props) {
           <form action={colorAction} className="hidden">
             <input type="hidden" name="color" value={selectedColor} />
             <button type="submit" id="color-submit-helper" disabled={colorPending} />
+          </form>
+        </section>
+
+        {/* Theme picker — recolors the whole app. Each card submits the theme
+            immediately (own button name/value) and previews live via the
+            data-theme on <main>. */}
+        <section className="mx-5 mt-6">
+          <h2 className="text-sm font-bold text-ink mb-2">{t.home.themePickTitle}</h2>
+          <form action={themeAction}>
+            <ul
+              className="grid grid-cols-3 gap-3"
+              role="radiogroup"
+              aria-label={t.home.themePickTitle}
+            >
+              {THEMES.map((th) => {
+                const isPicked = selectedTheme === th.id;
+                return (
+                  <li key={th.id}>
+                    <button
+                      type="submit"
+                      name="theme"
+                      value={th.id}
+                      role="radio"
+                      aria-checked={isPicked}
+                      disabled={themePending}
+                      onClick={() => setSelectedTheme(th.id)}
+                      className={`w-full rounded-2xl p-3 flex flex-col items-center gap-2 transition disabled:opacity-60 ${
+                        isPicked
+                          ? 'bg-pink-pale ring-2 ring-pink'
+                          : 'bg-card border border-rule hover:border-pink-pale'
+                      }`}
+                    >
+                      <span className="flex -space-x-1" aria-hidden="true">
+                        {th.swatch.map((c, i) => (
+                          <span
+                            key={i}
+                            className="w-5 h-5 rounded-full border-2 border-card"
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </span>
+                      <span className="text-xs font-bold text-ink">
+                        {lang === 'he' ? th.labelHe : th.labelEn}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
           </form>
         </section>
 

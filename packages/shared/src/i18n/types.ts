@@ -108,6 +108,7 @@ export interface Dictionary {
     avatarSaved: string;
     avatarClear: string;
     colorPickTitle: string;
+    themePickTitle: string;
   };
   longTerm: {
     sectionTitle: string;
@@ -421,6 +422,8 @@ export interface Dictionary {
     groupPlayers: string;
     groupContent: string;
     groupSystem: string;
+    notifications: string;
+    allCaughtUp: string;
   };
   playerMsg: {
     heading: string;

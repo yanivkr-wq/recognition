@@ -32,6 +32,10 @@ export const kid = pgTable(
     /** Phase 7.5: optional preset avatar from the kid bank ('av-fox' etc.).
      *  Kid-editable via /[lang]/avatar. Renderer prefers this when set. */
     avatarKey: text('avatar_key'),
+    /** App-wide theme the player picked for their surfaces. One of
+     *  'bubblegum' | 'ocean' | 'sunset' (see lib/theme.ts). Recolors surfaces
+     *  + the action accent; semantic colors (mint/yellow/lavender) stay fixed. */
+    theme: text('theme').notNull().default('bubblegum'),
     locale: text('locale').notNull().default('he'),
     pinHash: text('pin_hash').notNull(),
     pinFailedCount: integer('pin_failed_count').notNull().default(0),
