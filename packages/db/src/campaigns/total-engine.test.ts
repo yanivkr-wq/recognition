@@ -184,29 +184,30 @@ describe('evaluateTotal — long-term progress', () => {
 });
 
 describe('evaluateTotal — daily feeding tasks', () => {
-  it('counts 1 unit per qualifying task_completion', async () => {
+  it('sums the task coin_value per qualifying completion (daily task = 5)', async () => {
     const cid = await makeTotalCampaign({
-      targetQuantity: 3,
+      targetQuantity: 15,
       feedingTemplateIds: [ids.taskDailyId],
     });
+    // 3 completions × coin_value 5 = 15 → hits the 15-unit target.
     for (const d of ['2026-05-01', '2026-05-02', '2026-05-03']) {
       await recordCompletion(ids.liaId, ids.assignmentLiaDailyId, d);
     }
     const r = await withConnection((c) =>
       evaluateTotal(c, { kidId: ids.liaId, campaignId: cid, asOfDate: '2026-05-05' }),
     );
-    expect(r.currentTotal).toBe(3);
+    expect(r.currentTotal).toBe(15);
     expect(r.completedNow).toBe(true);
   });
 });
 
 describe('evaluateTotal — mixed feeding tasks', () => {
-  it('sums daily count + long-term quantity together', async () => {
+  it('sums daily coin_value + long-term quantity together', async () => {
     const cid = await makeTotalCampaign({
       targetQuantity: 10,
       feedingTemplateIds: [ids.taskDailyId, ids.taskLongTermId],
     });
-    // Daily: 3 completions = 3 units.
+    // Daily: 3 completions × coin_value 5 = 15 units.
     for (const d of ['2026-05-01', '2026-05-02', '2026-05-03']) {
       await recordCompletion(ids.liaId, ids.assignmentLiaDailyId, d);
     }
@@ -216,7 +217,7 @@ describe('evaluateTotal — mixed feeding tasks', () => {
     const r = await withConnection((c) =>
       evaluateTotal(c, { kidId: ids.liaId, campaignId: cid, asOfDate: '2026-05-05' }),
     );
-    expect(r.currentTotal).toBe(12);
+    expect(r.currentTotal).toBe(24);
     expect(r.completedNow).toBe(true);
   });
 });

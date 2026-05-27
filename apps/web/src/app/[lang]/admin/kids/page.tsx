@@ -1,13 +1,12 @@
 /**
- * Kids list — admin surface.
+ * Players — admin surface (re-imagined: data-first).
  *
- * One card per active kid: a big avatar pip (the kid's chosen face + accent
- * color), name, live wallet balance, then a grid of icon-labeled action
- * chips — Edit / Tasks / PIN / Devices / Ledger / Joker. The icons make the
- * actions scannable at a glance on a phone (Lily's "more with icons" ask).
- *
- * Wallet balance is the derived ledger view (GREATEST(0, SUM(amount))) per
- * SCHEMA.md §7 — never a stored counter — fetched in one grouped query.
+ * Each player card leads with the numbers a parent actually manages — wallet
+ * balance, tasks done today, active journeys, badges, and a highlighted
+ * "needs action" count (pending approvals + redemptions) that links straight to
+ * the queue. Below sits the quick-action row (Edit / Tasks / PIN / Devices /
+ * Ledger / Joker). All figures derive live from the ledger / completions /
+ * submissions / redemptions / enrolments, scoped to the household.
  */
 
 import Link from 'next/link';
@@ -20,6 +19,11 @@ import { Avatar } from '../../../../components/avatar';
 import { Coin } from '../../../../components/coin';
 
 export const dynamic = 'force-dynamic';
+
+interface CountRow {
+  kid_id: string;
+  n: number;
+}
 
 export default async function AdminKidsPage({
   params,
@@ -45,17 +49,61 @@ export default async function AdminKidsPage({
     )
     .orderBy(kidTable.createdAt);
 
-  // Wallet balances in one grouped query (derived view, never stored).
-  const balanceByKid = new Map<string, number>();
-  if (kids.length > 0) {
-    const res = await getPool().query<{ kid_id: string; balance: string }>(
-      `SELECT kid_id, GREATEST(0, COALESCE(SUM(amount), 0))::text AS balance
-         FROM ledger_entry
-        WHERE kid_id = ANY($1::uuid[])
-        GROUP BY kid_id`,
-      [kids.map((k) => k.id)],
-    );
-    for (const row of res.rows) balanceByKid.set(row.kid_id, Number(row.balance));
+  const ids = kids.map((k) => k.id);
+  const pool = getPool();
+  const toMap = (rows: CountRow[]) => new Map(rows.map((r) => [r.kid_id, Number(r.n)]));
+
+  let balance = new Map<string, number>();
+  let today = new Map<string, number>();
+  let appr = new Map<string, number>();
+  let redem = new Map<string, number>();
+  let journeys = new Map<string, number>();
+  let badges = new Map<string, number>();
+
+  if (ids.length > 0) {
+    const [balRes, todayRes, apprRes, redemRes, journeyRes, badgeRes] = await Promise.all([
+      pool.query<CountRow>(
+        `SELECT kid_id, GREATEST(0, COALESCE(SUM(amount), 0))::int AS n
+           FROM ledger_entry WHERE kid_id = ANY($1::uuid[]) GROUP BY kid_id`,
+        [ids],
+      ),
+      pool.query<CountRow>(
+        `SELECT kid_id, count(*)::int AS n FROM task_completion
+          WHERE kid_id = ANY($1::uuid[])
+            AND completion_date = (now() AT TIME ZONE 'Asia/Jerusalem')::date
+            AND undone_at IS NULL AND approval_status IN ('approved','auto_approved')
+          GROUP BY kid_id`,
+        [ids],
+      ),
+      pool.query<CountRow>(
+        `SELECT kid_id, count(*)::int AS n FROM submission
+          WHERE kid_id = ANY($1::uuid[]) AND status='pending' GROUP BY kid_id`,
+        [ids],
+      ),
+      pool.query<CountRow>(
+        `SELECT kid_id, count(*)::int AS n FROM redemption
+          WHERE kid_id = ANY($1::uuid[]) AND status='pending_delivery' GROUP BY kid_id`,
+        [ids],
+      ),
+      pool.query<CountRow>(
+        `SELECT e.kid_id, count(*)::int AS n
+           FROM campaign_enrollment e JOIN campaign c ON c.id = e.campaign_id
+          WHERE e.kid_id = ANY($1::uuid[]) AND e.completed_at IS NULL AND c.archived_at IS NULL
+          GROUP BY e.kid_id`,
+        [ids],
+      ),
+      pool.query<CountRow>(
+        `SELECT kid_id, count(*)::int AS n FROM kid_badge
+          WHERE kid_id = ANY($1::uuid[]) GROUP BY kid_id`,
+        [ids],
+      ),
+    ]);
+    balance = toMap(balRes.rows);
+    today = toMap(todayRes.rows);
+    appr = toMap(apprRes.rows);
+    redem = toMap(redemRes.rows);
+    journeys = toMap(journeyRes.rows);
+    badges = toMap(badgeRes.rows);
   }
 
   return (
@@ -63,63 +111,70 @@ export default async function AdminKidsPage({
       <h1 className="text-2xl font-bold text-ink">{t.admin.kids}</h1>
 
       <ul className="space-y-4">
-        {kids.map((k) => (
-          <li key={k.id} className="bg-card rounded-3xl shadow-card border border-rule p-4 space-y-4">
-            {/* Identity row — avatar + name + wallet balance. */}
-            <div className="flex items-center gap-3">
-              <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={56} />
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-ink text-lg truncate">{k.name}</p>
-                <span className="inline-flex items-center gap-1 text-sm font-bold text-ink-soft num">
-                  <Coin size={16} />
-                  <span dir="ltr">{balanceByKid.get(k.id) ?? 0}</span>
-                  <span className="font-medium text-ink-faded">{t.wallet.coins}</span>
-                </span>
+        {kids.map((k) => {
+          const needs = (appr.get(k.id) ?? 0) + (redem.get(k.id) ?? 0);
+          return (
+            <li key={k.id} className="bg-card rounded-3xl shadow-card border border-rule p-4 space-y-4">
+              {/* Identity row — avatar + name + wallet balance. */}
+              <div className="flex items-center gap-3">
+                <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={56} />
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-ink text-lg truncate">{k.name}</p>
+                  <span className="inline-flex items-center gap-1 text-sm font-bold text-ink-soft num">
+                    <Coin size={16} />
+                    <span dir="ltr">{balance.get(k.id) ?? 0}</span>
+                    <span className="font-medium text-ink-faded">{t.wallet.coins}</span>
+                  </span>
+                </div>
+                {/* Needs-action badge → straight to the approvals queue. */}
+                {needs > 0 && (
+                  <Link
+                    href={`/${lang}/admin/approvals`}
+                    className="shrink-0 inline-flex items-center gap-1.5 rounded-lg bg-pink-pale text-pink-dark font-bold text-xs px-3 py-2"
+                  >
+                    <span className="num" dir="ltr">{needs}</span>
+                    {t.insights.needsAttention}
+                  </Link>
+                )}
               </div>
-            </div>
 
-            {/* Action chips — icon stacked over label, 3-up on mobile. */}
-            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-              <ActionChip
-                href={`/${lang}/admin/kids/${k.id}/edit`}
-                label={t.common.edit}
-                tone="pink"
-                icon={<PencilIcon />}
-              />
-              <ActionChip
-                href={`/${lang}/admin/kids/${k.id}/tasks`}
-                label={t.admin.tasks}
-                tone="lavender"
-                icon={<ListIcon />}
-              />
-              <ActionChip
-                href={`/${lang}/admin/kids/${k.id}/pin`}
-                label={t.admin.setPin}
-                tone="rose"
-                icon={<LockIcon />}
-              />
-              <ActionChip
-                href={`/${lang}/admin/kids/${k.id}/devices`}
-                label={t.admin.devices}
-                tone="sky"
-                icon={<DeviceIcon />}
-              />
-              <ActionChip
-                href={`/${lang}/admin/kids/${k.id}/ledger`}
-                label={t.admin.ledger}
-                tone="mint"
-                icon={<ReceiptIcon />}
-              />
-              <ActionChip
-                href={`/${lang}/admin/kids/${k.id}/wallet/adjust`}
-                label={t.admin.joker}
-                tone="yellow"
-                icon={<WandIcon />}
-              />
-            </div>
-          </li>
-        ))}
+              {/* At-a-glance stats. */}
+              <div className="grid grid-cols-4 gap-2">
+                <Stat label={t.insights.tasksToday} value={today.get(k.id) ?? 0} />
+                <Stat label={t.insights.activeJourneys} value={journeys.get(k.id) ?? 0} />
+                <Stat label={t.insights.badgesEarned} value={badges.get(k.id) ?? 0} />
+                <Stat label={t.insights.needsAttention} value={needs} alert={needs > 0} />
+              </div>
+
+              {/* Quick actions — icon over label, 3-up on mobile. */}
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/edit`} label={t.common.edit} tone="pink" icon={<PencilIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/tasks`} label={t.admin.tasks} tone="lavender" icon={<ListIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/pin`} label={t.admin.setPin} tone="rose" icon={<LockIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/devices`} label={t.admin.devices} tone="sky" icon={<DeviceIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/ledger`} label={t.admin.ledger} tone="mint" icon={<ReceiptIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/wallet/adjust`} label={t.admin.joker} tone="yellow" icon={<WandIcon />} />
+              </div>
+            </li>
+          );
+        })}
       </ul>
+    </div>
+  );
+}
+
+/** A compact labelled stat tile. Highlights when it needs the admin's action. */
+function Stat({ label, value, alert }: { label: string; value: number; alert?: boolean }) {
+  return (
+    <div
+      className={`rounded-xl border px-2 py-2 text-center ${
+        alert ? 'bg-pink-pale border-pink-pale' : 'bg-rule-soft border-rule'
+      }`}
+    >
+      <p className={`num text-xl font-extrabold leading-none ${alert ? 'text-pink-dark' : 'text-ink'}`} dir="ltr">
+        {value}
+      </p>
+      <p className={`text-[10px] leading-tight mt-1 ${alert ? 'text-pink-dark' : 'text-ink-soft'}`}>{label}</p>
     </div>
   );
 }

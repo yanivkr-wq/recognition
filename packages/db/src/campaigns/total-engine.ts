@@ -1,11 +1,13 @@
 /**
  * Total engine — ledger-derived.
  *
- * A "total" campaign tracks a running quantity over its window. Each
- * feeding task contributes:
- *   - daily template: 1 unit per non-undone completion
- *     (kept conservative — the campaign creator picks templates that
- *     make "1 unit each" meaningful, like "complete 50 chores")
+ * A "total" campaign tracks a running quantity over its window, measured in
+ * the journey's own unit (minutes, pages, points…). Each feeding task
+ * contributes its AMOUNT, not a flat 1, so the progress bar reflects the real
+ * sum against the target:
+ *   - daily template: SUM(coin_value) of non-undone completions — the task's
+ *     worth. E.g. a 120-minute reading journey fed by 15-min (value 15) tasks
+ *     reads 30/120 after two completions, not 2/120.
  *   - long_term template: SUM(quantity) of non-undone progress rows
  *     (the natural unit — e.g. "read 100 pages")
  *
@@ -84,18 +86,18 @@ export async function evaluateTotal(
   }
 
   // Sum across both feeding kinds in a single round-trip.
-  //   daily:     COUNT(*) of qualifying task_completion rows
+  //   daily:     SUM(coin_value) of qualifying task_completion rows
   //   long_term: SUM(quantity) of qualifying long_term_progress rows
   // The CTE then SUMs the two contributions.
   const sumRes = await client.query<SumRow>(
     `WITH feeding AS (
-       SELECT template_id, tt.kind
+       SELECT cft.template_id, tt.kind, tt.coin_value
          FROM campaign_feeding_task cft
          JOIN task_template tt ON tt.id = cft.template_id
         WHERE cft.campaign_id = $1
      ),
      daily_total AS (
-       SELECT COUNT(*)::bigint AS n
+       SELECT COALESCE(SUM(f.coin_value), 0)::bigint AS n
          FROM task_completion tc
          JOIN task_assignment ta ON ta.id = tc.assignment_id
          JOIN feeding f ON f.template_id = ta.template_id

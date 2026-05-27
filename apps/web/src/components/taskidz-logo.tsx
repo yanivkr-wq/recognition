@@ -10,6 +10,11 @@
  * below) so it scales with any height; nudge GIFT_* if it drifts.
  *
  * `height` drives the size; width follows the asset's 289:241 ratio.
+ *
+ * The approved PNG has a solid white background (no alpha), so we render it
+ * with `mix-blend-mode: multiply` — on the app's light surfaces white drops to
+ * the background while the dark monogram / coloured wordmark stay, giving a
+ * clean transparent look without a separate cut-out asset.
  */
 
 'use client';
@@ -47,7 +52,7 @@ export function TasKidzLogo({
         alt="TasKidz"
         width={width}
         height={height}
-        style={{ display: 'block', width, height }}
+        style={{ display: 'block', width, height, mixBlendMode: 'multiply' }}
       />
       {animated && (
         <span

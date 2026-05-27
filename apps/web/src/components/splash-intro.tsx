@@ -4,10 +4,11 @@
  * Sequence (Lily's spec):
  *   1. cycle — only the gold reward hexagon, centered, its emblem cycling
  *      through the seven rewards.
- *   2. dock  — the hexagon flies up to the logo's top-right corner and fades
- *      as the full TasKidz logo (monogram + wordmark) scales in beneath it, so
- *      the cycling icon "becomes" the gift badge of the finished logo.
- *   3. fade  — the whole overlay fades out and unmounts.
+ *   2. dock  — the hexagon flies up to the logo's top-right corner and SETTLES
+ *      there (it doesn't fade) as the rest of the TasKidz logo scales in around
+ *      it, so the cycling hexagon literally becomes the logo's gift badge.
+ *   3. fade  — once the finished logo has held a beat, the whole overlay fades
+ *      out and unmounts.
  *
  * Shown once per browser session (sessionStorage) and only after client mount
  * (no SSR flash). Respects prefers-reduced-motion by not showing at all.
@@ -39,8 +40,8 @@ export function SplashIntro() {
 
     setPhase('cycle');
     const t1 = setTimeout(() => setPhase('dock'), 1700);
-    const t2 = setTimeout(() => setPhase('fade'), 2350);
-    const t3 = setTimeout(() => setPhase('hidden'), 2850);
+    const t2 = setTimeout(() => setPhase('fade'), 2900);
+    const t3 = setTimeout(() => setPhase('hidden'), 3400);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -84,7 +85,8 @@ export function SplashIntro() {
         </div>
 
         {/* Cycling gold hex — centered while cycling, then flies to the logo's
-            gift corner (top-right) and fades out. */}
+            gift corner (top-right) and SETTLES there as the logo's gift badge
+            (it keeps cycling; it does not fade out separately). */}
         <div
           style={{
             position: 'absolute',
@@ -93,8 +95,7 @@ export function SplashIntro() {
             transform: docked
               ? `translate(-50%, -50%) translate(${0.235 * LOGO_W}px, ${-0.351 * LOGO_H}px) scale(${(0.2 * LOGO_W) / HEX})`
               : 'translate(-50%, -50%)',
-            opacity: docked ? 0 : 1,
-            transition: 'transform .6s cubic-bezier(.5,.05,.4,1), opacity .55s ease',
+            transition: 'transform .6s cubic-bezier(.5,.05,.4,1)',
           }}
         >
           <RewardHex size={HEX} />
