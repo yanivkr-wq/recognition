@@ -464,7 +464,7 @@
     "archive": "Remove",
     "empty": "No messages sent yet",
     "popupDismiss": "Got it, don't show again",
-    "popupClose": "Later"
+    "popupClose": "Close"
   },
   "insights": {
     "heading": "Quick insights",

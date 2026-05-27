@@ -29,6 +29,9 @@ export interface ThemeMeta {
   labelEn: string;
   /** Swatch trio for the picker preview: [accent, accentDark, surface]. */
   swatch: [string, string, string];
+  /** OS status-bar / PWA theme-color for this theme (the accent-dark tone, so
+   *  it matches the rest of the app's chrome). Kept in sync with globals.css. */
+  statusBar: string;
 }
 
 export const THEMES: ThemeMeta[] = [
@@ -37,17 +40,25 @@ export const THEMES: ThemeMeta[] = [
     labelHe: 'מסטיק',
     labelEn: 'Bubblegum',
     swatch: ['#FF6B9D', '#E94B7F', '#FFF0F6'],
+    statusBar: '#E94B7F',
   },
   {
     id: 'ocean',
     labelHe: 'אוקיינוס',
     labelEn: 'Ocean',
     swatch: ['#1EA7B5', '#137E8A', '#E9F8FA'],
+    statusBar: '#137E8A',
   },
   {
     id: 'sunset',
     labelHe: 'שקיעה',
     labelEn: 'Sunset',
     swatch: ['#FF7A66', '#E8553F', '#FFF1EC'],
+    statusBar: '#E8553F',
   },
 ];
+
+/** Status-bar color for a theme id (defaults to bubblegum's). */
+export function themeStatusBar(id: ThemeId): string {
+  return THEMES.find((t) => t.id === id)?.statusBar ?? '#E94B7F';
+}

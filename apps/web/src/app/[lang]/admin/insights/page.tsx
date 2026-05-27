@@ -204,71 +204,66 @@ export default async function AdminInsightsPage({
         </div>
       </section>
 
-      {/* Players table */}
+      {/* Players — a responsive card list (no wide table to overflow on phones;
+          every figure carries its own label so nothing is "out of reach"). */}
       <section className="bg-card rounded-2xl border border-rule shadow-card overflow-hidden">
         <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-4 pt-4 pb-2">
           {t.insights.perPlayer}
         </h2>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-[11px] uppercase tracking-wider text-ink-faded border-b border-rule">
-              <th className="text-start font-medium px-4 py-2">{t.insights.balanceByPlayer}</th>
-              <th className="text-start font-medium px-2 py-2 whitespace-nowrap">{t.insights.tasksToday}</th>
-              <th className="text-start font-medium px-2 py-2 whitespace-nowrap hidden sm:table-cell">{t.insights.activeJourneys}</th>
-              <th className="text-start font-medium px-2 py-2 whitespace-nowrap">{t.insights.needsAttention}</th>
-              <th className="px-2 py-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {kids.map((k) => {
-              const b = balMap.get(k.id) ?? 0;
-              const pending = (apprMap.get(k.id) ?? 0) + (redemMap.get(k.id) ?? 0);
-              return (
-                <tr key={k.id} className="border-b border-rule last:border-0">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={36} />
-                      <div className="min-w-0 flex-1">
+        <ul className="divide-y divide-rule">
+          {kids.map((k) => {
+            const b = balMap.get(k.id) ?? 0;
+            const pending = (apprMap.get(k.id) ?? 0) + (redemMap.get(k.id) ?? 0);
+            return (
+              <li key={k.id}>
+                <Link
+                  href={`/${lang}/admin/kids/${k.id}/ledger`}
+                  className="block px-4 py-3 hover:bg-rule-soft transition"
+                >
+                  <div className="flex items-center gap-3">
+                    <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={40} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between gap-2">
                         <p className="font-bold text-ink truncate leading-tight">{k.name}</p>
-                        <div className="mt-1 flex items-center gap-2">
-                          <span className="h-1.5 rounded-full bg-rule overflow-hidden w-24 max-w-[40vw]">
-                            <span
-                              className="block h-full rounded-full"
-                              style={{ width: `${Math.round((b / maxBal) * 100)}%`, backgroundColor: PINK }}
-                            />
-                          </span>
-                          <span className="num text-xs font-bold text-ink inline-flex items-center gap-1" dir="ltr">
-                            <Coin size={12} />
-                            {b}
-                          </span>
-                        </div>
+                        <span className="num text-sm font-bold text-ink inline-flex items-center gap-1 shrink-0" dir="ltr">
+                          <Coin size={14} />
+                          {b}
+                        </span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="text-start num font-bold text-ink px-2 py-3"><span dir="ltr">{todayMap.get(k.id) ?? 0}</span></td>
-                  <td className="text-start num text-ink px-2 py-3 hidden sm:table-cell"><span dir="ltr">{journeyMap.get(k.id) ?? 0}</span></td>
-                  <td className="text-start px-2 py-3">
-                    {pending > 0 ? (
-                      <span className="num inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-pink-pale text-pink-dark text-xs font-bold" dir="ltr">
-                        {pending}
+                      <span className="mt-1.5 block h-1.5 rounded-full bg-rule overflow-hidden">
+                        <span
+                          className="block h-full rounded-full"
+                          style={{ width: `${Math.round((b / maxBal) * 100)}%`, backgroundColor: PINK }}
+                        />
                       </span>
-                    ) : (
-                      <span className="text-ink-faded">—</span>
-                    )}
-                  </td>
-                  <td className="px-2 py-3 text-end">
-                    <Link
-                      href={`/${lang}/admin/kids/${k.id}/ledger`}
-                      className="text-xs text-pink-dark font-bold hover:underline"
-                    >
-                      {t.insights.viewLedger}
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                    </div>
+                  </div>
+                  {/* Labelled stat chips — wrap freely on narrow screens. */}
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-soft ps-[52px]">
+                    <span className="inline-flex items-center gap-1.5">
+                      {t.insights.tasksToday}
+                      <span className="num font-bold text-ink" dir="ltr">{todayMap.get(k.id) ?? 0}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      {t.insights.activeJourneys}
+                      <span className="num font-bold text-ink" dir="ltr">{journeyMap.get(k.id) ?? 0}</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5">
+                      {t.insights.needsAttention}
+                      {pending > 0 ? (
+                        <span className="num inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-pink-pale text-pink-dark font-bold" dir="ltr">
+                          {pending}
+                        </span>
+                      ) : (
+                        <span className="text-ink-faded">—</span>
+                      )}
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       {/* Needs attention */}

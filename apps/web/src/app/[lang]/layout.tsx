@@ -12,7 +12,8 @@ import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { FeedbackButton } from '../../components/feedback-button';
 import { SplashIntro } from '../../components/splash-intro';
 import { requireKid } from '../../lib/auth/guards';
-import { asTheme, DEFAULT_THEME, type ThemeId } from '../../lib/theme';
+import { asTheme, DEFAULT_THEME, themeStatusBar, type ThemeId } from '../../lib/theme';
+import { ThemeColorMeta } from '../../components/theme-color-meta';
 
 export async function generateStaticParams(): Promise<Array<{ lang: Locale }>> {
   return [{ lang: 'he' }, { lang: 'en' }];
@@ -47,6 +48,7 @@ export default async function LangLayout({
 
   return (
     <div className="contents" data-theme={theme}>
+      <ThemeColorMeta color={themeStatusBar(theme)} />
       <SplashIntro />
       {children}
       {authed && <FeedbackButton t={t} />}

@@ -1,11 +1,10 @@
 /**
  * Player popup message — a dismissible card shown over the kid's home when an
- * admin has an active message targeting them (or a broadcast). Two actions:
- *   - "Later" closes it for now (it returns next visit).
- *   - "Got it, don't show again" records a per-kid dismissal so it never
- *     returns (dismissPlayerMessageAction).
+ * admin has an active message targeting them (or a broadcast). One action: a
+ * Close button (and a matching ✕ in the corner) records a per-kid dismissal so
+ * the message doesn't nag on every visit (dismissPlayerMessageAction).
  *
- * Body renders dir="auto" so Hebrew right-aligns / English left-aligns.
+ * Body is centered so the card reads as one tidy note in both languages.
  */
 
 'use client';
@@ -45,28 +44,31 @@ export function PlayerMessagePopup({ messageId, title, body, t }: Props) {
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-card w-full max-w-sm rounded-3xl shadow-card p-6 space-y-4 motion-safe:animate-[recoMsgPop_.4s_cubic-bezier(.34,1.56,.64,1)]">
+      <div className="relative bg-card w-full max-w-sm rounded-3xl shadow-card p-6 space-y-4 motion-safe:animate-[recoMsgPop_.4s_cubic-bezier(.34,1.56,.64,1)]">
+        <button
+          type="button"
+          onClick={dismiss}
+          disabled={pending}
+          aria-label={t.playerMsg.popupClose}
+          className="absolute top-3 end-3 grid place-items-center w-8 h-8 rounded-full text-ink-soft hover:bg-rule-soft hover:text-ink transition disabled:opacity-60"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
         <div className="flex flex-col items-center gap-2 text-center">
           <span className="text-3xl" aria-hidden="true">💌</span>
           {title && <h2 className="text-lg font-bold text-ink">{title}</h2>}
         </div>
-        <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap" dir="auto">
+        <p className="text-sm text-ink leading-relaxed whitespace-pre-wrap text-center" dir="auto">
           {body}
         </p>
-        <div className="flex flex-col gap-2 pt-1">
+        <div className="pt-1">
           <button
             type="button"
             onClick={dismiss}
             disabled={pending}
             className="w-full bg-pink text-card font-bold rounded-full py-2.5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
-          >
-            {t.playerMsg.popupDismiss}
-          </button>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            disabled={pending}
-            className="w-full text-ink-soft text-sm py-1.5 hover:underline underline-offset-4"
           >
             {t.playerMsg.popupClose}
           </button>

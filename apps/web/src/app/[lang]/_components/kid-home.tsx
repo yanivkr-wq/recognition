@@ -21,6 +21,7 @@ import { getIcon } from '../../../components/icon-library';
 import { celebrate } from '../../../lib/celebrate';
 import { BottomNav } from './bottom-nav';
 import { Avatar } from '../../../components/avatar';
+import { RecoWordmark } from '../../../components/reco-wordmark';
 import { arrowForward } from '../../../lib/rtl';
 
 export interface KidHomeTask {
@@ -114,11 +115,31 @@ export function KidHome(props: Props) {
     return () => clearTimeout(id);
   }, [balance, initialBalance]);
 
+  // App-icon badge "like a normal app": mirror the unread count onto the OS
+  // badge for the installed PWA so the kid sees pending items even when the
+  // app is closed. Progressive enhancement — silently no-ops where the
+  // Badging API isn't available (e.g. desktop Firefox, un-installed tabs).
+  useEffect(() => {
+    const nav = navigator as Navigator & {
+      setAppBadge?: (n?: number) => Promise<void>;
+      clearAppBadge?: () => Promise<void>;
+    };
+    if (unreadCount > 0) {
+      nav.setAppBadge?.(unreadCount).catch(() => {});
+    } else {
+      nav.clearAppBadge?.().catch(() => {});
+    }
+  }, [unreadCount]);
+
   return (
     <>
     <main className="min-h-screen bg-bg pb-28">
-      {/* Top bar — avatar placeholder + switch-user */}
-      <header className="px-5 pt-12 pb-3 flex items-center justify-between">
+      {/* Top bar — Reco mark on top, then avatar + bell/switch-user row */}
+      <header className="px-5 pt-10 pb-3">
+        <div className="flex justify-center pb-3">
+          <RecoWordmark size={22} />
+        </div>
+        <div className="flex items-center justify-between">
         <a href={avatarHref} className="flex items-center gap-3 group">
           <Avatar name={kidName} color={kidColor} avatarKey={avatarKey} size={48} />
           <h1 className="text-2xl font-bold text-ink group-hover:underline underline-offset-4">
@@ -132,7 +153,7 @@ export function KidHome(props: Props) {
           <a
             href={notificationsHref}
             className="relative w-9 h-9 rounded-full bg-card border border-rule flex items-center justify-center text-ink hover:border-pink-pale transition"
-            aria-label="התראות"
+            aria-label={t.notifications.title}
           >
             {Bell && <Bell size={18} />}
             {unreadCount > 0 && (
@@ -152,6 +173,7 @@ export function KidHome(props: Props) {
               {t.home.switchUser}
             </button>
           </form>
+        </div>
         </div>
       </header>
 

@@ -312,6 +312,15 @@ async function KidView({
   );
   const popupMessage = msgRes.rows[0] ?? null;
 
+  // Kid bell / app-badge count — "anything that needs me" (Lily's request:
+  // pending task, pending denial, pop-up message, and the bell-event news).
+  // Daily tasks the kid can still act on (todo / needs-photo) + denied tasks
+  // that need a redo + an active popup message + unread event news.
+  const pendingTaskCount = tasks.filter(
+    (tk) => tk.status === 'todo' || tk.status === 'needsPhoto' || tk.status === 'denied',
+  ).length;
+  const attentionCount = unreadCount + pendingTaskCount + (popupMessage ? 1 : 0);
+
   return (
     <>
       {popupMessage && (
@@ -336,7 +345,7 @@ async function KidView({
       campaignsHref={`/${lang}/campaigns`}
       badgesHref={`/${lang}/badges`}
       notificationsHref={`/${lang}/notifications`}
-      unreadCount={unreadCount}
+      unreadCount={attentionCount}
       avatarKey={k.avatarKey}
       avatarHref={`/${lang}/avatar`}
     />
