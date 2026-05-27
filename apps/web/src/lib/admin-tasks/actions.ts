@@ -247,18 +247,15 @@ export async function updateTaskTemplateAction(
     .limit(1);
   if (!before[0]) return 'not_found';
 
-  // Block kind changes: switching a template from daily → long_term (or back)
-  // would silently invalidate any existing task_completion / long_term_progress
-  // rows that reference it. If the admin wants the other kind, they archive
-  // and create a new template.
-  if (before[0].kind !== parsed.kind) {
-    return 'invalid_long_term_fields';
-  }
-
+  // Kind is editable (Lily's request): flipping daily ↔ long_term rewrites the
+  // kind-specific columns below to satisfy the task_template CHECK. Existing
+  // task_completion / long_term_progress rows are kept as history — the engines
+  // read them per the template's CURRENT kind from here on.
   try {
     await db
       .update(taskTemplate)
       .set({
+        kind: parsed.kind,
         titleHe: parsed.titleHe,
         titleEn: parsed.titleEn,
         descriptionHe: parsed.descriptionHe,

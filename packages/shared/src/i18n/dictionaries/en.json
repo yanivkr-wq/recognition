@@ -273,6 +273,7 @@
     "kind": "Task kind",
     "kindDaily": "Daily task",
     "kindLongTerm": "Long-term goal",
+    "kindChangeNote": "Changing the type changes how the task behaves from now on. Past history is kept.",
     "longTermFields": "Long-term settings",
     "unitLabelHe": "Unit label (Hebrew)",
     "unitLabelEn": "Unit label (English)",

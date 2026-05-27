@@ -8,9 +8,10 @@
  * wrap a server action in a client async fn (silently strips its server-
  * action-ness and the form falls back to a plain browser POST).
  *
- * Kind-change-on-edit is rejected server-side — switching kinds would
- * silently invalidate existing completion / progress rows. The radio is
- * disabled in edit mode so admins don't try.
+ * Kind is editable in both create + edit (Lily's request): an admin can flip
+ * daily ↔ long-term any time. The update action rewrites the kind-specific
+ * columns to satisfy the DB CHECK; any past completion / progress rows are
+ * kept as history. A short note reminds the admin of that in edit mode.
  */
 
 'use client';
@@ -116,16 +117,17 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
             checked={kind === 'daily'}
             label={t.admin.kindDaily}
             onChange={() => setKind('daily')}
-            disabled={mode === 'edit'}
           />
           <KindOption
             value="long_term"
             checked={kind === 'long_term'}
             label={t.admin.kindLongTerm}
             onChange={() => setKind('long_term')}
-            disabled={mode === 'edit'}
           />
         </div>
+        {mode === 'edit' && (
+          <p className="text-[11px] text-ink-faded">{t.admin.kindChangeNote}</p>
+        )}
       </fieldset>
 
       <div className="grid sm:grid-cols-2 gap-4">

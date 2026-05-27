@@ -286,6 +286,7 @@ export interface Dictionary {
     kind: string;
     kindDaily: string;
     kindLongTerm: string;
+    kindChangeNote: string;
     longTermFields: string;
     unitLabelHe: string;
     unitLabelEn: string;
