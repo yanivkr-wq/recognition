@@ -323,6 +323,113 @@ const AvMonkey = ({ size, ...rest }: FaceProps) => (
   </svg>
 );
 
+// ─── Cool / hero avatars (Lily: action heroes, princesses, robots… that
+//     teens love, beyond the animal set above) ───────────────────────────────
+
+const AvHero = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <circle cx="32" cy="35" r="17" fill="#FFCFA8" stroke={INK} strokeWidth="1.5" />
+    <path d="M16 27c3-11 29-11 32 0c-5-5-9-7-16-7s-11 2-16 7z" fill="#2E2A4A" />
+    <path d="M16 30c10-4 22-4 32 0l-2 7c-9 4-19 4-28 0z" fill="#2E6BE6" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+    <circle cx="25" cy="33" r="2.6" fill="#fff" />
+    <circle cx="39" cy="33" r="2.6" fill="#fff" />
+    <circle cx="25" cy="33" r="1.2" fill={INK} />
+    <circle cx="39" cy="33" r="1.2" fill={INK} />
+    <path d="M27 43c2.5 2.5 7.5 2.5 10 0" stroke={INK} strokeWidth="1.6" fill="none" strokeLinecap="round" />
+  </svg>
+);
+
+const AvPrincess = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <path d="M14 36c0-14 36-14 36 0c0 8-2 12-4 14l-3-6c-9 3-19 3-22 0l-3 6c-2-2-4-6-4-14z" fill="#7A4A2B" />
+    <circle cx="32" cy="35" r="14" fill="#FFD9B8" stroke={INK} strokeWidth="1.5" />
+    <path d="M22 22l4 5 6-6 6 6 4-5-2 7H24z" fill="#FFD75E" stroke="#E8B927" strokeWidth="1" strokeLinejoin="round" />
+    <circle cx="32" cy="24" r="1.6" fill="#FF6B9D" />
+    <circle cx="27" cy="35" r="1.8" fill={INK} />
+    <circle cx="37" cy="35" r="1.8" fill={INK} />
+    <circle cx="24" cy="39" r="2" fill="#FF9FB5" opacity="0.6" />
+    <circle cx="40" cy="39" r="2" fill="#FF9FB5" opacity="0.6" />
+    <path d="M29 41c1.5 1.5 4.5 1.5 6 0" stroke={INK} strokeWidth="1.4" fill="none" strokeLinecap="round" />
+  </svg>
+);
+
+const AvNinja = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <circle cx="32" cy="34" r="18" fill="#33384A" stroke={INK} strokeWidth="1.5" />
+    <path d="M15 31c10-5 24-5 34 0l-1 6c-10 4-22 4-32 0z" fill="#FFD9B8" />
+    <path d="M22 33c2-2 6-2 8 0c-2 2-6 2-8 0z" fill={INK} />
+    <path d="M34 33c2-2 6-2 8 0c-2 2-6 2-8 0z" fill={INK} />
+    <path d="M48 30l8 1-5 5z" fill="#E94B7F" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+  </svg>
+);
+
+const AvRobot = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <line x1="32" y1="10" x2="32" y2="17" stroke={INK} strokeWidth="2" />
+    <circle cx="32" cy="9" r="2.5" fill="#FF6B9D" stroke={INK} strokeWidth="1" />
+    <rect x="15" y="17" width="34" height="32" rx="8" fill="#C8D2E0" stroke={INK} strokeWidth="1.5" />
+    <rect x="20" y="24" width="24" height="14" rx="4" fill="#1E2940" />
+    <circle cx="27" cy="31" r="3" fill="#5BE0E6" />
+    <circle cx="37" cy="31" r="3" fill="#5BE0E6" />
+    <path d="M24 43h16M28 41v4M32 41v4M36 41v4" stroke={INK} strokeWidth="1.3" />
+    <rect x="11" y="28" width="4" height="8" rx="2" fill="#C8D2E0" stroke={INK} strokeWidth="1" />
+    <rect x="49" y="28" width="4" height="8" rx="2" fill="#C8D2E0" stroke={INK} strokeWidth="1" />
+  </svg>
+);
+
+const AvAstronaut = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <circle cx="32" cy="33" r="19" fill="#EEF2F7" stroke={INK} strokeWidth="1.5" />
+    <rect x="18" y="24" width="28" height="20" rx="10" fill="#1E2940" />
+    <path d="M24 28c4-3 10-3 14 0" stroke="#5B6B8F" strokeWidth="2" fill="none" strokeLinecap="round" />
+    <circle cx="38" cy="38" r="2" fill="#5BE0E6" opacity="0.85" />
+    <circle cx="49" cy="20" r="2.2" fill="#FF6B9D" stroke={INK} strokeWidth="1" />
+    <line x1="47" y1="22" x2="43" y2="26" stroke={INK} strokeWidth="1.5" />
+  </svg>
+);
+
+const AvWizard = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <path d="M32 6l12 22H20z" fill="#7C4DD6" stroke={INK} strokeWidth="1.5" strokeLinejoin="round" />
+    <path d="M29 16l3 3 4-4" stroke="#FFD75E" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <ellipse cx="32" cy="28" rx="16" ry="4" fill="#5E37AD" stroke={INK} strokeWidth="1" />
+    <circle cx="32" cy="37" r="12" fill="#FFD9B8" stroke={INK} strokeWidth="1.5" />
+    <circle cx="28" cy="36" r="1.6" fill={INK} />
+    <circle cx="36" cy="36" r="1.6" fill={INK} />
+    <path d="M24 40c2 9 14 9 16 0c-3 3-13 3-16 0z" fill="#F0F0F5" stroke={INK} strokeWidth="1" />
+  </svg>
+);
+
+const AvDragon = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <path d="M22 16l-3-8 7 6z" fill="#F0C040" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+    <path d="M42 16l3-8-7 6z" fill="#F0C040" stroke={INK} strokeWidth="1" strokeLinejoin="round" />
+    <path d="M32 16c12 0 18 9 18 18 0 9-8 16-18 16s-18-7-18-16c0-9 6-18 18-18z" fill="#4FB477" stroke={INK} strokeWidth="1.5" />
+    <ellipse cx="32" cy="44" rx="9" ry="6" fill="#7FD09A" />
+    <circle cx="29" cy="44" r="1" fill={INK} />
+    <circle cx="35" cy="44" r="1" fill={INK} />
+    <circle cx="26" cy="32" r="3" fill="#fff" stroke={INK} strokeWidth="1" />
+    <circle cx="38" cy="32" r="3" fill="#fff" stroke={INK} strokeWidth="1" />
+    <circle cx="26" cy="32" r="1.3" fill={INK} />
+    <circle cx="38" cy="32" r="1.3" fill={INK} />
+  </svg>
+);
+
+const AvAlien = ({ size, ...rest }: FaceProps) => (
+  <svg width={size ?? 64} height={size ?? 64} viewBox="0 0 64 64" aria-hidden="true" {...rest}>
+    <line x1="26" y1="14" x2="23" y2="8" stroke={INK} strokeWidth="1.5" />
+    <line x1="38" y1="14" x2="41" y2="8" stroke={INK} strokeWidth="1.5" />
+    <circle cx="22" cy="7" r="2" fill="#7FD09A" />
+    <circle cx="42" cy="7" r="2" fill="#7FD09A" />
+    <path d="M32 14c12 0 18 8 18 18 0 11-9 20-18 20s-18-9-18-20c0-10 6-18 18-18z" fill="#9BE08A" stroke={INK} strokeWidth="1.5" />
+    <ellipse cx="25" cy="34" rx="4.5" ry="7" fill={INK} transform="rotate(-18 25 34)" />
+    <ellipse cx="39" cy="34" rx="4.5" ry="7" fill={INK} transform="rotate(18 39 34)" />
+    <circle cx="24" cy="31" r="1.3" fill="#fff" />
+    <circle cx="38" cy="31" r="1.3" fill="#fff" />
+    <path d="M29 46h6" stroke={INK} strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+);
+
 export interface AvatarEntry {
   key: string;
   labelHe: string;
@@ -341,6 +448,14 @@ export const AVATAR_LIBRARY: AvatarEntry[] = [
   { key: 'av-panda', labelHe: 'פנדה', labelEn: 'Panda', Component: AvPanda },
   { key: 'av-frog', labelHe: 'צפרדע', labelEn: 'Frog', Component: AvFrog },
   { key: 'av-monkey', labelHe: 'קוף', labelEn: 'Monkey', Component: AvMonkey },
+  { key: 'av-hero', labelHe: 'גיבור על', labelEn: 'Superhero', Component: AvHero },
+  { key: 'av-princess', labelHe: 'נסיכה', labelEn: 'Princess', Component: AvPrincess },
+  { key: 'av-ninja', labelHe: 'נינג׳ה', labelEn: 'Ninja', Component: AvNinja },
+  { key: 'av-robot', labelHe: 'רובוט', labelEn: 'Robot', Component: AvRobot },
+  { key: 'av-astronaut', labelHe: 'אסטרונאוט', labelEn: 'Astronaut', Component: AvAstronaut },
+  { key: 'av-wizard', labelHe: 'קוסם', labelEn: 'Wizard', Component: AvWizard },
+  { key: 'av-dragon', labelHe: 'דרקון', labelEn: 'Dragon', Component: AvDragon },
+  { key: 'av-alien', labelHe: 'חייזר', labelEn: 'Alien', Component: AvAlien },
 ];
 
 const AVATAR_BY_KEY = new Map(AVATAR_LIBRARY.map((a) => [a.key, a]));
