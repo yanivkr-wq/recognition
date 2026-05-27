@@ -449,6 +449,7 @@ export interface Dictionary {
     groupSystem: string;
     notifications: string;
     allCaughtUp: string;
+    navMore: string;
   };
   playerMsg: {
     heading: string;

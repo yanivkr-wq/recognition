@@ -15,6 +15,7 @@ import { auth, signOut } from '../../../auth';
 import { RecoWordmark } from '../../../components/reco-wordmark';
 import { getAdminNotificationCounts } from '../../../lib/admin/notifications';
 import { AdminBell } from './_components/admin-bell';
+import { AdminBottomNav } from './_components/admin-bottom-nav';
 
 export default async function AdminLayout({
   children,
@@ -74,7 +75,19 @@ export default async function AdminLayout({
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-5 py-8">{children}</div>
+      {/* pb-24 clears the fixed bottom nav. */}
+      <div className="max-w-4xl mx-auto px-5 py-8 pb-24">{children}</div>
+
+      <AdminBottomNav
+        lang={lang}
+        labels={{
+          insights: t.admin.insights,
+          approvals: t.admin.approvals,
+          players: t.admin.kids,
+          rewards: t.admin.rewards,
+          more: t.admin.navMore,
+        }}
+      />
     </div>
   );
 }

@@ -23,6 +23,7 @@ import { getDb, getPool, kid as kidTable } from '@reco/db';
 import { auth } from '../../../../auth';
 import { Avatar } from '../../../../components/avatar';
 import { Coin } from '../../../../components/coin';
+import { TrendChart } from './_components/trend-chart';
 
 export const dynamic = 'force-dynamic';
 
@@ -121,9 +122,9 @@ export default async function AdminInsightsPage({
        LIMIT 8`,
       [kidIds],
     ),
-    // 14-day daily series: tasks completed + coins earned, household-wide,
-    // Asia/Jerusalem dates, zero-filled via generate_series.
-    pool.query<{ day: string; tasks: number; coins: number }>(
+    // 14-day daily series PER PLAYER: tasks completed + coins earned, IL dates,
+    // zero-filled for every (day, player) so each player gets a continuous line.
+    pool.query<{ day: string; kid_id: string; tasks: number; coins: number }>(
       `WITH days AS (
          SELECT generate_series(
            (now() AT TIME ZONE 'Asia/Jerusalem')::date - INTERVAL '13 days',
@@ -131,25 +132,28 @@ export default async function AdminInsightsPage({
            INTERVAL '1 day'
          )::date AS day
        ),
+       ppl AS (SELECT unnest($1::uuid[]) AS kid_id),
        tk AS (
-         SELECT completion_date AS day, count(*)::int AS n
+         SELECT kid_id, completion_date AS day, count(*)::int AS n
            FROM task_completion
           WHERE kid_id = ANY($1::uuid[]) AND undone_at IS NULL
             AND approval_status IN ('approved','auto_approved')
             AND completion_date >= (now() AT TIME ZONE 'Asia/Jerusalem')::date - INTERVAL '13 days'
-          GROUP BY completion_date
+          GROUP BY kid_id, completion_date
        ),
        cn AS (
-         SELECT (created_at AT TIME ZONE 'Asia/Jerusalem')::date AS day, COALESCE(SUM(amount),0)::int AS n
+         SELECT kid_id, (created_at AT TIME ZONE 'Asia/Jerusalem')::date AS day, COALESCE(SUM(amount),0)::int AS n
            FROM ledger_entry
           WHERE kid_id = ANY($1::uuid[]) AND amount > 0
             AND (created_at AT TIME ZONE 'Asia/Jerusalem')::date >= (now() AT TIME ZONE 'Asia/Jerusalem')::date - INTERVAL '13 days'
-          GROUP BY (created_at AT TIME ZONE 'Asia/Jerusalem')::date
+          GROUP BY kid_id, (created_at AT TIME ZONE 'Asia/Jerusalem')::date
        )
-       SELECT d.day::text AS day, COALESCE(tk.n,0)::int AS tasks, COALESCE(cn.n,0)::int AS coins
+       SELECT d.day::text AS day, p.kid_id,
+              COALESCE(tk.n,0)::int AS tasks, COALESCE(cn.n,0)::int AS coins
          FROM days d
-         LEFT JOIN tk ON tk.day = d.day
-         LEFT JOIN cn ON cn.day = d.day
+         CROSS JOIN ppl p
+         LEFT JOIN tk ON tk.day = d.day AND tk.kid_id = p.kid_id
+         LEFT JOIN cn ON cn.day = d.day AND cn.kid_id = p.kid_id
         ORDER BY d.day`,
       [kidIds],
     ),
@@ -163,9 +167,20 @@ export default async function AdminInsightsPage({
   const o = overall.rows[0]!;
   const kidName = new Map(kids.map((k) => [k.id, k.name]));
 
-  const taskSeries = series.rows.map((r) => Number(r.tasks));
-  const coinSeries = series.rows.map((r) => Number(r.coins));
-  const dayLabels = series.rows.map((r) => r.day);
+  // Ordered unique day labels + per-(kid,day) lookup for building each
+  // player's line.
+  const dayLabels = [...new Set(series.rows.map((r) => r.day))];
+  const cell = new Map(series.rows.map((r) => [`${r.kid_id}|${r.day}`, r]));
+  const taskByPlayer = kids.map((k) => ({
+    name: k.name,
+    color: k.color,
+    values: dayLabels.map((d) => Number(cell.get(`${k.id}|${d}`)?.tasks ?? 0)),
+  }));
+  const coinByPlayer = kids.map((k) => ({
+    name: k.name,
+    color: k.color,
+    values: dayLabels.map((d) => Number(cell.get(`${k.id}|${d}`)?.coins ?? 0)),
+  }));
   const journeysTotal = [...journeyMap.values()].reduce((a, b) => a + b, 0);
   const maxBal = Math.max(1, ...kids.map((k) => balMap.get(k.id) ?? 0));
 
@@ -187,18 +202,18 @@ export default async function AdminInsightsPage({
           {t.insights.activityTrend}
         </h2>
         <div className="grid sm:grid-cols-2 gap-6">
-          <AreaChart
+          <TrendChart
             title={t.insights.tasksPerDay}
-            data={taskSeries}
+            total={o.tasks}
             labels={dayLabels}
-            accent={PINK}
+            series={taskByPlayer}
             lang={lang}
           />
-          <AreaChart
+          <TrendChart
             title={t.insights.coinsPerDay}
-            data={coinSeries}
+            total={o.coins}
             labels={dayLabels}
-            accent={SKY}
+            series={coinByPlayer}
             lang={lang}
           />
         </div>
@@ -335,68 +350,3 @@ function Kpi({
   );
 }
 
-/**
- * Inline SVG area chart for a daily series. Server-computed — no client JS.
- * 0..max scaled into a fixed viewBox; renders area fill, line, last-point dot,
- * a baseline, and first/last date ticks. `dir="ltr"` so the time axis always
- * reads left→right (oldest→newest) even in RTL.
- */
-function AreaChart({
-  title,
-  data,
-  labels,
-  accent,
-  lang,
-}: {
-  title: string;
-  data: number[];
-  labels: string[];
-  accent: string;
-  lang: string;
-}) {
-  const W = 280;
-  const H = 88;
-  const PAD = 4;
-  const max = Math.max(1, ...data);
-  const total = data.reduce((a, b) => a + b, 0);
-  const n = data.length;
-  const x = (i: number) => (n <= 1 ? PAD : PAD + (i * (W - PAD * 2)) / (n - 1));
-  const y = (v: number) => H - PAD - (v / max) * (H - PAD * 2);
-  const linePts = data.map((v, i) => `${x(i)},${y(v)}`).join(' ');
-  const areaPts = `${PAD},${H - PAD} ${linePts} ${x(n - 1)},${H - PAD}`;
-  const lastX = x(n - 1);
-  const lastY = y(data[n - 1] ?? 0);
-  const fmt = (iso: string) =>
-    new Intl.DateTimeFormat(lang === 'he' ? 'he-IL' : 'en-US', {
-      month: 'numeric',
-      day: 'numeric',
-    }).format(new Date(iso + 'T00:00:00'));
-
-  const empty = total === 0;
-
-  return (
-    <div dir="ltr">
-      <div className="flex items-baseline justify-between mb-1" dir={lang === 'he' ? 'rtl' : 'ltr'}>
-        <span className="text-sm font-bold text-ink">{title}</span>
-        <span className="num text-lg font-extrabold" style={{ color: accent }} dir="ltr">
-          {total.toLocaleString('en-US')}
-        </span>
-      </div>
-      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none" role="img">
-        {!empty && (
-          <>
-            <polygon points={areaPts} fill={accent} fillOpacity={0.12} />
-            <polyline points={linePts} fill="none" stroke={accent} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
-            <circle cx={lastX} cy={lastY} r={3} fill={accent} />
-          </>
-        )}
-        {/* baseline */}
-        <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="#E7E1DA" strokeWidth={1} />
-      </svg>
-      <div className="flex justify-between text-[10px] text-ink-faded num mt-0.5">
-        <span>{fmt(labels[0] ?? '')}</span>
-        <span>{fmt(labels[n - 1] ?? '')}</span>
-      </div>
-    </div>
-  );
-}

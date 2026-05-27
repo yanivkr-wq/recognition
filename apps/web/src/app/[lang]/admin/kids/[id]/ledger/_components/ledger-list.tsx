@@ -40,6 +40,25 @@ function categoryOf(kind: string): Exclude<Category, 'all'> {
   return 'adjusted'; // admin_credit, admin_debit, undo, redemption_refund
 }
 
+/** Coloured left edge per kind so the type is scannable — and so a revoke
+ *  (admin_debit) clearly stands out from an ordinary earn. */
+function accentFor(kind: string): string {
+  switch (kind) {
+    case 'earn':
+    case 'campaign_bonus':
+      return 'var(--mint)';
+    case 'redeem':
+      return 'var(--pink)';
+    case 'admin_debit':
+      return 'var(--pink-dark)';
+    case 'admin_credit':
+    case 'redemption_refund':
+      return 'var(--sky)';
+    default:
+      return 'var(--ink-faded)';
+  }
+}
+
 export function LedgerList({
   rows,
   lang,
@@ -84,11 +103,8 @@ export function LedgerList({
               key={c.key}
               type="button"
               onClick={() => setCat(c.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${
-                on
-                  ? 'bg-pink text-card shadow-cta-pink'
-                  : 'bg-card border border-rule text-ink-soft hover:border-pink-pale'
-              }`}
+              data-on={on}
+              className="chip-admin"
             >
               {c.label}
             </button>
@@ -111,6 +127,7 @@ export function LedgerList({
                 <li
                   key={r.id}
                   className="bg-card rounded-2xl shadow-hairline border border-rule p-3 flex items-center gap-3"
+                  style={{ borderInlineStartWidth: 4, borderInlineStartColor: accentFor(r.kind) }}
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-ink text-[14px]">{r.label}</p>

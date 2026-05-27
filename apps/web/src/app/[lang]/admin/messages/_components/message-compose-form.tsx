@@ -115,7 +115,7 @@ export function MessageComposeForm({ lang, t, kids, defaultStart, defaultEnd }: 
       <button
         type="submit"
         disabled={pending}
-        className="bg-pink text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
+        className="btn-admin"
       >
         {pending ? t.playerMsg.sending : t.playerMsg.send}
       </button>

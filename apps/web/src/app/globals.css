@@ -157,6 +157,55 @@
   --rule-soft: #FAF3EF;
 }
 
+/*
+ * Admin button system — "Neutral monochrome" (Lily's Option C). Greyscale
+ * chrome so the admin tool reads businesslike, not childish; colour is saved
+ * for status chips. Used across admin surfaces in place of the playful pink
+ * pills (which stay on the kids' app). Plain classes (not Tailwind utilities)
+ * so a single definition restyles every admin button.
+ */
+.btn-admin {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+  background: var(--ink); color: var(--card); font-weight: 600;
+  border: 1px solid var(--ink); border-radius: 8px;
+  padding: 0.55rem 1rem; font-size: 0.875rem; line-height: 1;
+  transition: filter .15s ease, transform .05s ease;
+}
+.btn-admin:hover { filter: brightness(1.15); }
+.btn-admin:active { transform: translateY(1px); }
+.btn-admin:disabled { opacity: .55; cursor: default; }
+
+.btn-admin-secondary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+  background: var(--rule-soft); color: var(--ink); font-weight: 600;
+  border: 1px solid var(--rule); border-radius: 8px;
+  padding: 0.5rem 0.9rem; font-size: 0.8125rem; line-height: 1;
+  transition: background .15s ease;
+}
+.btn-admin-secondary:hover { background: var(--rule); }
+.btn-admin-secondary:disabled { opacity: .55; cursor: default; }
+
+.btn-admin-ghost {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.3em;
+  background: transparent; color: var(--ink-soft); font-weight: 600;
+  border: 0; border-radius: 8px; padding: 0.4rem 0.6rem; font-size: 0.8125rem;
+  transition: color .15s ease, background .15s ease;
+}
+.btn-admin-ghost:hover { color: var(--ink); background: var(--rule-soft); }
+
+/* Filter / toggle chip — neutral by default, slate when active. */
+.chip-admin {
+  display: inline-flex; align-items: center; gap: 0.3em;
+  background: var(--card); color: var(--ink-soft); font-weight: 600;
+  border: 1px solid var(--rule); border-radius: 8px;
+  padding: 0.4rem 0.75rem; font-size: 0.75rem;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.chip-admin:hover { border-color: var(--ink-faded); }
+.chip-admin[data-on='true'] {
+  background: var(--ink); color: var(--card); border-color: var(--ink);
+}
+
 /* Base reset + brandbook defaults */
 @layer base {
   html {

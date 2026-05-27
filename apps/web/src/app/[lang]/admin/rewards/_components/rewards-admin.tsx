@@ -188,21 +188,14 @@ export function RewardsAdmin({
               key={f.key}
               type="button"
               onClick={() => setFilter(f.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition ${
-                on
-                  ? 'bg-pink text-card shadow-cta-pink'
-                  : 'bg-card border border-rule text-ink-soft hover:border-pink-pale'
-              }`}
+              data-on={on}
+              className="chip-admin"
             >
               {f.label}
             </button>
           );
         })}
-        <button
-          type="button"
-          onClick={toggleAll}
-          className="ms-auto px-3 py-1.5 rounded-full text-xs font-bold bg-card border border-rule text-ink-soft hover:border-pink-pale transition"
-        >
+        <button type="button" onClick={toggleAll} className="chip-admin ms-auto">
           {t.admin.bulkSelectAll}
         </button>
       </div>

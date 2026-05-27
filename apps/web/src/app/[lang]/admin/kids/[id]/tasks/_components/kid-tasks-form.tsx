@@ -170,7 +170,7 @@ export function KidTasksForm({ kidId, lang, t, templates, initiallyChecked }: Pr
         <button
           type="submit"
           disabled={pending}
-          className="bg-pink text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-pink hover:-translate-y-px transition disabled:opacity-60 disabled:translate-y-0 shrink-0"
+          className="btn-admin shrink-0"
         >
           {pending ? '…' : t.common.save}
         </button>

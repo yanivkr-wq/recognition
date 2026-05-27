@@ -435,7 +435,8 @@
     "groupContent": "Content",
     "groupSystem": "System",
     "notifications": "Notifications",
-    "allCaughtUp": "All caught up!"
+    "allCaughtUp": "All caught up!",
+    "navMore": "More"
   },
   "feedback": {
     "button": "Feedback",

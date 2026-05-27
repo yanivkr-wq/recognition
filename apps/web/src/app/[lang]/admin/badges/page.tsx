@@ -84,7 +84,7 @@ export default async function AdminBadgesPage({
         <h1 className="text-2xl font-bold text-ink">{t.admin.badgesHeading}</h1>
         <Link
           href={`/${lang}/admin/badges/new`}
-          className="bg-pink text-card font-bold rounded-full py-2 px-4 text-sm shadow-cta-pink hover:-translate-y-px transition shrink-0"
+          className="btn-admin shrink-0"
         >
           + {t.admin.newBadge}
         </Link>

@@ -121,11 +121,23 @@ export async function reverseLedgerEntryAction(formData: FormData): Promise<void
   const pool = getPool();
 
   // Scope to the household via the owning kid so a spoofed id can't reach
-  // another family's ledger.
-  const { rows } = await pool.query<{ kid_id: string; amount: number }>(
-    `SELECT le.kid_id, le.amount
+  // another family's ledger. Pull the originating task title + note so the
+  // reverse names WHAT it reversed (Lily: "we need to see which task").
+  const { rows } = await pool.query<{
+    kid_id: string;
+    amount: number;
+    kind: string;
+    note: string | null;
+    title_he: string | null;
+    title_en: string | null;
+  }>(
+    `SELECT le.kid_id, le.amount, le.kind, le.note,
+            tt.title_he, tt.title_en
        FROM ledger_entry le
        JOIN kid k ON k.id = le.kid_id
+       LEFT JOIN task_completion tc ON tc.id = le.task_completion_id
+       LEFT JOIN task_assignment ta ON ta.id = tc.assignment_id
+       LEFT JOIN task_template tt ON tt.id = ta.template_id
       WHERE le.id = $1 AND k.household_id = $2
       LIMIT 1`,
     [entryId, admin.householdId],
@@ -137,9 +149,23 @@ export async function reverseLedgerEntryAction(formData: FormData): Promise<void
   const reverse = -orig;
   if (reverse === 0) return;
 
+  // What are we reversing? Prefer the task title, then the original note, then
+  // a kind word — so the ledger reads "Reversed: Brush teeth (+3)" not a vague
+  // "parent adjustment".
+  const kindWord: Record<string, [string, string]> = {
+    earn: ['משימה', 'task'],
+    campaign_bonus: ['בונוס מסע', 'quest bonus'],
+    admin_credit: ['זיכוי', 'credit'],
+    admin_debit: ['חיוב', 'debit'],
+  };
+  const taskTitle = lang === 'he' ? e.title_he : e.title_en;
+  const descriptor =
+    taskTitle?.trim() ||
+    e.note?.trim() ||
+    (kindWord[e.kind]?.[lang === 'he' ? 0 : 1] ?? (lang === 'he' ? 'תנועה' : 'entry'));
   const reason =
-    (lang === 'he' ? 'ביטול תנועה בספר החשבונות' : 'Reversed a ledger entry') +
-    ` (${orig > 0 ? '+' : ''}${orig})`;
+    (lang === 'he' ? 'ביטול: ' : 'Reversed: ') +
+    `${descriptor} (${orig > 0 ? '+' : ''}${orig})`;
 
   const hdrs = await headers();
   const requestIp = hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null;

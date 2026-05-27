@@ -125,7 +125,7 @@ export default async function AdminCampaignsPage({
         <h1 className="text-2xl font-bold text-ink">{t.admin.campaignsHeading}</h1>
         <Link
           href={`/${lang}/admin/campaigns/new`}
-          className="bg-pink text-card font-bold rounded-full py-2 px-4 text-sm shadow-cta-pink hover:-translate-y-px transition"
+          className="btn-admin"
         >
           + {t.admin.newCampaign}
         </Link>

@@ -351,7 +351,7 @@ export function CampaignForm(props: Props) {
       <button
         type="submit"
         disabled={pending}
-        className="bg-pink text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
+        className="btn-admin"
       >
         {pending ? '…' : isEdit ? t.common.save : t.admin.create}
       </button>
