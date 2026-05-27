@@ -43,7 +43,7 @@ export default async function AdminBadgesPage({
     return (
       <li
         key={b.id}
-        className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-center gap-3 ${
+        className={`bg-card rounded-2xl shadow-card border border-rule p-4 flex items-start gap-3 ${
           isArchived ? 'opacity-50' : ''
         }`}
       >
@@ -60,13 +60,17 @@ export default async function AdminBadgesPage({
             size={52}
           />
         </div>
+        {/* Full title + description wrap instead of truncating, so the whole
+            award text is readable on a phone. */}
         <div className="flex-1 min-w-0">
-          <p className="font-bold text-ink truncate">{title}</p>
-          <p className="text-xs text-ink-soft truncate">{description}</p>
+          <p className="font-bold text-ink leading-snug break-words">{title}</p>
+          {description && (
+            <p className="text-xs text-ink-soft break-words mt-0.5">{description}</p>
+          )}
         </div>
         <Link
           href={`/${lang}/admin/badges/${b.id}/edit`}
-          className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0"
+          className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0 py-1"
         >
           {t.common.edit}
         </Link>

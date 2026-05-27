@@ -28,22 +28,18 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { mkdir, stat } from 'node:fs/promises';
 
-const ALLOWED_MIME = new Set([
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-  'image/heic',
-  'image/heif',
-]);
+// HEIC/HEIF intentionally NOT allowed: iPhones shoot HEIC by default, but
+// non-Safari browsers can't render it in <img>, so a parent (or the kid)
+// would see a blank approval photo. Restricting the allowlist + the file
+// input's `accept` to these formats makes iOS transcode the captured photo
+// to JPEG on pick, so evidence is viewable everywhere.
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
 
 const MIME_TO_EXT: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/jpg': 'jpg',
   'image/png': 'png',
   'image/webp': 'webp',
-  'image/heic': 'heic',
-  'image/heif': 'heic',
 };
 
 export const MAX_EVIDENCE_BYTES = 10 * 1024 * 1024;

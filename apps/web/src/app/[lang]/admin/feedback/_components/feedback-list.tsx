@@ -9,7 +9,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Dictionary } from '@reco/shared/i18n';
 import type { FeedbackStatus } from '@reco/db';
 import { updateFeedbackStatusAction } from '../../../../../lib/feedback/actions';
@@ -64,6 +65,28 @@ export function FeedbackList({
   // Empty filter set = show all.
   const [active, setActive] = useState<Set<FeedbackStatus>>(new Set());
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  // Optimistic per-row status overrides so the change shows instantly and
+  // reliably (the previous form.requestSubmit()+revalidate could silently
+  // no-op). The server action persists; router.refresh re-syncs.
+  const [overrides, setOverrides] = useState<Record<string, FeedbackStatus>>({});
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
+  const router = useRouter();
+
+  const statusOf = (row: FeedbackRow): FeedbackStatus => overrides[row.id] ?? row.status;
+
+  const changeStatus = (id: string, status: FeedbackStatus) => {
+    setOverrides((o) => ({ ...o, [id]: status }));
+    setPendingId(id);
+    const fd = new FormData();
+    fd.set('id', id);
+    fd.set('status', status);
+    startTransition(async () => {
+      await updateFeedbackStatusAction(fd);
+      router.refresh();
+      setPendingId((p) => (p === id ? null : p));
+    });
+  };
 
   const toggle = (s: FeedbackStatus) => {
     setActive((prev) => {
@@ -74,7 +97,7 @@ export function FeedbackList({
     });
   };
 
-  const visible = active.size === 0 ? items : items.filter((i) => active.has(i.status));
+  const visible = active.size === 0 ? items : items.filter((i) => active.has(statusOf(i)));
 
   const copy = async (row: FeedbackRow) => {
     try {
@@ -122,8 +145,8 @@ export function FeedbackList({
                   <span className="inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold bg-bg text-ink-soft border border-rule">
                     {categoryLabel(t, row.category)}
                   </span>
-                  <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${STATUS_STYLE[row.status]}`}>
-                    {statusLabel(t, row.status)}
+                  <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${STATUS_STYLE[statusOf(row)]}`}>
+                    {statusLabel(t, statusOf(row))}
                   </span>
                 </div>
                 <span className="text-[11px] text-ink-faded num" dir="ltr">
@@ -158,14 +181,13 @@ export function FeedbackList({
                   >
                     {copiedId === row.id ? t.feedback.copied : t.feedback.copy}
                   </button>
-                  <form action={updateFeedbackStatusAction} className="flex items-center gap-1">
-                    <input type="hidden" name="id" value={row.id} />
+                  <label className="flex items-center gap-1">
                     <span className="sr-only">{t.feedback.statusLabel}</span>
                     <select
-                      name="status"
-                      defaultValue={row.status}
-                      onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                      className="rounded-xl border border-rule bg-card px-2 py-1 text-xs text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+                      value={statusOf(row)}
+                      disabled={pendingId === row.id}
+                      onChange={(e) => changeStatus(row.id, e.currentTarget.value as FeedbackStatus)}
+                      className="rounded-xl border border-rule bg-card px-2 py-1 text-xs text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition disabled:opacity-60"
                     >
                       {STATUSES.map((s) => (
                         <option key={s} value={s}>
@@ -173,7 +195,7 @@ export function FeedbackList({
                         </option>
                       ))}
                     </select>
-                  </form>
+                  </label>
                 </div>
               </div>
             </li>

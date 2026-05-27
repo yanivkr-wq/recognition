@@ -94,6 +94,13 @@ export function TaskCard(props: Props) {
   >(submitEvidenceAction, undefined);
 
   const [fileName, setFileName] = useState<string | null>(null);
+  // Local preview of the photo the kid just picked, so she can SEE what she's
+  // sending before it goes to a parent (Lily's request). Object URL is revoked
+  // when replaced + on unmount.
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  useEffect(() => () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   // Three effects (one per action) so the most recent action wins the wallet
   // pulse. A single combined effect always favors the earlier-declared
@@ -287,12 +294,17 @@ export function TaskCard(props: Props) {
               <input
                 type="file"
                 name="file"
-                accept="image/jpeg,image/jpg,image/png,image/webp,image/heic,image/heif"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
                 capture="environment"
                 required
-                onChange={(e) =>
-                  setFileName(e.currentTarget.files?.[0]?.name ?? null)
-                }
+                onChange={(e) => {
+                  const f = e.currentTarget.files?.[0] ?? null;
+                  setFileName(f?.name ?? null);
+                  setPreviewUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return f ? URL.createObjectURL(f) : null;
+                  });
+                }}
                 className="sr-only"
               />
             </label>
@@ -304,10 +316,14 @@ export function TaskCard(props: Props) {
               {submitting ? t.home.uploadingPhoto : t.home.sendPhoto}
             </button>
           </div>
-          {fileName && (
-            <p className="text-[11px] text-ink-soft truncate" dir="ltr">
-              {fileName}
-            </p>
+          {/* The kid sees the photo she's about to send. */}
+          {previewUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={previewUrl}
+              alt={fileName ?? ''}
+              className="mt-1 max-h-44 w-auto rounded-xl border border-rule object-contain"
+            />
           )}
         </form>
       )}
