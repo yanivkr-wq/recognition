@@ -291,6 +291,9 @@ export interface Dictionary {
     ledgerAdjust: string;
     ledgerRevoke: string;
     ledgerAddBack: string;
+    ledgerFilterEarned: string;
+    ledgerFilterSpent: string;
+    ledgerFilterAdjusted: string;
     backToAdmin: string;
     kind: string;
     kindDaily: string;

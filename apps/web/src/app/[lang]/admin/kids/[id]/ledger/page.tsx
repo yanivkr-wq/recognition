@@ -27,9 +27,9 @@ import {
 import { auth } from '../../../../../../auth';
 import { Coin } from '../../../../../../components/coin';
 import { adminCompleteForKidFormAction } from '../../../../../../lib/admin-tasks/actions';
-import { reverseLedgerEntryAction } from '../../../../../../lib/joker/actions';
 import { arrowBack } from '../../../../../../lib/rtl';
 import { JokerForm } from '../wallet/adjust/_components/joker-form';
+import { LedgerList, type LedgerRow } from './_components/ledger-list';
 
 /** Ledger kinds whose point movement can be reversed one-click (earned →
  *  revoke, or revoked → add back). Redemptions/refunds/undo have their own
@@ -134,10 +134,44 @@ export default async function AdminKidLedgerPage({
     .orderBy(desc(ledgerEntry.createdAt))
     .limit(200);
 
-  const dateFmt = new Intl.DateTimeFormat(lang === 'he' ? 'he-IL' : 'en-IL', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
+  // IL-tz formatters: a stable date key for grouping, a friendly date header,
+  // and a per-row time. Grouping by day is what makes "which task on which
+  // date" obvious (Lily's request).
+  const locale = lang === 'he' ? 'he-IL' : 'en-IL';
+  const keyFmt = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
     timeZone: 'Asia/Jerusalem',
+  });
+  const dayFmt = new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    timeZone: 'Asia/Jerusalem',
+  });
+  const timeFmt = new Intl.DateTimeFormat(locale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Jerusalem',
+  });
+
+  const ledgerRows: LedgerRow[] = rows.map((r) => {
+    const d = new Date(r.createdAt);
+    return {
+      id: r.id,
+      kind: r.kind,
+      amount: r.amount,
+      clampedAmount: r.clampedAmount,
+      balanceAfter: r.balanceAfter,
+      note: r.note,
+      taskTitle: lang === 'he' ? r.taskTitleHe : r.taskTitleEn,
+      label: t.wallet[KIND_LABEL_KEYS[r.kind as keyof typeof KIND_LABEL_KEYS] ?? 'entryEarn'],
+      dateKey: keyFmt.format(d),
+      dateLabel: dayFmt.format(d),
+      timeLabel: timeFmt.format(d),
+      reversible: REVERSIBLE_KINDS.has(r.kind) && r.amount !== 0,
+    };
   });
 
   return (
@@ -233,78 +267,7 @@ export default async function AdminKidLedgerPage({
         </section>
       )}
 
-      {rows.length === 0 ? (
-        <div className="bg-card rounded-2xl border border-rule p-8 text-center">
-          <p className="font-bold text-ink">{t.admin.noLedger}</p>
-        </div>
-      ) : (
-        <ul className="space-y-2">
-          {rows.map((r) => {
-            const label = t.wallet[KIND_LABEL_KEYS[r.kind as keyof typeof KIND_LABEL_KEYS] ?? 'entryEarn'];
-            const taskTitle = lang === 'he' ? r.taskTitleHe : r.taskTitleEn;
-            const reversible = REVERSIBLE_KINDS.has(r.kind) && r.amount !== 0;
-            return (
-              <li
-                key={r.id}
-                className="bg-card rounded-2xl shadow-hairline border border-rule p-3 flex items-center gap-3"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-ink text-[14px] truncate">{label}</p>
-                  {taskTitle && (
-                    <p className="text-xs text-ink-soft truncate">{taskTitle}</p>
-                  )}
-                  {r.note && (
-                    <p className="text-xs text-ink-soft truncate" title={r.note}>
-                      “{r.note}”
-                    </p>
-                  )}
-                  <p className="text-[11px] text-ink-faded mt-1" dir="ltr">
-                    {dateFmt.format(new Date(r.createdAt))}
-                  </p>
-                </div>
-                <div className="text-end shrink-0 num">
-                  <p
-                    className={`font-bold text-sm ${
-                      r.amount > 0 && r.kind !== 'undo' ? 'text-mint-dark' : 'text-ink-soft'
-                    }`}
-                    dir="ltr"
-                  >
-                    {r.amount > 0 ? '+' : ''}
-                    {r.amount}
-                  </p>
-                  <p className="text-[11px] text-ink-faded" dir="ltr">
-                    bal {r.balanceAfter}
-                  </p>
-                  {r.clampedAmount !== null && (
-                    <p className="text-[10px] text-pink-dark" dir="ltr">
-                      clamped {r.clampedAmount}
-                    </p>
-                  )}
-                </div>
-                {/* One-click reverse: earned → revoke (debit), revoked → add
-                    back (credit). Posts the entry id; the server computes the
-                    opposite amount + an auto reason. */}
-                {reversible && (
-                  <form action={reverseLedgerEntryAction} className="shrink-0">
-                    <input type="hidden" name="entryId" value={r.id} />
-                    <input type="hidden" name="lang" value={lang} />
-                    <button
-                      type="submit"
-                      className={`text-xs font-bold rounded-full py-1.5 px-3 transition hover:-translate-y-px ${
-                        r.amount > 0
-                          ? 'bg-pink-pale text-pink-dark'
-                          : 'bg-mint-soft text-mint-dark'
-                      }`}
-                    >
-                      {r.amount > 0 ? t.admin.ledgerRevoke : t.admin.ledgerAddBack}
-                    </button>
-                  </form>
-                )}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+      <LedgerList rows={ledgerRows} lang={lang} t={t} />
     </div>
   );
 }

@@ -17,7 +17,6 @@
 
 import 'server-only';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { getPool, adjustWalletOperation } from '@reco/db';
 import { requireAdmin, UnauthorizedError } from '../auth/guards';
@@ -171,7 +170,11 @@ export async function reverseLedgerEntryAction(formData: FormData): Promise<void
     client.release();
   }
 
+  // No redirect: redirecting to the SAME ledger URL is a no-op for the RSC
+  // refresh, which is why the balance looked unchanged after a reverse. A
+  // form-invoked server action without a redirect makes Next refresh the
+  // current route, and revalidatePath clears the cached data — so the new
+  // entry + updated balance show immediately.
   revalidatePath('/[lang]/admin', 'layout');
   revalidatePath('/[lang]', 'layout');
-  redirect(`/${lang}/admin/kids/${e.kid_id}/ledger`);
 }
