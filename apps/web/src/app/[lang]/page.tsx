@@ -177,7 +177,10 @@ async function KidView({
     // Slot usage: approved + waiting + open-needs-photo count; denied frees a
     // slot (retry). NULL maxPerDay = unlimited.
     const capUsed = occ.approved.length + occ.waiting.length + occ.needsPhoto.length;
-    const doneToday = occ.approved.length + occ.waiting.length;
+    // Tally counts only APPROVED occurrences — a photo repeat awaiting approval
+    // shows as "pending", not yet part of x/N (Lily's request).
+    const doneToday = occ.approved.length;
+    const pendingApproval = occ.waiting.length;
     const locked = !!(r.deadlineTime && nowIl > r.deadlineTime);
     const underCap = r.maxPerDay == null || capUsed < r.maxPerDay;
     const canDoAgain = underCap && !locked;
@@ -217,6 +220,7 @@ async function KidView({
       deadlineTime: r.deadlineTime,
       maxPerDay: r.maxPerDay,
       doneToday,
+      pendingApproval,
       canDoAgain,
     };
   });

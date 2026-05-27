@@ -44,6 +44,9 @@ export interface KidHomeTask {
    *  (and not past the deadline). */
   maxPerDay: number | null;
   doneToday: number;
+  /** Repeat occurrences submitted but awaiting parent approval (photo tasks).
+   *  Shown as "pending", not yet counted in doneToday/x-of-N. */
+  pendingApproval: number;
   canDoAgain: boolean;
 }
 
@@ -140,25 +143,15 @@ export function KidHome(props: Props) {
   return (
     <>
     <main className="min-h-screen bg-bg pb-28">
-      {/* Top bar — Reco mark on top, then avatar + bell/switch-user row */}
-      <header className="px-5 pt-10 pb-3">
-        <div className="flex justify-center pb-3">
-          <TasKidzLogo height={44} animated />
-        </div>
-        <div className="flex items-center justify-between">
-        <a href={avatarHref} className="flex items-center gap-3 group">
-          <Avatar name={kidName} color={kidColor} avatarKey={avatarKey} size={48} />
-          <h1 className="text-2xl font-bold text-ink group-hover:underline underline-offset-4">
-            {kidName}
-          </h1>
-        </a>
-        <div className="flex items-center gap-3">
-          {/* Fix 12b: bell icon — count chip when there are unread events.
-              Tap → /notifications. Real bell rendering of events sits on
-              that page. Phase 8 will wire the polling + mark-read flow. */}
+      {/* Top bar — logo at the top corner + bell on the opposite corner, then
+          the avatar/name row beneath. In RTL the logo sits top-right and the
+          bell top-left (mirrored automatically in LTR). */}
+      <header className="px-5 pt-10 pb-3 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <TasKidzLogo height={40} animated />
           <a
             href={notificationsHref}
-            className="relative w-9 h-9 rounded-full bg-card border border-rule flex items-center justify-center text-ink hover:border-pink-pale transition"
+            className="relative w-9 h-9 rounded-full bg-card border border-rule flex items-center justify-center text-ink hover:border-pink-pale transition shrink-0"
             aria-label={t.notifications.title}
           >
             {Bell && <Bell size={18} />}
@@ -171,7 +164,15 @@ export function KidHome(props: Props) {
               </span>
             )}
           </a>
-          <form action={logoutUrl} method="POST">
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <a href={avatarHref} className="flex items-center gap-3 group min-w-0">
+            <Avatar name={kidName} color={kidColor} avatarKey={avatarKey} size={48} />
+            <h1 className="text-2xl font-bold text-ink group-hover:underline underline-offset-4 truncate">
+              {kidName}
+            </h1>
+          </a>
+          <form action={logoutUrl} method="POST" className="shrink-0">
             <button
               type="submit"
               className="text-xs text-ink-soft underline-offset-4 hover:underline"
@@ -179,7 +180,6 @@ export function KidHome(props: Props) {
               {t.home.switchUser}
             </button>
           </form>
-        </div>
         </div>
       </header>
 

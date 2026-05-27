@@ -71,6 +71,7 @@ interface Props {
   /** Repeatable-task fields (see kid-home). maxPerDay 1 = normal once-a-day. */
   maxPerDay?: number | null;
   doneToday?: number;
+  pendingApproval?: number;
   canDoAgain?: boolean;
   lang: 'he' | 'en';
   t: Dictionary;
@@ -426,14 +427,23 @@ export function TaskCard(props: Props) {
           (photo tasks open the camera again; each repeat is its own approval).
           Only appears once the kid has done it at least once; the first one
           uses the normal action above. */}
-      {props.maxPerDay !== 1 && (props.doneToday ?? 0) > 0 && (
-        <div className="mt-3 pt-3 border-t border-rule/60 flex items-center justify-between gap-2">
-          <span className="inline-flex items-center gap-1 text-xs font-bold text-mint-dark num" dir="ltr">
-            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-              <path d="M5 10.5l3.5 3.5L15 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            {props.doneToday}
-            {props.maxPerDay != null ? ` / ${props.maxPerDay}` : ''}
+      {props.maxPerDay !== 1 &&
+        ((props.doneToday ?? 0) > 0 || (props.pendingApproval ?? 0) > 0) && (
+        <div className="mt-3 pt-3 border-t border-rule/60 flex items-center justify-between gap-2 flex-wrap">
+          <span className="inline-flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-xs font-bold text-mint-dark num" dir="ltr">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 10.5l3.5 3.5L15 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {props.doneToday ?? 0}
+              {props.maxPerDay != null ? ` / ${props.maxPerDay}` : ''}
+            </span>
+            {/* Repeat(s) awaiting approval — shown as pending, not yet counted. */}
+            {(props.pendingApproval ?? 0) > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-pink-dark num" dir="ltr">
+                ⏳ {props.pendingApproval} · {t.home.waitingApproval}
+              </span>
+            )}
           </span>
 
           {props.canDoAgain && (status === 'done' || status === 'pending') && (

@@ -78,6 +78,17 @@ export async function approveSubmissionAction(
       }
       return { ok: false, error: result.error };
     }
+    // Notify the player their submission was approved — a bell event the kid's
+    // notifications page renders ("✅ approved") and the bell badge counts.
+    // Idempotent via the dedup_key unique index.
+    await client.query(
+      `INSERT INTO notification_event
+         (household_id, event_kind, recipient_kid_id, channel, state, dedup_key, payload_json)
+       SELECT s.household_id, 'submission_approved', s.kid_id, 'bell', 'pending', $2, '{}'::jsonb
+         FROM submission s WHERE s.id = $1
+       ON CONFLICT (dedup_key, channel) DO NOTHING`,
+      [submissionId, `submission_approved:${submissionId}`],
+    );
     await client.query('COMMIT');
     revalidatePath('/[lang]/admin', 'layout');
     revalidatePath('/[lang]', 'layout');
