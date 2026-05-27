@@ -146,7 +146,10 @@ export function KidHome(props: Props) {
       {/* Compact app bar (one tight row): player identity on the start side,
           the TasKidz mark centered, bell + switch-user on the end. The coin
           balance lives in the wallet hero card right below. */}
-      <header className="px-4 pt-10 pb-3 bg-card border-b border-rule shadow-hairline">
+      <header
+        className="px-4 pb-3 bg-card border-b border-rule shadow-hairline"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
+      >
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
           {/* Identity */}
           <a href={avatarHref} className="flex items-center gap-2 min-w-0 justify-self-start group">
