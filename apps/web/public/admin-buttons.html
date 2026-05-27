@@ -1,0 +1,139 @@
+<!doctype html>
+<!--
+  Admin button-style options preview (throwaway picker page).
+  Served statically at /admin-buttons.html so Lily can compare three
+  less-childish admin button treatments on any device, then pick one.
+  Not linked from the app; safe to delete after the choice is made.
+-->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Reco · admin button options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Heebo:wght@500;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAF8F5; --card:#FFFFFF; --ink:#2D2A4A; --ink-soft:#6E6B89; --ink-faded:#A8A6BB;
+    --rule:#EFEDF5; --rule-soft:#F7F5FA; --pink:#FF6B9D; --pink-dark:#E94B7F; --pink-pale:#FFE0EB;
+    --mint:#4ED9A5; --mint-dark:#2EB683;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--font,Quicksand),system-ui,sans-serif;padding:24px 16px 60px}
+  .wrap{max-width:760px;margin:0 auto}
+  h1{font-family:Fredoka,system-ui;font-weight:700;font-size:26px;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 24px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:20px;
+    box-shadow:0 4px 12px rgba(45,42,74,.06);padding:20px;margin-bottom:18px}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    font-weight:700;color:var(--ink-faded);margin-bottom:6px}
+  .opt-title{font-family:Fredoka,system-ui;font-weight:700;font-size:19px;margin:0 0 4px}
+  .desc{color:var(--ink-soft);font-size:13.5px;margin:0 0 16px;line-height:1.5}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:10px}
+  .row .muted{font-size:11px;color:var(--ink-faded);width:100%;margin:6px 0 0}
+  button{font-family:inherit;cursor:default;border:0;font-size:14px}
+
+  /* ---- CURRENT (today) ---- */
+  .cur-primary{background:var(--pink);color:#fff;font-weight:700;border-radius:999px;
+    padding:9px 18px;box-shadow:0 4px 12px rgba(255,107,157,.35)}
+  .cur-secondary{background:#fff;color:var(--pink-dark);font-weight:700;border-radius:999px;
+    padding:9px 18px;border:1px solid var(--pink-pale)}
+
+  /* ---- OPTION A · Professional solid ---- */
+  .a-primary{background:var(--ink);color:#fff;font-weight:600;border-radius:8px;padding:9px 16px}
+  .a-secondary{background:#fff;color:var(--ink);font-weight:600;border-radius:8px;padding:9px 16px;
+    border:1px solid var(--rule)}
+  .a-tertiary{background:transparent;color:var(--ink-soft);font-weight:600;padding:9px 6px}
+
+  /* ---- OPTION B · Outline / ghost ---- */
+  .b-primary{background:var(--pink-dark);color:#fff;font-weight:600;border-radius:6px;padding:9px 16px}
+  .b-secondary{background:transparent;color:var(--pink-dark);font-weight:600;border-radius:6px;
+    padding:8px 15px;border:1px solid var(--pink-dark)}
+  .b-tertiary{background:transparent;color:var(--pink-dark);font-weight:600;padding:9px 6px}
+
+  /* ---- OPTION C · Neutral monochrome ---- */
+  .c-primary{background:var(--ink);color:#fff;font-weight:600;border-radius:6px;padding:9px 16px}
+  .c-secondary{background:var(--rule-soft);color:var(--ink);font-weight:600;border-radius:6px;
+    padding:8px 15px;border:1px solid var(--rule)}
+  .c-tertiary{background:transparent;color:var(--ink-soft);font-weight:600;padding:9px 6px}
+
+  .he{font-family:Heebo,system-ui}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin buttons — pick a style</h1>
+  <p class="sub">Three less-childish treatments for the admin pages. Reply with A, B, or C.</p>
+
+  <div class="card">
+    <span class="tag">Today (for comparison)</span>
+    <p class="opt-title">Playful pill</p>
+    <p class="desc">Bright-pink full pills with a coloured glow. Great for the kids' app, a bit childish for admin.</p>
+    <div class="row">
+      <button class="cur-primary">Save</button>
+      <button class="cur-primary">+ New task</button>
+      <button class="cur-secondary">Filters</button>
+    </div>
+    <div class="row he" dir="rtl">
+      <button class="cur-primary">שמירה</button>
+      <button class="cur-primary">+ משימה חדשה</button>
+      <button class="cur-secondary">סינון</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">Option A</span>
+    <p class="opt-title">Professional solid</p>
+    <p class="desc">Squared corners (8px), flat — no coloured glow. Calm dark-slate primary, white outlined secondary. Clean SaaS admin feel.</p>
+    <div class="row">
+      <button class="a-primary">Save</button>
+      <button class="a-primary">+ New task</button>
+      <button class="a-secondary">Filters</button>
+      <button class="a-tertiary">Cancel</button>
+    </div>
+    <div class="row he" dir="rtl">
+      <button class="a-primary">שמירה</button>
+      <button class="a-primary">+ משימה חדשה</button>
+      <button class="a-secondary">סינון</button>
+      <button class="a-tertiary">ביטול</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">Option B</span>
+    <p class="opt-title">Outline / ghost</p>
+    <p class="desc">Most restrained. One accent-filled primary; secondary is an outlined button; minor actions are text-only. Light and airy.</p>
+    <div class="row">
+      <button class="b-primary">+ New task</button>
+      <button class="b-secondary">Filters</button>
+      <button class="b-tertiary">Edit</button>
+    </div>
+    <div class="row he" dir="rtl">
+      <button class="b-primary">+ משימה חדשה</button>
+      <button class="b-secondary">סינון</button>
+      <button class="b-tertiary">עריכה</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">Option C</span>
+    <p class="opt-title">Neutral monochrome</p>
+    <p class="desc">Greyscale chrome: slate primary, light-grey secondary, square-ish (6px). No pink on admin buttons at all — colour is saved for status chips. Most businesslike.</p>
+    <div class="row">
+      <button class="c-primary">Save</button>
+      <button class="c-primary">+ New task</button>
+      <button class="c-secondary">Filters</button>
+      <button class="c-tertiary">Cancel</button>
+    </div>
+    <div class="row he" dir="rtl">
+      <button class="c-primary">שמירה</button>
+      <button class="c-primary">+ משימה חדשה</button>
+      <button class="c-secondary">סינון</button>
+      <button class="c-tertiary">ביטול</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
