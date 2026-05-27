@@ -38,6 +38,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Dictionary } from '@reco/shared/i18n';
 import {
   completeTaskAction,
@@ -101,6 +102,63 @@ export function TaskCard(props: Props) {
   useEffect(() => () => {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
   }, [previewUrl]);
+
+  // One-tap photo submission (Lily's pick): on a photo task, tapping the
+  // action opens the camera; once a photo is picked we create the completion
+  // AND attach the evidence in one go, so it lands in the parent's Approvals
+  // queue (kids were instead using the Feedback button). If the second step
+  // fails, the task is left in `needsPhoto` so the existing Add-photo flow can
+  // recover it.
+  const router = useRouter();
+  const [photoBusy, setPhotoBusy] = useState(false);
+  const [photoErr, setPhotoErr] = useState<string | null>(null);
+
+  async function captureForApproval(file: File) {
+    setPhotoErr(null);
+    setPhotoBusy(true);
+    setPreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
+    try {
+      const fd1 = new FormData();
+      fd1.set('assignmentId', assignmentId);
+      const r1 = await completeTaskAction(undefined, fd1);
+      if (!r1.ok) {
+        setPhotoErr(
+          r1.error === 'already_done'
+            ? t.home.alreadyDone
+            : r1.error === 'deadline_passed'
+              ? t.home.deadlinePassed
+              : t.home.errorTryAgain,
+        );
+        setPhotoBusy(false);
+        return;
+      }
+      const fd2 = new FormData();
+      fd2.set('completionId', r1.completionId);
+      fd2.set('file', file);
+      const r2 = await submitEvidenceAction(undefined, fd2);
+      if (!r2.ok) {
+        setPhotoErr(
+          r2.error === 'too_large'
+            ? t.home.photoTooLarge
+            : r2.error === 'mime_not_allowed'
+              ? t.home.photoBadFormat
+              : t.home.photoUploadError,
+        );
+        setPhotoBusy(false);
+        // Completion exists now → the card will re-render as needsPhoto so the
+        // kid can retry the upload via the Add-photo flow.
+        router.refresh();
+        return;
+      }
+      router.refresh();
+    } catch {
+      setPhotoErr(t.home.errorTryAgain);
+      setPhotoBusy(false);
+    }
+  }
 
   // Three effects (one per action) so the most recent action wins the wallet
   // pulse. A single combined effect always favors the earlier-declared
@@ -195,6 +253,10 @@ export function TaskCard(props: Props) {
                 {props.deadlineTime?.slice(0, 5)}
               </span>
             </p>
+          ) : photoBusy ? (
+            <p className="text-xs text-ink-soft">{t.home.uploadingPhoto}</p>
+          ) : photoErr ? (
+            <p className="text-xs text-pink-dark">{photoErr}</p>
           ) : status === 'todo' && props.deadlineTime ? (
             <Countdown deadline={props.deadlineTime} t={t} />
           ) : showAlreadyDone ? (
@@ -231,7 +293,15 @@ export function TaskCard(props: Props) {
             </span>
           </span>
 
-          {status === 'todo' && (
+          {status === 'todo' && props.evidenceRequired && (
+            <CameraCaptureButton
+              busy={photoBusy}
+              label={t.home.addPhoto}
+              onFile={captureForApproval}
+            />
+          )}
+
+          {status === 'todo' && !props.evidenceRequired && (
             <form action={completeAction}>
               <input type="hidden" name="assignmentId" value={assignmentId} />
               <CheckIconButton
@@ -277,6 +347,17 @@ export function TaskCard(props: Props) {
           )}
         </div>
       </div>
+
+      {/* One-tap capture preview — the photo the kid just took, while it's
+          being sent for approval. */}
+      {status === 'todo' && previewUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={previewUrl}
+          alt={fileName ?? ''}
+          className="mt-3 max-h-44 w-auto rounded-xl border border-rule object-contain"
+        />
+      )}
 
       {/* Photo-upload affordance — only when the kid has a pending completion
           that's still missing its submission. The form posts multipart/form-data
@@ -384,6 +465,54 @@ function CheckIconButton({
         </svg>
       )}
     </button>
+  );
+}
+
+/** Photo-task action: a pink circular camera button that opens the device
+ *  camera/picker. On pick it fires the one-tap capture→complete→submit flow.
+ *  It's a <label> wrapping a hidden file input so a single tap opens the
+ *  camera (no intermediate "I did it" step that kids were getting lost in). */
+function CameraCaptureButton({
+  busy,
+  label,
+  onFile,
+}: {
+  busy: boolean;
+  label: string;
+  onFile: (file: File) => void;
+}) {
+  return (
+    <label
+      aria-label={label}
+      className="relative w-11 h-11 rounded-full flex items-center justify-center bg-pink text-card shadow-cta-pink transition active:scale-95 cursor-pointer aria-disabled:opacity-60"
+      aria-disabled={busy}
+    >
+      {busy ? (
+        <span className="text-card text-xs font-bold">…</span>
+      ) : (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2l1.2-1.8A1 1 0 0 1 8.5 4.7h7a1 1 0 0 1 .8.5L17.5 7h2A1.5 1.5 0 0 1 21 8.5v9A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          <circle cx="12" cy="12.5" r="3.2" stroke="white" strokeWidth="2" />
+        </svg>
+      )}
+      <input
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        capture="environment"
+        disabled={busy}
+        onChange={(e) => {
+          const f = e.currentTarget.files?.[0];
+          if (f) onFile(f);
+          e.currentTarget.value = '';
+        }}
+        className="sr-only"
+      />
+    </label>
   );
 }
 
