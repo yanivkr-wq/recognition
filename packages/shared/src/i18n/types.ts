@@ -457,6 +457,7 @@ export interface Dictionary {
     notifications: string;
     allCaughtUp: string;
     navMore: string;
+    journeysStatus: string;
   };
   playerMsg: {
     heading: string;

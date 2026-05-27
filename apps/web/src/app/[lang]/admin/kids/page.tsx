@@ -138,10 +138,15 @@ export default async function AdminKidsPage({
                 )}
               </div>
 
-              {/* At-a-glance stats. */}
+              {/* At-a-glance stats. Active-journeys tile opens the journey
+                  status view filtered to this player. */}
               <div className="grid grid-cols-4 gap-2">
                 <Stat label={t.insights.tasksToday} value={today.get(k.id) ?? 0} />
-                <Stat label={t.insights.activeJourneys} value={journeys.get(k.id) ?? 0} />
+                <Stat
+                  label={t.insights.activeJourneys}
+                  value={journeys.get(k.id) ?? 0}
+                  href={`/${lang}/admin/journeys?kid=${k.id}`}
+                />
                 <Stat label={t.insights.badgesEarned} value={badges.get(k.id) ?? 0} />
                 <Stat label={t.insights.needsAttention} value={needs} alert={needs > 0} />
               </div>
@@ -163,20 +168,31 @@ export default async function AdminKidsPage({
   );
 }
 
-/** A compact labelled stat tile. Highlights when it needs the admin's action. */
-function Stat({ label, value, alert }: { label: string; value: number; alert?: boolean }) {
-  return (
-    <div
-      className={`rounded-xl border px-2 py-2 text-center ${
-        alert ? 'bg-pink-pale border-pink-pale' : 'bg-rule-soft border-rule'
-      }`}
-    >
+/** A compact labelled stat tile. Highlights when it needs the admin's action.
+ *  Renders as a link when `href` is given. */
+function Stat({
+  label,
+  value,
+  alert,
+  href,
+}: {
+  label: string;
+  value: number;
+  alert?: boolean;
+  href?: string;
+}) {
+  const cls = `rounded-xl border px-2 py-2 text-center block ${
+    alert ? 'bg-pink-pale border-pink-pale' : 'bg-rule-soft border-rule'
+  } ${href ? 'hover:border-ink-faded transition' : ''}`;
+  const inner = (
+    <>
       <p className={`num text-xl font-extrabold leading-none ${alert ? 'text-pink-dark' : 'text-ink'}`} dir="ltr">
         {value}
       </p>
       <p className={`text-[10px] leading-tight mt-1 ${alert ? 'text-pink-dark' : 'text-ink-soft'}`}>{label}</p>
-    </div>
+    </>
   );
+  return href ? <Link href={href} className={cls}>{inner}</Link> : <div className={cls}>{inner}</div>;
 }
 
 function ActionChip({

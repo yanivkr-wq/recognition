@@ -443,7 +443,8 @@
     "groupSystem": "System",
     "notifications": "Notifications",
     "allCaughtUp": "All caught up!",
-    "navMore": "More"
+    "navMore": "More",
+    "journeysStatus": "Journey status"
   },
   "feedback": {
     "button": "Feedback",

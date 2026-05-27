@@ -62,6 +62,7 @@ export default async function AdminMenu({
         { href: 'insights', icon: 'insights', label: t.admin.insights, sub: t.insights.heading },
         { href: 'approvals', icon: 'approvals', label: t.admin.approvals, sub: t.admin.approvalsHeading },
         { href: 'redemptions', icon: 'redemptions', label: t.admin.redemptions, sub: t.admin.redemptionsHeading },
+        { href: 'journeys', icon: 'campaigns', label: t.admin.journeysStatus, sub: t.insights.activeJourneys },
       ],
     },
     {

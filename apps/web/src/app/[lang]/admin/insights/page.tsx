@@ -192,7 +192,7 @@ export default async function AdminInsightsPage({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Kpi label={t.insights.totalCoins} value={o.coins} accent={PINK} icon={<Coin size={16} />} />
         <Kpi label={t.insights.totalTasks} value={o.tasks} accent={SKY} />
-        <Kpi label={t.insights.activeJourneys} value={journeysTotal} accent="#B59FE5" />
+        <Kpi label={t.insights.activeJourneys} value={journeysTotal} accent="#B59FE5" href={`/${lang}/admin/journeys`} />
         <Kpi label={t.insights.badgesEarned} value={o.badges} accent="#E8B927" />
       </div>
 
@@ -322,20 +322,23 @@ export default async function AdminInsightsPage({
   );
 }
 
-/** Monochrome KPI tile: big number + label + a thin accent rule on top. */
+/** Monochrome KPI tile: big number + label + a thin accent rule on top.
+ *  Renders as a link when `href` is given. */
 function Kpi({
   label,
   value,
   accent,
   icon,
+  href,
 }: {
   label: string;
   value: number;
   accent: string;
   icon?: React.ReactNode;
+  href?: string;
 }) {
-  return (
-    <div className="bg-card rounded-2xl border border-rule shadow-card overflow-hidden">
+  const inner = (
+    <>
       <div className="h-1" style={{ backgroundColor: accent }} aria-hidden="true" />
       <div className="p-4">
         <div className="flex items-center gap-1.5 text-ink-soft">
@@ -346,7 +349,13 @@ function Kpi({
           <span dir="ltr">{value.toLocaleString('en-US')}</span>
         </p>
       </div>
-    </div>
+    </>
+  );
+  const cls = 'bg-card rounded-2xl border border-rule shadow-card overflow-hidden block';
+  return href ? (
+    <Link href={href} className={`${cls} hover:border-ink-faded transition`}>{inner}</Link>
+  ) : (
+    <div className={cls}>{inner}</div>
   );
 }
 

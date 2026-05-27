@@ -443,7 +443,8 @@
     "groupSystem": "מערכת",
     "notifications": "התראות",
     "allCaughtUp": "הכל מטופל!",
-    "navMore": "עוד"
+    "navMore": "עוד",
+    "journeysStatus": "מצב מסעות"
   },
   "feedback": {
     "button": "משוב",
