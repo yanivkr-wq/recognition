@@ -146,7 +146,7 @@ export function KidHome(props: Props) {
       {/* Top bar — logo at the top corner + bell on the opposite corner, then
           the avatar/name row beneath. In RTL the logo sits top-right and the
           bell top-left (mirrored automatically in LTR). */}
-      <header className="px-5 pt-10 pb-4 space-y-3 border-b border-rule">
+      <header className="px-5 pt-10 pb-4 space-y-3 bg-card border-b border-rule shadow-hairline">
         <div className="flex items-center justify-between gap-3">
           <TasKidzLogo height={40} animated />
           <a

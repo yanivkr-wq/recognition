@@ -100,6 +100,20 @@ export function PinEntryForm({ kidId, lang, t }: Props) {
         </p>
       )}
 
+      {/* "Remember this device" sits ABOVE the keypad: the PIN auto-submits on
+          the 4th digit, so a checkbox below it would never be ticked in time.
+          Tick it first → the submit then issues the 90-day trust cookie. */}
+      <label className="flex items-center justify-center gap-2 mb-5 py-2.5 px-3 rounded-xl border border-rule bg-card text-sm text-ink cursor-pointer">
+        <input
+          type="checkbox"
+          checked={rememberDevice}
+          onChange={(e) => setRememberDevice(e.target.checked)}
+          disabled={isPending}
+          className="w-4 h-4 accent-pink"
+        />
+        {t.pin.rememberDevice}
+      </label>
+
       <div className="grid grid-cols-3 gap-3" dir="ltr">
         {PAD.map((key, idx) => (
           <button
@@ -118,15 +132,6 @@ export function PinEntryForm({ kidId, lang, t }: Props) {
         ))}
       </div>
 
-      <label className="flex items-center justify-center gap-2 mt-6 text-sm text-ink-soft cursor-pointer">
-        <input
-          type="checkbox"
-          checked={rememberDevice}
-          onChange={(e) => setRememberDevice(e.target.checked)}
-          className="accent-pink"
-        />
-        {t.pin.rememberDevice}
-      </label>
     </div>
   );
 }
