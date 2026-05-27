@@ -146,14 +146,14 @@ export default async function AdminKidsPage({
                 <Stat label={t.insights.needsAttention} value={needs} alert={needs > 0} />
               </div>
 
-              {/* Quick actions — icon over label, 3-up on mobile. */}
+              {/* Quick actions — neutral monochrome chips (Option C). */}
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                <ActionChip href={`/${lang}/admin/kids/${k.id}/edit`} label={t.common.edit} tone="pink" icon={<PencilIcon />} />
-                <ActionChip href={`/${lang}/admin/kids/${k.id}/tasks`} label={t.admin.tasks} tone="lavender" icon={<ListIcon />} />
-                <ActionChip href={`/${lang}/admin/kids/${k.id}/pin`} label={t.admin.setPin} tone="rose" icon={<LockIcon />} />
-                <ActionChip href={`/${lang}/admin/kids/${k.id}/devices`} label={t.admin.devices} tone="sky" icon={<DeviceIcon />} />
-                <ActionChip href={`/${lang}/admin/kids/${k.id}/ledger`} label={t.admin.ledger} tone="mint" icon={<ReceiptIcon />} />
-                <ActionChip href={`/${lang}/admin/kids/${k.id}/wallet/adjust`} label={t.admin.joker} tone="yellow" icon={<WandIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/edit`} label={t.common.edit} icon={<PencilIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/tasks`} label={t.admin.tasks} icon={<ListIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/pin`} label={t.admin.setPin} icon={<LockIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/devices`} label={t.admin.devices} icon={<DeviceIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/ledger`} label={t.admin.ledger} icon={<ReceiptIcon />} />
+                <ActionChip href={`/${lang}/admin/kids/${k.id}/wallet/adjust`} label={t.admin.joker} icon={<WandIcon />} />
               </div>
             </li>
           );
@@ -179,30 +179,19 @@ function Stat({ label, value, alert }: { label: string; value: number; alert?: b
   );
 }
 
-const TONES: Record<string, string> = {
-  pink: 'bg-pink-pale text-pink-dark hover:bg-pink-soft',
-  lavender: 'bg-lavender-pale text-lavender-dark hover:opacity-80',
-  rose: 'bg-pink-soft text-pink-dark hover:bg-pink-pale',
-  sky: 'bg-sky-pale text-sky-dark hover:bg-sky-soft',
-  mint: 'bg-mint-pale text-mint-dark hover:bg-mint-soft',
-  yellow: 'bg-yellow-pale text-[#7A5D10] hover:opacity-80',
-};
-
 function ActionChip({
   href,
   label,
-  tone,
   icon,
 }: {
   href: string;
   label: string;
-  tone: keyof typeof TONES;
   icon: React.ReactNode;
 }) {
   return (
     <Link
       href={href}
-      className={`flex flex-col items-center justify-center gap-1.5 rounded-2xl py-3 px-2 text-[11px] font-bold text-center transition ${TONES[tone]}`}
+      className="flex flex-col items-center justify-center gap-1.5 rounded-xl py-3 px-2 text-[11px] font-semibold text-center bg-rule-soft border border-rule text-ink-soft hover:bg-rule hover:text-ink transition"
     >
       <span aria-hidden="true">{icon}</span>
       <span className="leading-tight">{label}</span>
