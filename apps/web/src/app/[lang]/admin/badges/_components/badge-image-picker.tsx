@@ -91,7 +91,7 @@ export function BadgeImagePicker({ badgeId, currentImageUrl, t }: Props) {
           name="file"
           accept={ALLOWED.join(',')}
           onChange={onFileChange}
-          className="block w-full text-xs text-ink file:bg-pink file:text-card file:font-bold file:rounded-full file:border-0 file:px-3 file:py-1.5 file:me-2 file:cursor-pointer file:shadow-cta-pink"
+          className="block w-full text-xs text-ink file:bg-ink file:text-card file:font-semibold file:rounded-lg file:border-0 file:px-3 file:py-1.5 file:me-2 file:cursor-pointer"
         />
         <div className="flex items-center gap-2">
           <UploadButton t={t} disabled={!!clientError} />
@@ -116,7 +116,7 @@ function UploadButton({ t, disabled }: { t: Dictionary; disabled: boolean }) {
     <button
       type="submit"
       disabled={pending || disabled}
-      className="bg-pink text-card font-bold rounded-full py-1.5 px-4 text-xs shadow-cta-pink hover:-translate-y-px transition disabled:opacity-60 disabled:translate-y-0"
+      className="btn-admin"
     >
       {pending ? t.admin.rewardImageUploading : t.admin.rewardImageUpload}
     </button>

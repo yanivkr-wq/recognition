@@ -108,11 +108,7 @@ export function ApprovalCard(props: Props) {
         <div className="flex items-center gap-2">
           <form action={approveAction}>
             <input type="hidden" name="submissionId" value={props.submissionId} />
-            <button
-              type="submit"
-              disabled={approving || denying}
-              className="bg-mint text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-mint transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
-            >
+            <button type="submit" disabled={approving || denying} className="btn-admin-mint">
               {approving ? '…' : t.admin.approve}
             </button>
           </form>
@@ -120,7 +116,7 @@ export function ApprovalCard(props: Props) {
             type="button"
             onClick={() => setShowDeny(true)}
             disabled={approving || denying}
-            className="bg-card text-ink font-bold rounded-full py-2 px-5 text-sm border border-rule hover:border-pink-pale transition disabled:opacity-60"
+            className="btn-admin-secondary"
           >
             {t.admin.deny}
           </button>
@@ -148,18 +144,14 @@ export function ApprovalCard(props: Props) {
             </p>
           )}
           <div className="flex items-center gap-2">
-            <button
-              type="submit"
-              disabled={denying}
-              className="bg-pink text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
-            >
+            <button type="submit" disabled={denying} className="btn-admin-danger">
               {denying ? '…' : t.admin.deny}
             </button>
             <button
               type="button"
               onClick={() => setShowDeny(false)}
               disabled={denying}
-              className="text-xs text-ink-soft underline-offset-4 hover:underline"
+              className="btn-admin-ghost"
             >
               {t.common.cancel}
             </button>

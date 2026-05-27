@@ -82,22 +82,14 @@ export function JokerForm({ kidId, kidName, kidColor, balance, t }: Props) {
           <button
             type="button"
             onClick={() => setMode('credit')}
-            className={`flex-1 rounded-full py-2 px-4 text-sm font-bold transition ${
-              mode === 'credit'
-                ? 'bg-mint text-card shadow-cta-mint'
-                : 'bg-card text-ink border border-rule'
-            }`}
+            className={`flex-1 ${mode === 'credit' ? 'btn-admin-mint' : 'btn-admin-secondary'}`}
           >
             {t.admin.jokerCredit}
           </button>
           <button
             type="button"
             onClick={() => setMode('debit')}
-            className={`flex-1 rounded-full py-2 px-4 text-sm font-bold transition ${
-              mode === 'debit'
-                ? 'bg-pink text-card shadow-cta-pink'
-                : 'bg-card text-ink border border-rule'
-            }`}
+            className={`flex-1 ${mode === 'debit' ? 'btn-admin-danger' : 'btn-admin-secondary'}`}
           >
             {t.admin.jokerDebit}
           </button>
@@ -167,11 +159,7 @@ export function JokerForm({ kidId, kidName, kidColor, balance, t }: Props) {
         <button
           type="submit"
           disabled={pending}
-          className={`font-bold rounded-full py-2 px-5 text-sm transition disabled:opacity-60 ${
-            mode === 'credit'
-              ? 'bg-mint text-card shadow-cta-mint'
-              : 'bg-pink text-card shadow-cta-pink'
-          }`}
+          className={mode === 'credit' ? 'btn-admin-mint' : 'btn-admin-danger'}
         >
           {pending
             ? '…'

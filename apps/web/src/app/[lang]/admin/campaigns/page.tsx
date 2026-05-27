@@ -98,19 +98,13 @@ export default async function AdminCampaignsPage({
           </span>
         </div>
         <div className="flex justify-end items-center gap-4 mt-3 pt-3 border-t border-rule">
-          <Link
-            href={`/${lang}/admin/campaigns/${c.id}/edit`}
-            className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold"
-          >
+          <Link href={`/${lang}/admin/campaigns/${c.id}/edit`} className="btn-admin-ghost">
             {t.common.edit}
           </Link>
           <form action={toggleArchiveCampaignAction}>
             <input type="hidden" name="id" value={c.id} />
             <input type="hidden" name="lang" value={lang} />
-            <button
-              type="submit"
-              className="text-xs text-ink-soft underline-offset-2 hover:underline font-bold"
-            >
+            <button type="submit" className="btn-admin-ghost">
               {isArchived ? t.admin.unarchive : t.admin.archive}
             </button>
           </form>

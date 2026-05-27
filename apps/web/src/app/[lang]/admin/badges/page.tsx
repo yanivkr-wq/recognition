@@ -70,7 +70,7 @@ export default async function AdminBadgesPage({
         </div>
         <Link
           href={`/${lang}/admin/badges/${b.id}/edit`}
-          className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold shrink-0 py-1"
+          className="btn-admin-ghost shrink-0"
         >
           {t.common.edit}
         </Link>

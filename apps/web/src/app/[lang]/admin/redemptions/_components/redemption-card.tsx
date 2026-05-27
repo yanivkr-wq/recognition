@@ -177,11 +177,7 @@ export function RedemptionCard(props: Props) {
             <>
               <form action={receiveAction}>
                 <input type="hidden" name="redemptionId" value={props.redemptionId} />
-                <button
-                  type="submit"
-                  disabled={receiving || cancelling}
-                  className="bg-mint text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-mint transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
-                >
+                <button type="submit" disabled={receiving || cancelling} className="btn-admin-mint">
                   {receiving ? '…' : t.admin.markReceived}
                 </button>
               </form>
@@ -189,7 +185,7 @@ export function RedemptionCard(props: Props) {
                 type="button"
                 onClick={() => setShowCancel(true)}
                 disabled={receiving || cancelling}
-                className="bg-card text-ink font-bold rounded-full py-2 px-5 text-sm border border-rule hover:border-pink-pale transition disabled:opacity-60"
+                className="btn-admin-secondary"
               >
                 {t.admin.cancelRedemption}
               </button>
@@ -200,7 +196,7 @@ export function RedemptionCard(props: Props) {
               type="button"
               onClick={() => setShowRefund(true)}
               disabled={refunding}
-              className="bg-card text-ink font-bold rounded-full py-2 px-5 text-sm border border-rule hover:border-pink-pale transition disabled:opacity-60"
+              className="btn-admin-secondary"
             >
               {t.admin.refundRedemption}
             </button>
@@ -274,18 +270,14 @@ function ReasonForm(props: {
         </p>
       )}
       <div className="flex items-center gap-2">
-        <button
-          type="submit"
-          disabled={props.pending}
-          className="bg-pink text-card font-bold rounded-full py-2 px-5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
-        >
+        <button type="submit" disabled={props.pending} className="btn-admin-danger">
           {props.pending ? '…' : props.submitText}
         </button>
         <button
           type="button"
           onClick={props.onCancel}
           disabled={props.pending}
-          className="text-xs text-ink-soft underline-offset-4 hover:underline"
+          className="btn-admin-ghost"
         >
           {props.t.common.cancel}
         </button>

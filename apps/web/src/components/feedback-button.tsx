@@ -56,7 +56,7 @@ export function FeedbackButton({ t }: { t: Dictionary }) {
         type="button"
         onClick={openModal}
         aria-label={t.feedback.button}
-        className="fixed bottom-24 end-4 z-30 flex items-center gap-2 rounded-full bg-pink text-card font-bold text-sm py-2.5 px-4 shadow-cta-pink hover:-translate-y-px transition"
+        className="fixed bottom-24 end-4 z-30 flex items-center gap-2 rounded-full bg-ink text-card font-semibold text-sm py-2.5 px-4 shadow-card hover:brightness-110 transition"
       >
         <ChatIcon />
         <span>{t.feedback.button}</span>
@@ -117,11 +117,8 @@ function FeedbackModal({ t, onClose }: { t: Dictionary; onClose: () => void }) {
                 {CATEGORIES.map((c) => (
                   <label
                     key={c}
-                    className={`rounded-full py-1.5 px-3 text-sm font-bold cursor-pointer transition border ${
-                      category === c
-                        ? 'bg-pink text-card border-pink shadow-cta-pink'
-                        : 'bg-card text-ink border-rule hover:border-pink-pale'
-                    }`}
+                    data-on={category === c}
+                    className="chip-admin cursor-pointer"
                   >
                     <input
                       type="radio"
@@ -157,7 +154,7 @@ function FeedbackModal({ t, onClose }: { t: Dictionary; onClose: () => void }) {
                 type="file"
                 name="image"
                 accept="image/jpeg,image/png,image/webp"
-                className="block w-full text-xs text-ink-soft file:me-3 file:rounded-full file:border-0 file:bg-pink-soft file:text-pink-dark file:font-bold file:py-1.5 file:px-3 file:cursor-pointer"
+                className="block w-full text-xs text-ink-soft file:me-3 file:rounded-lg file:border-0 file:bg-rule-soft file:text-ink file:font-semibold file:py-1.5 file:px-3 file:cursor-pointer"
               />
             </label>
 
@@ -170,7 +167,7 @@ function FeedbackModal({ t, onClose }: { t: Dictionary; onClose: () => void }) {
             <button
               type="submit"
               disabled={pending}
-              className="w-full bg-pink text-card font-bold rounded-full py-2.5 text-sm shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
+              className="btn-admin w-full"
             >
               {pending ? t.feedback.sending : t.feedback.submit}
             </button>

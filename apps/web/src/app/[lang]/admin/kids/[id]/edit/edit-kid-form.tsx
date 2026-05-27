@@ -154,7 +154,7 @@ export function EditKidForm({
       <button
         type="submit"
         disabled={isPending}
-        className="bg-pink text-card font-bold rounded-full py-3 px-6 shadow-cta-pink hover:-translate-y-px transition disabled:opacity-60"
+        className="btn-admin"
       >
         {isPending ? t.common.loading : t.common.save}
       </button>

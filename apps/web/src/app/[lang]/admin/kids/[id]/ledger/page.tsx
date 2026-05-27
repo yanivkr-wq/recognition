@@ -256,7 +256,7 @@ export default async function AdminKidLedgerPage({
                   <input type="hidden" name="assignmentId" value={m.assignment_id} />
                   <button
                     type="submit"
-                    className="bg-pink text-card font-bold rounded-full py-2 px-4 text-xs shadow-cta-pink transition hover:-translate-y-px active:translate-y-0"
+                    className="btn-admin"
                   >
                     {t.admin.reopenForToday}
                   </button>

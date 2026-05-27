@@ -308,7 +308,7 @@ function CreateImageField({ t }: { t: Dictionary }) {
           name="file"
           accept={IMG_ALLOWED.join(',')}
           onChange={onChange}
-          className="flex-1 min-w-0 text-xs text-ink file:bg-pink file:text-card file:font-bold file:rounded-full file:border-0 file:px-3 file:py-1.5 file:me-2 file:cursor-pointer file:shadow-cta-pink"
+          className="flex-1 min-w-0 text-xs text-ink file:bg-ink file:text-card file:font-semibold file:rounded-lg file:border-0 file:px-3 file:py-1.5 file:me-2 file:cursor-pointer"
         />
       </div>
       {error && (

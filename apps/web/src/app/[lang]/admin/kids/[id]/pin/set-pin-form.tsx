@@ -73,7 +73,7 @@ export function SetPinForm({ kidId, lang, t }: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="bg-pink text-white font-bold rounded-full py-3 px-6 shadow-cta-pink transition hover:-translate-y-px active:translate-y-0 disabled:opacity-60"
+        className="btn-admin"
       >
         {isPending ? t.common.loading : t.common.save}
       </button>

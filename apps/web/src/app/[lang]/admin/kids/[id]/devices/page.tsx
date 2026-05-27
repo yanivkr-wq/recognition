@@ -115,10 +115,7 @@ export default async function DevicesPage({
                 <input type="hidden" name="deviceTrustId" value={d.id} />
                 <input type="hidden" name="kidId" value={k.id} />
                 <input type="hidden" name="lang" value={lang} />
-                <button
-                  type="submit"
-                  className="px-3 py-2 text-xs font-bold rounded-full bg-pink-pale text-pink-dark hover:bg-pink-soft transition"
-                >
+                <button type="submit" className="btn-admin-danger">
                   {t.admin.revoke}
                 </button>
               </form>

@@ -193,6 +193,32 @@
 }
 .btn-admin-ghost:hover { color: var(--ink); background: var(--rule-soft); }
 
+/* Semantic admin actions — same squared/flat geometry as .btn-admin, but a
+ * meaningful fill: mint for approve/positive, pink-dark for deny/destructive.
+ * Colour carries status (allowed by Option C); the childish round pill + glow
+ * are gone. */
+.btn-admin-mint {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+  background: var(--mint-dark); color: var(--card); font-weight: 600;
+  border: 1px solid var(--mint-dark); border-radius: 8px;
+  padding: 0.55rem 1rem; font-size: 0.875rem; line-height: 1;
+  transition: filter .15s ease, transform .05s ease;
+}
+.btn-admin-mint:hover { filter: brightness(1.08); }
+.btn-admin-mint:active { transform: translateY(1px); }
+.btn-admin-mint:disabled { opacity: .55; cursor: default; }
+
+.btn-admin-danger {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4em;
+  background: var(--pink-dark); color: var(--card); font-weight: 600;
+  border: 1px solid var(--pink-dark); border-radius: 8px;
+  padding: 0.55rem 1rem; font-size: 0.875rem; line-height: 1;
+  transition: filter .15s ease, transform .05s ease;
+}
+.btn-admin-danger:hover { filter: brightness(1.08); }
+.btn-admin-danger:active { transform: translateY(1px); }
+.btn-admin-danger:disabled { opacity: .55; cursor: default; }
+
 /* Filter / toggle chip — neutral by default, slate when active. */
 .chip-admin {
   display: inline-flex; align-items: center; gap: 0.3em;

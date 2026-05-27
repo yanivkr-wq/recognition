@@ -123,8 +123,8 @@ export function CampaignForm(props: Props) {
           <>
             <input type="hidden" name="kind" value={kind} />
             <span
-              className={`inline-block rounded-full py-2 px-4 text-sm font-bold ${
-                kind === 'streak' ? 'bg-mint text-card' : 'bg-lavender text-card'
+              className={`inline-block rounded-lg py-2 px-4 text-sm font-bold ${
+                kind === 'streak' ? 'bg-mint-pale text-mint-dark' : 'bg-lavender-pale text-lavender-dark'
               }`}
             >
               {kind === 'streak' ? t.admin.campaignKindStreak : t.admin.campaignKindTotal}
@@ -132,11 +132,7 @@ export function CampaignForm(props: Props) {
           </>
         ) : (
           <div className="flex gap-2">
-            <label
-              className={`flex-1 rounded-full py-2 px-4 text-sm font-bold text-center cursor-pointer transition ${
-                kind === 'streak' ? 'bg-mint text-card shadow-cta-mint' : 'bg-card text-ink border border-rule'
-              }`}
-            >
+            <label data-on={kind === 'streak'} className="chip-admin flex-1 justify-center cursor-pointer py-2">
               <input
                 type="radio"
                 name="kind"
@@ -147,12 +143,7 @@ export function CampaignForm(props: Props) {
               />
               {t.admin.campaignKindStreak}
             </label>
-            <label
-              className={`flex-1 rounded-full py-2 px-4 text-sm font-bold text-center cursor-pointer transition ${
-                kind === 'total' ? 'bg-lavender text-card' : 'bg-card text-ink border border-rule'
-              }`}
-              style={kind === 'total' ? { boxShadow: '0 4px 12px rgba(181, 159, 229, 0.35)' } : {}}
-            >
+            <label data-on={kind === 'total'} className="chip-admin flex-1 justify-center cursor-pointer py-2">
               <input
                 type="radio"
                 name="kind"

@@ -126,8 +126,8 @@ export function FeedbackList({
               type="button"
               onClick={() => toggle(s)}
               aria-pressed={on}
-              className={`rounded-full py-1 px-3 text-xs font-bold border transition ${
-                on ? `${STATUS_STYLE[s]} border-transparent` : 'bg-card text-ink-soft border-rule hover:border-pink-pale'
+              className={`rounded-lg py-1.5 px-3 text-xs font-bold border transition ${
+                on ? `${STATUS_STYLE[s]} border-transparent` : 'bg-card text-ink-soft border-rule hover:border-ink-faded'
               }`}
             >
               {statusLabel(t, s)}
@@ -181,7 +181,7 @@ export function FeedbackList({
                   <button
                     type="button"
                     onClick={() => copy(row)}
-                    className="text-xs text-pink-dark font-bold underline-offset-2 hover:underline"
+                    className="text-xs text-ink-soft font-bold underline-offset-2 hover:underline hover:text-ink"
                   >
                     {copiedId === row.id ? t.feedback.copied : t.feedback.copy}
                   </button>

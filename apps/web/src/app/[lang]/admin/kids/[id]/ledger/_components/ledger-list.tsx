@@ -168,7 +168,7 @@ export function LedgerList({
                       <input type="hidden" name="lang" value={lang} />
                       <button
                         type="submit"
-                        className={`text-xs font-bold rounded-full py-1.5 px-3 transition hover:-translate-y-px ${
+                        className={`text-xs font-bold rounded-lg py-1.5 px-3 transition hover:brightness-105 ${
                           r.amount > 0
                             ? 'bg-pink-pale text-pink-dark'
                             : 'bg-mint-soft text-mint-dark'

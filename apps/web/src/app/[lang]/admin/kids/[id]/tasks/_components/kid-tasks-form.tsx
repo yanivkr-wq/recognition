@@ -91,7 +91,7 @@ export function KidTasksForm({ kidId, lang, t, templates, initiallyChecked }: Pr
           <button
             type="button"
             onClick={selectAll}
-            className="text-xs font-bold text-pink-dark hover:underline underline-offset-2"
+            className="btn-admin-ghost text-xs"
           >
             {t.admin.bulkAssignSelectAll}
           </button>

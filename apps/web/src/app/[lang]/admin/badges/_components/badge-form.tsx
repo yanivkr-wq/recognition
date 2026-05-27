@@ -226,7 +226,7 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
                   type="button"
                   onClick={generateIcon}
                   disabled={genPending || !hasTitle}
-                  className="inline-flex items-center gap-1.5 bg-lavender-pale text-lavender-dark font-bold rounded-full py-1.5 px-3 text-xs hover:opacity-80 transition disabled:opacity-60"
+                  className="btn-admin-secondary"
                 >
                   {genPending
                     ? t.admin.badgeGeneratingIcon

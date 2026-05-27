@@ -156,19 +156,13 @@ export function RewardsAdmin({
           </span>
         </div>
         <div className="flex justify-end items-center gap-4 mt-3 pt-3 border-t border-rule">
-          <Link
-            href={`/${lang}/admin/rewards/${r.id}/edit`}
-            className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold"
-          >
+          <Link href={`/${lang}/admin/rewards/${r.id}/edit`} className="btn-admin-ghost">
             {t.common.edit}
           </Link>
           <form action={toggleArchiveRewardAction}>
             <input type="hidden" name="id" value={r.id} />
             <input type="hidden" name="lang" value={lang} />
-            <button
-              type="submit"
-              className="text-xs text-ink-soft underline-offset-2 hover:underline font-bold"
-            >
+            <button type="submit" className="btn-admin-ghost">
               {r.archived ? t.admin.unarchive : t.admin.archive}
             </button>
           </form>
@@ -204,7 +198,7 @@ export function RewardsAdmin({
       {selectedIds.length > 0 && (
         <form
           action={bulkUpdateRewardsAction}
-          className="sticky top-2 z-10 bg-card rounded-2xl border border-pink-pale shadow-card p-3 flex flex-wrap items-center gap-2"
+          className="sticky top-2 z-10 bg-card rounded-2xl border border-rule shadow-card p-3 flex flex-wrap items-center gap-2"
         >
           <input type="hidden" name="lang" value={lang} />
           {selectedIds.map((id) => (
@@ -215,10 +209,10 @@ export function RewardsAdmin({
           </span>
           <span className="text-sm text-ink-soft me-2">{t.admin.bulkSelected}</span>
 
-          <button name="op" value="show" className="px-3 py-1.5 rounded-full text-xs font-bold bg-mint-soft text-mint-dark hover:-translate-y-px transition">
+          <button name="op" value="show" className="chip-admin">
             {t.admin.bulkShow}
           </button>
-          <button name="op" value="hide" className="px-3 py-1.5 rounded-full text-xs font-bold bg-rule-soft text-ink-soft hover:-translate-y-px transition">
+          <button name="op" value="hide" className="chip-admin">
             {t.admin.bulkHide}
           </button>
 
@@ -227,27 +221,23 @@ export function RewardsAdmin({
               type="number"
               name="amount"
               defaultValue={5}
-              className="w-16 px-2 py-1.5 rounded-full border border-rule text-xs num text-center"
+              className="w-16 px-2 py-1.5 rounded-lg border border-rule text-xs num text-center"
               dir="ltr"
               aria-label={t.admin.bulkAddPoints}
             />
-            <button name="op" value="addPoints" className="px-3 py-1.5 rounded-full text-xs font-bold bg-yellow-pale text-[#7A5D10] hover:-translate-y-px transition">
+            <button name="op" value="addPoints" className="chip-admin">
               {t.admin.bulkAddPoints}
             </button>
           </span>
 
-          <button name="op" value="archive" className="px-3 py-1.5 rounded-full text-xs font-bold bg-pink-pale text-pink-dark hover:-translate-y-px transition">
+          <button name="op" value="archive" className="chip-admin">
             {t.admin.bulkArchiveSel}
           </button>
-          <button name="op" value="unarchive" className="px-3 py-1.5 rounded-full text-xs font-bold bg-card border border-rule text-ink-soft hover:-translate-y-px transition">
+          <button name="op" value="unarchive" className="chip-admin">
             {t.admin.bulkUnarchiveSel}
           </button>
 
-          <button
-            type="button"
-            onClick={() => setSelected(new Set())}
-            className="ms-auto text-xs text-ink-soft underline-offset-2 hover:underline"
-          >
+          <button type="button" onClick={() => setSelected(new Set())} className="btn-admin-ghost ms-auto">
             {t.admin.bulkClear}
           </button>
         </form>

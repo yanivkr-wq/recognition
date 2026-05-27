@@ -174,7 +174,7 @@ export function TasksManager({ lang, t, tasks, kids }: Props) {
           <button
             type="button"
             onClick={selectAllVisible}
-            className="text-xs font-bold text-pink-dark hover:underline underline-offset-2"
+            className="btn-admin-ghost text-xs"
           >
             {t.admin.bulkAssignSelectAll}
           </button>
@@ -244,7 +244,7 @@ export function TasksManager({ lang, t, tasks, kids }: Props) {
                   </span>
                   <Link
                     href={`/${lang}/admin/tasks/${task.id}/edit`}
-                    className="text-sm text-pink-dark underline-offset-2 hover:underline font-bold py-1"
+                    className="btn-admin-ghost"
                   >
                     {t.common.edit}
                   </Link>
@@ -286,21 +286,21 @@ export function TasksManager({ lang, t, tasks, kids }: Props) {
             <button
               type="button"
               onClick={() => setPanel('edit')}
-              className="rounded-full py-2 px-4 text-sm font-bold bg-lavender-pale text-lavender-dark hover:opacity-80 transition"
+              className="btn-admin-secondary"
             >
               {t.admin.bulkEditAction}
             </button>
             <button
               type="button"
               onClick={() => setPanel('assign')}
-              className="rounded-full py-2 px-4 text-sm font-bold bg-pink text-card shadow-cta-pink hover:-translate-y-px transition"
+              className="btn-admin"
             >
               {t.admin.bulkAssignAction}
             </button>
             <button
               type="button"
               onClick={clearSelection}
-              className="text-xs text-ink-soft underline-offset-4 hover:underline"
+              className="btn-admin-ghost"
             >
               {t.admin.bulkClearSelection}
             </button>
@@ -354,11 +354,8 @@ function FilterChip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full py-1.5 px-3 text-xs font-bold transition border ${
-        active
-          ? 'bg-pink text-card border-pink shadow-cta-pink'
-          : 'bg-card text-ink border-rule hover:border-pink-pale'
-      }`}
+      data-on={active}
+      className="chip-admin"
     >
       {children}
     </button>
@@ -397,11 +394,7 @@ function BulkArchiveButton({
       <button
         type="submit"
         disabled={pending}
-        className={`rounded-full py-2 px-4 text-sm font-bold transition disabled:opacity-60 ${
-          tone === 'mint'
-            ? 'bg-mint text-card shadow-cta-mint hover:-translate-y-px'
-            : 'bg-card text-ink border border-rule hover:border-pink-pale'
-        }`}
+        className={tone === 'mint' ? 'btn-admin-mint' : 'btn-admin-secondary'}
       >
         {pending ? '…' : label}
       </button>
@@ -499,7 +492,7 @@ function BulkEditPanel({
         <button
           type="submit"
           disabled={pending || (!setCoin && !setEvidence)}
-          className="w-full bg-pink text-card font-bold rounded-full py-2.5 text-sm shadow-cta-pink transition hover:-translate-y-px disabled:opacity-60"
+          className="btn-admin w-full"
         >
           {pending ? '…' : t.admin.bulkApply}
         </button>
@@ -587,7 +580,7 @@ function BulkAssignPanel({
         <button
           type="submit"
           disabled={pending || picked.size === 0}
-          className="w-full bg-pink text-card font-bold rounded-full py-2.5 text-sm shadow-cta-pink transition hover:-translate-y-px disabled:opacity-60"
+          className="btn-admin w-full"
         >
           {pending ? '…' : t.admin.bulkApply}
         </button>
