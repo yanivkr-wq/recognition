@@ -56,6 +56,7 @@ const ERROR_MESSAGES: Record<RewardFormError, keyof Dictionary['admin']> = {
   invalid_stock: 'invalidReward',
   invalid_cap: 'invalidReward',
   invalid_icon: 'invalidReward',
+  invalid_image: 'rewardImageFailed',
   forbidden: 'invalidReward',
   not_found: 'invalidReward',
   internal: 'invalidReward',
@@ -206,6 +207,11 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
         {t.admin.visibleToKids}
       </label>
 
+      {/* Create-mode photo: lives INSIDE the main form so the file posts with
+          createRewardAction (no reward id needed — saved with a fresh name).
+          Edit mode uses the richer RewardImagePicker below instead. */}
+      {mode === 'create' && <CreateImageField t={t} />}
+
       {state && (
         <p className="text-xs text-pink-dark" role="alert">
           {t.admin[ERROR_MESSAGES[state]]}
@@ -221,19 +227,15 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
       </button>
     </form>
 
-    {/* Image picker lives OUTSIDE the main <form> so its own <form action=…>
-        elements aren't nested (invalid HTML). Edit-mode only — needs a
-        reward id to target. */}
-    {mode === 'edit' && initial.id ? (
+    {/* Edit mode: the richer image picker (replace / remove) lives OUTSIDE the
+        main <form> so its own <form action=…> elements aren't nested. Create
+        mode uses the inline CreateImageField inside the form above instead. */}
+    {mode === 'edit' && initial.id && (
       <RewardImagePicker
         rewardId={initial.id}
         currentImageUrl={initial.currentImageUrl ?? null}
         t={t}
       />
-    ) : (
-      <p className="text-xs text-ink-faded">
-        {t.admin.rewardImageCreateFirst}
-      </p>
     )}
     </div>
 
@@ -254,6 +256,66 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
         t={t}
       />
     </aside>
+    </div>
+  );
+}
+
+const IMG_MAX_BYTES = 5 * 1024 * 1024;
+const IMG_ALLOWED = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+/** Create-mode photo field. The <input type="file" name="file"> posts with the
+ *  main create form; we add a local preview + client-side validation so the
+ *  admin gets instant feedback before submitting. */
+function CreateImageField({ t }: { t: Dictionary }) {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<keyof Dictionary['admin'] | null>(null);
+
+  function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setError(null);
+    setPreview(null);
+    const f = e.currentTarget.files?.[0];
+    if (!f) return;
+    if (f.size > IMG_MAX_BYTES) {
+      setError('rewardImageTooLarge');
+      return;
+    }
+    if (!IMG_ALLOWED.includes(f.type)) {
+      setError('rewardImageBadMime');
+      return;
+    }
+    setPreview(URL.createObjectURL(f));
+  }
+
+  return (
+    <div className="bg-bg rounded-2xl border border-rule p-4 space-y-3">
+      <div>
+        <p className="font-bold text-ink text-sm">{t.admin.rewardImage}</p>
+        <p className="text-xs text-ink-soft mt-0.5">{t.admin.rewardImageHint}</p>
+      </div>
+      <div className="flex items-start gap-3">
+        {preview ? (
+          <div className="w-24 h-24 rounded-2xl overflow-hidden border border-rule shrink-0 bg-card">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={preview} alt="" className="w-full h-full object-cover" />
+          </div>
+        ) : (
+          <div className="w-24 h-24 rounded-2xl border border-dashed border-rule flex items-center justify-center text-[10px] text-ink-faded text-center px-2 shrink-0">
+            {t.admin.rewardImageNone}
+          </div>
+        )}
+        <input
+          type="file"
+          name="file"
+          accept={IMG_ALLOWED.join(',')}
+          onChange={onChange}
+          className="flex-1 min-w-0 text-xs text-ink file:bg-pink file:text-card file:font-bold file:rounded-full file:border-0 file:px-3 file:py-1.5 file:me-2 file:cursor-pointer file:shadow-cta-pink"
+        />
+      </div>
+      {error && (
+        <p className="text-xs text-pink-dark" role="alert">
+          {t.admin[error]}
+        </p>
+      )}
     </div>
   );
 }

@@ -16,12 +16,20 @@
 
 'use server';
 
+import { writeFile } from 'node:fs/promises';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import { getDb, rewardItem, auditLog } from '@reco/db';
 import { requireAdmin, UnauthorizedError } from '../auth/guards';
+import {
+  ensureRewardImageDirFor,
+  freshRewardImageFilename,
+  isAllowedRewardMime,
+  MAX_REWARD_IMAGE_BYTES,
+  rewardImagePathFor,
+} from '../reward-images/paths';
 
 export type RewardFormError =
   | 'invalid_title'
@@ -30,9 +38,36 @@ export type RewardFormError =
   | 'invalid_stock'
   | 'invalid_cap'
   | 'invalid_icon'
+  | 'invalid_image'
   | 'forbidden'
   | 'not_found'
   | 'internal';
+
+/**
+ * Save an optional reward photo posted with the create/edit form. Returns the
+ * stored filename, null when no file was attached, or a RewardFormError string
+ * when the file is invalid. The filename is a fresh UUID (no reward id needed),
+ * so this works during creation before the row exists.
+ */
+async function saveOptionalRewardImage(
+  formData: FormData,
+): Promise<string | null | RewardFormError> {
+  const fileRaw = formData.get('file');
+  if (!(fileRaw instanceof File) || fileRaw.size === 0) return null;
+  if (fileRaw.size > MAX_REWARD_IMAGE_BYTES) return 'invalid_image';
+  if (!isAllowedRewardMime(fileRaw.type)) return 'invalid_image';
+  const filename = freshRewardImageFilename(fileRaw.type);
+  try {
+    await ensureRewardImageDirFor(filename);
+    await writeFile(rewardImagePathFor(filename), Buffer.from(await fileRaw.arrayBuffer()), {
+      mode: 0o644,
+    });
+  } catch (err) {
+    console.error('saveOptionalRewardImage failed', err);
+    return 'internal';
+  }
+  return filename;
+}
 
 interface ParsedReward {
   titleHe: string;
@@ -119,6 +154,14 @@ export async function createRewardAction(
   const parsed = parseRewardForm(formData);
   if (typeof parsed === 'string') return parsed;
 
+  // Optional photo attached right in the create form (Lily: add the pic at
+  // creation, not only when editing). Validated + written before the insert.
+  // The only string error values returned are 'invalid_image' / 'internal';
+  // any other value is null (no file) or the saved filename.
+  const image = await saveOptionalRewardImage(formData);
+  if (image === 'invalid_image' || image === 'internal') return image;
+  const imagePath: string | null = image;
+
   const db = getDb();
   try {
     const [row] = await db
@@ -136,6 +179,7 @@ export async function createRewardAction(
         maxPerKidPerDay: parsed.maxPerKidPerDay,
         displayOrder: parsed.displayOrder,
         visibleToKids: parsed.visibleToKids,
+        imagePath,
       })
       .returning({ id: rewardItem.id });
 
@@ -146,7 +190,7 @@ export async function createRewardAction(
       action: 'reward_item.created',
       targetKind: 'reward_item',
       targetId: row!.id,
-      afterJson: parsed,
+      afterJson: { ...parsed, imagePath },
       requestIp: hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
       userAgent: hdrs.get('user-agent') ?? null,
     });
