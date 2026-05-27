@@ -1,10 +1,11 @@
 /**
  * Splash intro — a short, once-per-session launch animation.
  *
- * The embroidered patch with its stitched ring slowly turning while the
+ * Reads as the "RECO" wordmark: the letters REC followed by the embroidered
+ * patch standing in for the "o", its stitched ring slowly turning while the
  * emblem inside cycles through what kids earn (coin → star → trophy → crown →
- * gift → medal), under the Reco wordmark, on the brand cream background. Fades
- * out after ~2s and unmounts so it never blocks interaction.
+ * gift → medal), on the themed background. Fades out after ~2s and unmounts so
+ * it never blocks interaction.
  *
  * Shown once per browser session (sessionStorage gate) and only after client
  * mount (no SSR flash). Respects prefers-reduced-motion by not showing at all.
@@ -47,12 +48,12 @@ export function SplashIntro() {
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        background: '#FAF8F5',
+        background: 'var(--bg, #FAF8F5)',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 22,
+        gap: 4,
         opacity: phase === 'fade' ? 0 : 1,
         transition: 'opacity .45s ease',
         pointerEvents: phase === 'fade' ? 'none' : 'auto',
@@ -72,15 +73,15 @@ export function SplashIntro() {
           to   { opacity: 1; transform: translateY(0); }
         }
         .reco-splash-patch {
-          width: 132px; height: 132px; border-radius: 30%;
-          background: #FFF0F6; position: relative;
+          width: 84px; height: 84px; border-radius: 30%;
+          background: var(--pink-soft, #FFF0F6); position: relative;
           display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 16px 36px rgba(45,42,74,.16);
+          box-shadow: 0 12px 28px rgba(45,42,74,.16);
           animation: recoSplashRise .5s ease both;
         }
         .reco-splash-ring {
-          position: absolute; inset: 18px; border-radius: 50%;
-          border: 3px dashed #FF6B9D; animation: recoSplashSpin 3.2s linear infinite;
+          position: absolute; inset: 12px; border-radius: 50%;
+          border: 3px dashed var(--pink, #FF6B9D); animation: recoSplashSpin 3.2s linear infinite;
         }
         .reco-splash-glyphs { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
         .reco-splash-glyph { position: absolute; width: 52%; height: 52%; opacity: 0; animation: recoSplashCyc 2.4s ease-in-out infinite; }
@@ -93,11 +94,15 @@ export function SplashIntro() {
         .reco-splash-glyph svg { width: 100%; height: 100%; display: block; }
         .reco-splash-word {
           font-family: var(--font-fredoka), system-ui, sans-serif;
-          font-weight: 700; font-size: 40px; letter-spacing: -.03em; color: #FF6B9D;
+          font-weight: 700; font-size: 64px; letter-spacing: -.03em; color: var(--pink, #FF6B9D);
+          line-height: 1;
           animation: recoSplashRise .5s .12s ease both;
         }
       `}</style>
 
+      {/* The mark reads as "RECO": the letters REC followed by the spinning
+          patch standing in for the "o" (its emblem cycles through rewards). */}
+      <div className="reco-splash-word" dir="ltr">REC</div>
       <div className="reco-splash-patch">
         <span className="reco-splash-ring" />
         <span className="reco-splash-glyphs">
@@ -121,8 +126,6 @@ export function SplashIntro() {
           </span>
         </span>
       </div>
-      {/* The animated patch above IS the "o"; the word completes the mark. */}
-      <div className="reco-splash-word" dir="ltr">REC</div>
     </div>
   );
 }

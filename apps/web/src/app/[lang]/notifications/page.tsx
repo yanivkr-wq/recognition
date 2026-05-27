@@ -22,6 +22,7 @@ import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, notificationEvent, kid as kidTable } from '@reco/db';
 import { isNull } from 'drizzle-orm';
 import { markAllReadAction } from '../../../lib/notifications/actions';
+import { getKidAttention, type KidTaskItem } from '../../../lib/notifications/kid-attention';
 import { BottomNav } from '../_components/bottom-nav';
 import { Avatar } from '../../../components/avatar';
 import { arrowBack } from '../../../lib/rtl';
@@ -50,12 +51,21 @@ export default async function NotificationsPage({
 
   const db = getDb();
   const kRows = await db
-    .select({ name: kidTable.name, color: kidTable.color, avatarKey: kidTable.avatarKey })
+    .select({
+      name: kidTable.name,
+      color: kidTable.color,
+      avatarKey: kidTable.avatarKey,
+      householdId: kidTable.householdId,
+    })
     .from(kidTable)
     .where(and(eq(kidTable.id, kidId), isNull(kidTable.archivedAt)))
     .limit(1);
   const k = kRows[0];
   if (!k) redirect(`/${lang}/pick`);
+
+  // Live "needs you" items — same source as the bell badge, so the list here
+  // matches the number the kid tapped (Lily: "align the display with reality").
+  const attention = await getKidAttention(kidId, k.householdId, lang as 'he' | 'en');
 
   const rows: Row[] = (
     await db
@@ -109,7 +119,34 @@ export default async function NotificationsPage({
         <span className="w-12" aria-hidden />
       </header>
 
-      {rows.length === 0 ? (
+      {/* Action-needed — the live items the bell badge counts (pending tasks,
+          denials, an active message). Tapping any goes home where they live. */}
+      {(attention.tasks.length > 0 || attention.popup) && (
+        <section className="mx-5 mt-4">
+          <h2 className="text-xs uppercase tracking-wider text-pink-dark font-bold mb-2">
+            {t.notifications.actionNeeded}
+          </h2>
+          <ul className="space-y-2">
+            {attention.tasks.map((task) => (
+              <ActionRow
+                key={task.assignmentId}
+                href={`/${lang}/`}
+                label={taskKindLabel(task.kind, t)}
+                detail={task.title}
+              />
+            ))}
+            {attention.popup && (
+              <ActionRow
+                href={`/${lang}/`}
+                label={t.notifications.newMessage}
+                detail={attention.popup.title ?? attention.popup.body}
+              />
+            )}
+          </ul>
+        </section>
+      )}
+
+      {rows.length === 0 && attention.tasks.length === 0 && !attention.popup ? (
         <section className="mx-5 mt-8 bg-card rounded-2xl border border-rule p-8 text-center">
           <p className="font-bold text-ink">{t.notifications.empty}</p>
           <p className="text-sm text-ink-soft mt-1">{t.notifications.emptyHint}</p>
@@ -155,6 +192,44 @@ export default async function NotificationsPage({
     </main>
     <BottomNav lang={lang as 'he' | 'en'} t={t} />
     </>
+  );
+}
+
+function taskKindLabel(kind: KidTaskItem['kind'], t: ReturnType<typeof getDictionary>): string {
+  switch (kind) {
+    case 'denied':
+      return t.notifications.taskDenied;
+    case 'needsPhoto':
+      return t.notifications.taskNeedsPhoto;
+    default:
+      return t.notifications.taskTodo;
+  }
+}
+
+/** A tappable "needs you" row (task or message) linking back to the home
+ *  surface where the kid can actually act on it. */
+function ActionRow({
+  href,
+  label,
+  detail,
+}: {
+  href: string;
+  label: string;
+  detail: string;
+}) {
+  return (
+    <li>
+      <a
+        href={href}
+        className="rounded-2xl border border-pink-pale bg-pink-soft p-3 flex items-center justify-between gap-3 hover:-translate-y-px transition"
+      >
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-ink">{label}</p>
+          <p className="text-xs text-ink-soft truncate" dir="auto">{detail}</p>
+        </div>
+        <span className="text-pink-dark shrink-0" aria-hidden="true">›</span>
+      </a>
+    </li>
   );
 }
 

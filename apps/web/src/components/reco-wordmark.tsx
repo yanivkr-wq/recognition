@@ -51,12 +51,12 @@ export function RecoWordmark({ size = 40, className }: Props) {
         .reco-wm {
           display: inline-flex; align-items: center; gap: 0.04em;
           font-family: var(--font-fredoka), system-ui, sans-serif;
-          font-weight: 700; letter-spacing: -0.03em; color: #FF6B9D; line-height: 1;
+          font-weight: 700; letter-spacing: -0.03em; color: var(--pink, #FF6B9D); line-height: 1;
         }
         .reco-wm .reco-wm-o {
           display: inline-flex; align-items: center; justify-content: center;
           width: 0.9em; height: 0.9em; border-radius: 50%; position: relative;
-          background: #FFF0F6; border: 0.07em dashed #FF6B9D; overflow: hidden;
+          background: var(--pink-soft, #FFF0F6); border: 0.07em dashed var(--pink, #FF6B9D); overflow: hidden;
           vertical-align: -0.06em;
         }
         .reco-wm .reco-wm-glyph {

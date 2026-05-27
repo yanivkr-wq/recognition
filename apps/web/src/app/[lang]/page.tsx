@@ -31,6 +31,7 @@ import {
   type KidHomeLongTermTask,
 } from './_components/kid-home';
 import { PlayerMessagePopup } from './_components/player-message-popup';
+import { getKidAttention } from '../../lib/notifications/kid-attention';
 
 export const dynamic = 'force-dynamic';
 
@@ -277,49 +278,14 @@ async function KidView({
   );
   const balance = Number(balanceRes.rows[0]?.balance ?? 0);
 
-  // Fix 12b: unread bell-event count for the bell chip in the header. We
-  // count `state='pending'` rows targeting this kid on the bell channel —
-  // those are the events Phase 7 wrote (campaign_completed,
-  // sibling_badge_earned, streak_broken, streak_freeze_used). Phase 8 will
-  // shift them to `state='sent'` when the kid taps "mark all read".
-  const unreadRes = await getPool().query<{ n: string }>(
-    `SELECT count(*)::text AS n
-       FROM notification_event
-      WHERE recipient_kid_id = $1
-        AND channel = 'bell'
-        AND state = 'pending'`,
-    [kidId],
-  );
-  const unreadCount = Number(unreadRes.rows[0]?.n ?? 0);
-
-  // Active popup message for this player: targeted at this kid OR a broadcast
-  // (kid_id IS NULL), inside its [start,end] IL-date window, not archived, and
-  // not already dismissed by this kid. Newest wins; one popup at a time.
-  const msgRes = await getPool().query<{ id: string; title: string | null; body: string }>(
-    `SELECT pm.id, pm.title, pm.body
-       FROM player_message pm
-      WHERE pm.household_id = $1
-        AND (pm.kid_id = $2 OR pm.kid_id IS NULL)
-        AND pm.archived_at IS NULL
-        AND $3::date BETWEEN pm.start_date AND pm.end_date
-        AND NOT EXISTS (
-          SELECT 1 FROM player_message_dismissal d
-           WHERE d.message_id = pm.id AND d.kid_id = $2
-        )
-      ORDER BY pm.created_at DESC
-      LIMIT 1`,
-    [k.householdId, kidId, today],
-  );
-  const popupMessage = msgRes.rows[0] ?? null;
-
-  // Kid bell / app-badge count — "anything that needs me" (Lily's request:
-  // pending task, pending denial, pop-up message, and the bell-event news).
-  // Daily tasks the kid can still act on (todo / needs-photo) + denied tasks
-  // that need a redo + an active popup message + unread event news.
-  const pendingTaskCount = tasks.filter(
-    (tk) => tk.status === 'todo' || tk.status === 'needsPhoto' || tk.status === 'denied',
-  ).length;
-  const attentionCount = unreadCount + pendingTaskCount + (popupMessage ? 1 : 0);
+  // Kid bell / app-badge — "anything that needs me" (pending task, pending
+  // denial, active pop-up message, and unread event news). Computed by the
+  // shared helper so the bell number always matches what the kid sees on the
+  // notifications page (and the OS app-icon badge). The helper also resolves
+  // the active popup so we don't query it twice.
+  const attention = await getKidAttention(kidId, k.householdId, lang);
+  const attentionCount = attention.count;
+  const popupMessage = attention.popup;
 
   return (
     <>

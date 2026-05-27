@@ -122,7 +122,12 @@
     "submissionDenied": "❗ ההגשה הוחזרה",
     "redemptionReceived": "🎁 קיבלת את הפרס",
     "redemptionRefunded": "↩️ הוחזרו לך מטבעות",
-    "adminWalletAdjustment": "💰 ההורים עדכנו לך את הארנק"
+    "adminWalletAdjustment": "💰 ההורים עדכנו לך את הארנק",
+    "actionNeeded": "מה מחכה לך",
+    "taskTodo": "משימה לביצוע",
+    "taskNeedsPhoto": "צריך לצרף תמונה",
+    "taskDenied": "המשימה הוחזרה — נסי שוב",
+    "newMessage": "הודעה חדשה"
   },
   "redeem": {
     "title": "החנות",

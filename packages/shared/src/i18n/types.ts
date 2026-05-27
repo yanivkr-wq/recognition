@@ -136,6 +136,11 @@ export interface Dictionary {
     redemptionReceived: string;
     redemptionRefunded: string;
     adminWalletAdjustment: string;
+    actionNeeded: string;
+    taskTodo: string;
+    taskNeedsPhoto: string;
+    taskDenied: string;
+    newMessage: string;
   };
   redeem: {
     title: string;

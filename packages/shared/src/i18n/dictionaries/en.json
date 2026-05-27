@@ -122,7 +122,12 @@
     "submissionDenied": "❗ Your submission needs another try",
     "redemptionReceived": "🎁 You got your reward",
     "redemptionRefunded": "↩️ Coins refunded",
-    "adminWalletAdjustment": "💰 Parents updated your wallet"
+    "adminWalletAdjustment": "💰 Parents updated your wallet",
+    "actionNeeded": "Waiting for you",
+    "taskTodo": "Task to do",
+    "taskNeedsPhoto": "Add a photo",
+    "taskDenied": "Sent back — try again",
+    "newMessage": "New message"
   },
   "redeem": {
     "title": "Shop",
