@@ -30,6 +30,7 @@ import {
   type KidHomeTask,
   type KidHomeLongTermTask,
 } from './_components/kid-home';
+import { PlayerMessagePopup } from './_components/player-message-popup';
 
 export const dynamic = 'force-dynamic';
 
@@ -69,7 +70,12 @@ async function KidView({
 }) {
   const db = getDb();
   const kRows = await db
-    .select({ name: kidTable.name, color: kidTable.color, avatarKey: kidTable.avatarKey })
+    .select({
+      name: kidTable.name,
+      color: kidTable.color,
+      avatarKey: kidTable.avatarKey,
+      householdId: kidTable.householdId,
+    })
     .from(kidTable)
     .where(and(eq(kidTable.id, kidId), isNull(kidTable.archivedAt)))
     .limit(1);
@@ -286,7 +292,36 @@ async function KidView({
   );
   const unreadCount = Number(unreadRes.rows[0]?.n ?? 0);
 
+  // Active popup message for this player: targeted at this kid OR a broadcast
+  // (kid_id IS NULL), inside its [start,end] IL-date window, not archived, and
+  // not already dismissed by this kid. Newest wins; one popup at a time.
+  const msgRes = await getPool().query<{ id: string; title: string | null; body: string }>(
+    `SELECT pm.id, pm.title, pm.body
+       FROM player_message pm
+      WHERE pm.household_id = $1
+        AND (pm.kid_id = $2 OR pm.kid_id IS NULL)
+        AND pm.archived_at IS NULL
+        AND $3::date BETWEEN pm.start_date AND pm.end_date
+        AND NOT EXISTS (
+          SELECT 1 FROM player_message_dismissal d
+           WHERE d.message_id = pm.id AND d.kid_id = $2
+        )
+      ORDER BY pm.created_at DESC
+      LIMIT 1`,
+    [k.householdId, kidId, today],
+  );
+  const popupMessage = msgRes.rows[0] ?? null;
+
   return (
+    <>
+      {popupMessage && (
+        <PlayerMessagePopup
+          messageId={popupMessage.id}
+          title={popupMessage.title}
+          body={popupMessage.body}
+          t={t}
+        />
+      )}
     <KidHome
       lang={lang}
       t={t}
@@ -305,6 +340,7 @@ async function KidView({
       avatarKey={k.avatarKey}
       avatarHref={`/${lang}/avatar`}
     />
+    </>
   );
 }
 

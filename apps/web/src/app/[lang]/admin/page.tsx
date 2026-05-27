@@ -93,6 +93,20 @@ export default async function AdminHome({
           <p className="text-lg font-bold text-ink">{t.admin.feedback}</p>
           <p className="text-sm text-ink-soft mt-1">{t.feedback.heading}</p>
         </Link>
+        <Link
+          href={`/${lang}/admin/insights`}
+          className="bg-card rounded-2xl shadow-card p-5 hover:-translate-y-px transition border border-rule"
+        >
+          <p className="text-lg font-bold text-ink">{t.admin.insights}</p>
+          <p className="text-sm text-ink-soft mt-1">{t.insights.heading}</p>
+        </Link>
+        <Link
+          href={`/${lang}/admin/messages`}
+          className="bg-card rounded-2xl shadow-card p-5 hover:-translate-y-px transition border border-rule"
+        >
+          <p className="text-lg font-bold text-ink">{t.admin.messages}</p>
+          <p className="text-sm text-ink-soft mt-1">{t.playerMsg.heading}</p>
+        </Link>
       </div>
     </div>
   );

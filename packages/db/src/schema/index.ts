@@ -15,6 +15,7 @@ export * from './rewards';
 export * from './badges';
 export * from './campaigns';
 export * from './feedback';
+export * from './player-messages';
 export * from './ledger';
 export * from './notifications';
 export * from './audit';

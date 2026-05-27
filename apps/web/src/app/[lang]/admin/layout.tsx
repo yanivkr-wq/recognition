@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { auth, signOut } from '../../../auth';
+import { RecoWordmark } from '../../../components/reco-wordmark';
 
 export default async function AdminLayout({
   children,
@@ -34,13 +35,7 @@ export default async function AdminLayout({
             className="flex items-center gap-3"
             aria-label="Reco admin"
           >
-            <span
-              className="text-2xl font-bold text-pink"
-              style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
-              dir="ltr"
-            >
-              Reco
-            </span>
+            <RecoWordmark size={26} />
             <span className="text-sm text-ink-soft">·</span>
             <span className="text-sm text-ink-soft">{t.admin.title}</span>
           </Link>

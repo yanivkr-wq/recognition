@@ -415,6 +415,48 @@ export interface Dictionary {
     badgeGenerateFailed: string;
     badgeGenerateNoTitle: string;
     feedback: string;
+    messages: string;
+    insights: string;
+  };
+  playerMsg: {
+    heading: string;
+    compose: string;
+    target: string;
+    targetAll: string;
+    titleLabel: string;
+    bodyLabel: string;
+    bodyPlaceholder: string;
+    startDate: string;
+    endDate: string;
+    send: string;
+    sending: string;
+    sent: string;
+    invalid: string;
+    listHeading: string;
+    statusActive: string;
+    statusScheduled: string;
+    statusExpired: string;
+    archive: string;
+    empty: string;
+    popupDismiss: string;
+    popupClose: string;
+  };
+  insights: {
+    heading: string;
+    balance: string;
+    pendingApprovals: string;
+    pendingRedemptions: string;
+    activeJourneys: string;
+    noJourneys: string;
+    tasksToday: string;
+    overall: string;
+    totalCoins: string;
+    totalTasks: string;
+    totalRedemptions: string;
+    badgesEarned: string;
+    latestRequests: string;
+    noRequests: string;
+    viewLedger: string;
   };
   feedback: {
     button: string;
