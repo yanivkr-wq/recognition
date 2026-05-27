@@ -21,6 +21,18 @@ const config: NextConfig = {
   // In a monorepo Next needs to know where the tracing root lives so
   // pnpm-symlinked workspace packages are followed correctly.
   outputFileTracingRoot: path.join(here, '../..'),
+  // Photo uploads (evidence for approval, reward/badge images, feedback
+  // attachments) go through Server Actions as multipart FormData. Next's
+  // default Server Action body cap is 1 MB — phone photos are 2-5 MB, so the
+  // POST was rejected with "Body exceeded 1 MB limit" before the action ran.
+  // Our own per-feature caps are the real limits: evidence 10 MB, reward/badge
+  // images 5 MB. Set 12 MB here to clear the largest (10 MB) plus multipart
+  // encoding overhead; the action-level size checks still enforce the rest.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '12mb',
+    },
+  },
 };
 
 export default config;
