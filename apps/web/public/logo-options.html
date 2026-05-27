@@ -1,0 +1,111 @@
+<!doctype html>
+<!--
+  TasKidz logo style picker (throwaway). Served at /logo-options.html so Lily
+  can compare four logo lockups that build a reward icon into the "TasKidz"
+  wordmark, then pick one. Not linked from the app; delete after the choice.
+-->
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TasKidz · logo options</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#FAF8F5; --card:#FFFFFF; --ink:#2D2A4A; --ink-soft:#6E6B89; --ink-faded:#A8A6BB;
+    --rule:#EFEDF5; --pink:#FF6B9D; --pink-dark:#E94B7F; --pink-pale:#FFE0EB; --pink-soft:#FFF0F6;
+    --yellow:#FFD75E;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Quicksand,system-ui,sans-serif;padding:24px 16px 60px}
+  .wrap{max-width:720px;margin:0 auto}
+  h1{font-family:Fredoka;font-weight:700;font-size:26px;margin:0 0 4px}
+  .sub{color:var(--ink-soft);font-size:14px;margin:0 0 24px}
+  .card{background:var(--card);border:1px solid var(--rule);border-radius:20px;box-shadow:0 4px 12px rgba(45,42,74,.06);padding:24px;margin-bottom:18px}
+  .tag{display:inline-block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:var(--ink-faded);margin-bottom:4px}
+  .opt-title{font-family:Fredoka;font-weight:700;font-size:18px;margin:0 0 4px}
+  .desc{color:var(--ink-soft);font-size:13px;margin:0 0 18px;line-height:1.5}
+  .stage{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .stage.dark{background:var(--ink);border-radius:14px;padding:14px 18px}
+  .stage.dark .wm{color:#fff}
+  .wm{font-family:Fredoka;font-weight:700;font-size:46px;letter-spacing:-.02em;color:var(--ink);line-height:1;display:inline-flex;align-items:center}
+  .pink{color:var(--pink-dark)}
+  .em{display:inline-block}
+  .em svg{display:block}
+
+  /* opt 1 — dotless i, emblem as the tittle */
+  .i-col{display:inline-flex;flex-direction:column;align-items:center;justify-content:flex-end;margin:0 .01em;vertical-align:baseline}
+  .i-col .em{width:.42em;height:.42em;margin-bottom:.04em}
+  .i-bar{width:.155em;height:.5em;background:var(--pink-dark);border-radius:.08em}
+
+  /* opt 2 — embroidered patch mark */
+  .patch{width:.92em;height:.92em;border-radius:26%;background:var(--pink-soft);position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .patch .ring{position:absolute;inset:13%;border-radius:50%;border:.06em dashed var(--pink-dark)}
+  .patch .em{width:46%;height:46%}
+
+  /* opt 3 — app tile */
+  .tile{width:.95em;height:.95em;border-radius:24%;background:var(--pink-dark);display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 .08em .18em rgba(233,75,127,.35)}
+  .tile .em{width:54%;height:54%}
+
+  /* opt 4 — sparkle accent */
+  .spark{position:relative;display:inline-block}
+  .spark .em{position:absolute;top:-.18em;right:-.5em;width:.36em;height:.36em}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TasKidz — logo options</h1>
+  <p class="sub">Four ways to build the reward icon into the wordmark. In the real app the icon would cycle (coin → star → trophy → …) like it does today. Reply with 1, 2, 3, or 4.</p>
+
+  <div class="card">
+    <span class="tag">Option 1</span>
+    <p class="opt-title">Dotless “i” emblem</p>
+    <p class="desc">The dot over the “i” in TasK<b>i</b>dz becomes the cycling reward icon. Clean wordmark, the icon hides in plain sight.</p>
+    <div class="stage">
+      <span class="wm">TasK<span class="i-col"><span class="em"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/><path d="M12 5.4l1.9 3.9 4.3.6-3.1 3 .7 4.3L12 15.1 8.2 17.2l.7-4.3-3.1-3 4.3-.6z" fill="#fff"/></svg></span><span class="i-bar"></span></span>dz</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">Option 2</span>
+    <p class="opt-title">Embroidered patch mark</p>
+    <p class="desc">Keeps today’s stitched patch (dashed ring + cycling emblem) as a brand mark, with “TasKidz” set beside it. Most continuity with the current look.</p>
+    <div class="stage">
+      <span class="wm">
+        <span class="patch"><span class="ring"></span><span class="em"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 18.9 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FF6B9D"/></svg></span></span>
+        <span style="margin-inline-start:.18em">Tas<span class="pink">Kidz</span></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">Option 3</span>
+    <p class="opt-title">App-tile lockup</p>
+    <p class="desc">A rounded-square app tile (the home-screen icon) holding the emblem, next to the wordmark. Reads most like a “real app” brand.</p>
+    <div class="stage">
+      <span class="wm">
+        <span class="tile"><span class="em"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/><path d="M12 5.4l1.9 3.9 4.3.6-3.1 3 .7 4.3L12 15.1 8.2 17.2l.7-4.3-3.1-3 4.3-.6z" fill="#fff"/></svg></span></span>
+        <span style="margin-inline-start:.2em">TasKidz</span>
+      </span>
+    </div>
+    <div class="stage dark" style="margin-top:12px">
+      <span class="wm">
+        <span class="tile"><span class="em"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FFD75E" stroke="#E8B927" stroke-width="2"/><path d="M12 5.4l1.9 3.9 4.3.6-3.1 3 .7 4.3L12 15.1 8.2 17.2l.7-4.3-3.1-3 4.3-.6z" fill="#fff"/></svg></span></span>
+        <span style="margin-inline-start:.2em">TasKidz</span>
+      </span>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tag">Option 4</span>
+    <p class="opt-title">Two-tone + sparkle</p>
+    <p class="desc">“Tas” in ink, “Kidz” in pink, with the cycling emblem as a little sparkle popping off the end. Playful and energetic.</p>
+    <div class="stage">
+      <span class="wm">Tas<span class="spark"><span class="pink">Kidz</span><span class="em"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 18.9 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill="#FF6B9D"/></svg></span></span></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

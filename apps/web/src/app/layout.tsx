@@ -35,16 +35,16 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: 'Reco',
-  description: 'Reco — kids earn coins for everyday wins.',
+  title: 'TasKidz',
+  description: 'TasKidz — kids earn coins for everyday wins.',
   // Hints for "Add to Home Screen". The manifest, icons, and apple-icon
   // are auto-discovered by Next.js from app/manifest.ts, icon*.tsx, and
   // apple-icon.tsx — we don't need to list them here.
-  applicationName: 'Reco',
+  applicationName: 'TasKidz',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Reco',
+    title: 'TasKidz',
   },
   formatDetection: {
     telephone: false,

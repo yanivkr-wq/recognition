@@ -38,7 +38,7 @@ export default async function AdminLayout({
           <Link
             href={`/${lang}/admin`}
             className="flex items-center gap-3"
-            aria-label="Reco admin"
+            aria-label="TasKidz admin"
           >
             <RecoWordmark size={26} />
             <span className="text-sm text-ink-soft">·</span>

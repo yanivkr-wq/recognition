@@ -43,7 +43,7 @@ export function RecoWordmark({ size = 40, className }: Props) {
     <span
       className={`reco-wm ${className ?? ''}`}
       role="img"
-      aria-label="Reco"
+      aria-label="TasKidz"
       dir="ltr"
       style={{ fontSize: size }}
     >

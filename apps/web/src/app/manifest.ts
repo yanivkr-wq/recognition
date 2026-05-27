@@ -18,9 +18,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Reco',
-    short_name: 'Reco',
-    description: 'Reco — kids earn coins for everyday wins.',
+    name: 'TasKidz',
+    short_name: 'TasKidz',
+    description: 'TasKidz — kids earn coins for everyday wins.',
     start_url: '/he',
     display: 'standalone',
     orientation: 'portrait',

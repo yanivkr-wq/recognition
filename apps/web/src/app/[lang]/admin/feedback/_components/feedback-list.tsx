@@ -62,8 +62,12 @@ export function FeedbackList({
   t: Dictionary;
   items: FeedbackRow[];
 }) {
-  // Empty filter set = show all.
-  const [active, setActive] = useState<Set<FeedbackStatus>>(new Set());
+  // Default to the actionable statuses (new / in progress / in validation) so
+  // the page opens focused on open items; completed is hidden until toggled
+  // on. Empty set = show all (deselecting everything).
+  const [active, setActive] = useState<Set<FeedbackStatus>>(
+    new Set<FeedbackStatus>(['new', 'in_progress', 'in_validation']),
+  );
   const [copiedId, setCopiedId] = useState<string | null>(null);
   // Optimistic per-row status overrides so the change shows instantly and
   // reliably (the previous form.requestSubmit()+revalidate could silently
