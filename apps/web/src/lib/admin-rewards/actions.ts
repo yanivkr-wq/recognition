@@ -19,7 +19,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { getDb, rewardItem, auditLog } from '@reco/db';
 import { requireAdmin, UnauthorizedError } from '../auth/guards';
 
@@ -221,6 +221,90 @@ export async function updateRewardAction(
     console.error('updateRewardAction failed', err);
     return 'internal';
   }
+
+  revalidatePath('/[lang]/admin', 'layout');
+  revalidatePath('/[lang]/redeem', 'page');
+  redirect(`/${lang}/admin/rewards`);
+}
+
+/**
+ * Bulk operations over a set of selected rewards (Lily's request: "bulk edit,
+ * bulk remove, bulk add points…"). All scoped to the admin's household.
+ *
+ * Operations:
+ *   - archive / unarchive  — soft-delete toggle (remove = archive).
+ *   - show / hide          — flip visible_to_kids.
+ *   - addPoints            — add `amount` coins to each reward's cost (>= 1).
+ *
+ * One audit row per affected reward keeps the household feed honest.
+ */
+export type BulkRewardOp = 'archive' | 'unarchive' | 'show' | 'hide' | 'addPoints';
+
+export async function bulkUpdateRewardsAction(formData: FormData): Promise<void> {
+  const lang = String(formData.get('lang') ?? 'he');
+  const op = String(formData.get('op') ?? '') as BulkRewardOp;
+  const ids = formData
+    .getAll('ids')
+    .map((v) => String(v))
+    .filter(Boolean);
+  if (ids.length === 0) return;
+
+  const admin = await requireAdmin();
+  const db = getDb();
+
+  // Constrain to the household so a spoofed id can't touch another family.
+  const owned = await db
+    .select({ id: rewardItem.id })
+    .from(rewardItem)
+    .where(and(eq(rewardItem.householdId, admin.householdId), inArray(rewardItem.id, ids)));
+  const ownedIds = owned.map((r) => r.id);
+  if (ownedIds.length === 0) return;
+
+  const now = new Date();
+  let action: string;
+  switch (op) {
+    case 'archive':
+      await db.update(rewardItem).set({ archivedAt: now, updatedAt: now }).where(inArray(rewardItem.id, ownedIds));
+      action = 'reward_item.archived';
+      break;
+    case 'unarchive':
+      await db.update(rewardItem).set({ archivedAt: null, updatedAt: now }).where(inArray(rewardItem.id, ownedIds));
+      action = 'reward_item.unarchived';
+      break;
+    case 'show':
+      await db.update(rewardItem).set({ visibleToKids: true, updatedAt: now }).where(inArray(rewardItem.id, ownedIds));
+      action = 'reward_item.shown';
+      break;
+    case 'hide':
+      await db.update(rewardItem).set({ visibleToKids: false, updatedAt: now }).where(inArray(rewardItem.id, ownedIds));
+      action = 'reward_item.hidden';
+      break;
+    case 'addPoints': {
+      const amount = Number.parseInt(String(formData.get('amount') ?? ''), 10);
+      if (!Number.isInteger(amount) || amount === 0) return;
+      // GREATEST(1, …) keeps cost a positive integer even if a delta would
+      // push it to/below zero.
+      await db
+        .update(rewardItem)
+        .set({ coinCost: sql`GREATEST(1, ${rewardItem.coinCost} + ${amount})`, updatedAt: now })
+        .where(inArray(rewardItem.id, ownedIds));
+      action = 'reward_item.points_adjusted';
+      break;
+    }
+    default:
+      return;
+  }
+
+  await db.insert(auditLog).values(
+    ownedIds.map((id) => ({
+      householdId: admin.householdId,
+      actorUserId: admin.userId,
+      action,
+      targetKind: 'reward_item' as const,
+      targetId: id,
+      afterJson: op === 'addPoints' ? { amount: Number(formData.get('amount')) } : undefined,
+    })),
+  );
 
   revalidatePath('/[lang]/admin', 'layout');
   revalidatePath('/[lang]/redeem', 'page');

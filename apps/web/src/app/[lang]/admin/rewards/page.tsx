@@ -1,10 +1,11 @@
 /**
  * Admin · reward catalog list.
  *
- * Lists every reward (active + archived) in the household. Each row links
- * to edit. Archived rows visually muted; hiding from kids is a separate
- * toggle (`visible_to_kids`) — surfaced as a small pill so the admin can
- * stage a reward before letting kids see it.
+ * Lists every reward (active + archived) in the household. The interactive
+ * parts — filter chips, bulk actions, image thumbnails — live in the client
+ * RewardsAdmin component; this server page just fetches the rows and computes
+ * the per-row image URL (uploaded files resolve via the session-gated route;
+ * legacy external URLs stay direct).
  */
 
 import Link from 'next/link';
@@ -13,8 +14,8 @@ import { desc, eq } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, rewardItem } from '@reco/db';
 import { auth } from '../../../../auth';
-import { Coin } from '../../../../components/coin';
-import { RewardIcon } from '../../../../components/reward-icon';
+import { isExternalImageUrl } from '../../../../lib/reward-images/paths';
+import { RewardsAdmin, type RewardRow } from './_components/rewards-admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,53 +35,25 @@ export default async function AdminRewardsPage({
     .where(eq(rewardItem.householdId, session.user.householdId))
     .orderBy(rewardItem.displayOrder, desc(rewardItem.createdAt));
 
-  const active = rows.filter((r) => r.archivedAt == null);
-  const archived = rows.filter((r) => r.archivedAt != null);
-
-  const renderRow = (r: (typeof rows)[number]) => {
-    const title = lang === 'he' ? r.titleHe : r.titleEn;
-    const isArchived = r.archivedAt != null;
-    return (
-      <li
-        key={r.id}
-        className={`bg-card rounded-2xl shadow-card border border-rule p-4 ${
-          isArchived ? 'opacity-50' : ''
-        }`}
-      >
-        <div className="flex items-start gap-3">
-          <RewardIcon iconKey={r.iconKey} color={r.color} title={title} size={48} />
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-ink break-words leading-snug">{title}</p>
-            <p className="text-xs text-ink-soft mt-1 break-words">
-              {r.stockQuantity === null
-                ? t.admin.stockUnlimited
-                : `${t.admin.stockQuantity.split(' (')[0]}: ${r.stockQuantity}`}
-              {r.maxPerKidPerDay !== null && (
-                <span> · {r.maxPerKidPerDay} {t.redeem.perDayLimit}</span>
-              )}
-              {!r.visibleToKids && (
-                <span className="ms-2 inline-block text-[10px] uppercase tracking-wider text-pink-dark">
-                  hidden
-                </span>
-              )}
-            </p>
-          </div>
-          <span className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-xs font-bold num">
-            <Coin size={14} />
-            <span dir="ltr">{r.coinCost}</span>
-          </span>
-        </div>
-        <div className="flex justify-end mt-3 pt-3 border-t border-rule">
-          <Link
-            href={`/${lang}/admin/rewards/${r.id}/edit`}
-            className="text-xs text-pink-dark underline-offset-2 hover:underline font-bold"
-          >
-            {t.common.edit}
-          </Link>
-        </div>
-      </li>
-    );
-  };
+  const mapped: RewardRow[] = rows.map((r) => ({
+    id: r.id,
+    title: lang === 'he' ? r.titleHe : r.titleEn,
+    coinCost: r.coinCost,
+    stockQuantity: r.stockQuantity,
+    maxPerKidPerDay: r.maxPerKidPerDay,
+    visibleToKids: r.visibleToKids,
+    archived: r.archivedAt != null,
+    iconKey: r.iconKey,
+    color: r.color,
+    imageUrl: r.imagePath
+      ? isExternalImageUrl(r.imagePath)
+        ? r.imagePath
+        : `/api/reward-images/${r.id}`
+      : null,
+    hasDescription: Boolean(
+      (lang === 'he' ? r.descriptionHe : r.descriptionEn)?.trim(),
+    ),
+  }));
 
   return (
     <div className="space-y-6">
@@ -94,31 +67,13 @@ export default async function AdminRewardsPage({
         </Link>
       </header>
 
-      {active.length > 0 && (
-        <section className="space-y-3">
-          <SectionHeader label={t.admin.sectionActive} count={active.length} />
-          <ul className="space-y-3">{active.map(renderRow)}</ul>
-        </section>
-      )}
-
-      {archived.length > 0 && (
-        <section className="space-y-3">
-          <SectionHeader label={t.admin.sectionArchived} count={archived.length} />
-          <ul className="space-y-3">{archived.map(renderRow)}</ul>
-        </section>
+      {mapped.length === 0 ? (
+        <div className="bg-card rounded-2xl border border-rule p-8 text-center">
+          <p className="text-ink-soft">—</p>
+        </div>
+      ) : (
+        <RewardsAdmin lang={lang} t={t} rows={mapped} />
       )}
     </div>
-  );
-}
-
-/** Small divider label between the active + archived groups on admin lists. */
-function SectionHeader({ label, count }: { label: string; count: number }) {
-  return (
-    <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
-      {label}{' '}
-      <span className="num text-ink-faded" dir="ltr">
-        ({count})
-      </span>
-    </h2>
   );
 }
