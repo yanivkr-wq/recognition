@@ -478,7 +478,14 @@
     "badgesEarned": "תגים שנזכו",
     "latestRequests": "בקשות אחרונות",
     "noRequests": "אין בקשות",
-    "viewLedger": "לארנק"
+    "viewLedger": "לארנק",
+    "activityTrend": "פעילות — 14 הימים האחרונים",
+    "tasksPerDay": "משימות",
+    "coinsPerDay": "מטבעות",
+    "balanceByPlayer": "יתרה לפי שחקנית",
+    "perPlayer": "שחקניות",
+    "needsAttention": "ממתין לך",
+    "noActivity": "אין עדיין פעילות בטווח הזה"
   },
   "meta": {
     "locale": "he",

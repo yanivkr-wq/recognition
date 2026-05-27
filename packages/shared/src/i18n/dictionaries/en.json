@@ -478,7 +478,14 @@
     "badgesEarned": "Badges earned",
     "latestRequests": "Latest requests",
     "noRequests": "No requests",
-    "viewLedger": "Wallet"
+    "viewLedger": "Wallet",
+    "activityTrend": "Activity — last 14 days",
+    "tasksPerDay": "Tasks",
+    "coinsPerDay": "Coins",
+    "balanceByPlayer": "Balance by player",
+    "perPlayer": "Players",
+    "needsAttention": "Needs your attention",
+    "noActivity": "No activity in this window yet"
   },
   "meta": {
     "locale": "en",

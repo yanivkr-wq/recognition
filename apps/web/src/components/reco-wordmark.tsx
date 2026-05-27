@@ -84,7 +84,7 @@ export function RecoWordmark({ size = 40, className }: Props) {
           .reco-wm .reco-wm-glyph:nth-child(1){ opacity: 1; }
         }
       `}</style>
-      <span aria-hidden="true">Rec</span>
+      <span aria-hidden="true">REC</span>
       <span className="reco-wm-o" aria-hidden="true">
         {GLYPHS.map((g, i) => (
           <span className="reco-wm-glyph" key={i}>

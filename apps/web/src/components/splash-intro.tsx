@@ -121,7 +121,8 @@ export function SplashIntro() {
           </span>
         </span>
       </div>
-      <div className="reco-splash-word" dir="ltr">Reco</div>
+      {/* The animated patch above IS the "o"; the word completes the mark. */}
+      <div className="reco-splash-word" dir="ltr">REC</div>
     </div>
   );
 }

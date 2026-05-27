@@ -1,14 +1,18 @@
 /**
- * Admin · quick insights.
+ * Admin · Insights dashboard (2026-05-27 redesign, Lily's request:
+ * "looks too colorful — make it a real dashboard with graphs").
  *
- * A read-only, at-a-glance dashboard: a card per player (balance, tasks today,
- * active journeys, pending approvals + redemptions), an overall-stats strip
- * (coins earned, tasks completed, redemptions, badges), and a "latest
- * requests" list of the things waiting on the admin (pending approvals +
- * pending redemptions, newest first).
+ * Restrained palette: white cards, ink text, a single pink primary accent
+ * (#E94B7F) + one sky secondary (#3DA8DD). No rainbow tiles. Layout:
+ *   1. KPI row — four monochrome stat tiles (coins, tasks, journeys, badges).
+ *   2. Activity trend — two 14-day area charts (tasks/day, coins/day), inline
+ *      SVG computed server-side (no client JS, no chart lib).
+ *   3. Players — a compact table: balance (with inline bar), today, journeys,
+ *      pending. Replaces the old per-kid pastel-tile cards.
+ *   4. Needs attention — the pending approvals + redemptions queue, minimal.
  *
- * All numbers are derived live from the ledger / completion / submission /
- * redemption tables, scoped to the household's kids. Mobile-first grid.
+ * All figures derive live from ledger / completion / submission / redemption /
+ * enrollment, scoped to the household's non-archived players.
  */
 
 import Link from 'next/link';
@@ -21,6 +25,9 @@ import { Avatar } from '../../../../components/avatar';
 import { Coin } from '../../../../components/coin';
 
 export const dynamic = 'force-dynamic';
+
+const PINK = '#E94B7F';
+const SKY = '#3DA8DD';
 
 interface CountRow {
   kid_id: string;
@@ -47,13 +54,7 @@ export default async function AdminInsightsPage({
   const kidIds = kids.map((k) => k.id);
 
   const pool = getPool();
-  const today = (
-    await pool.query<{ today: string }>(
-      `SELECT (now() AT TIME ZONE 'Asia/Jerusalem')::date::text AS today`,
-    )
-  ).rows[0]!.today;
 
-  // Empty-household short circuit (no kids → no aggregates to run).
   if (kidIds.length === 0) {
     return (
       <div className="space-y-6">
@@ -65,7 +66,7 @@ export default async function AdminInsightsPage({
 
   const toMap = (rows: CountRow[]) => new Map(rows.map((r) => [r.kid_id, Number(r.n)]));
 
-  const [bal, appr, redem, journeys, tToday, overall, latest] = await Promise.all([
+  const [bal, appr, redem, journeys, tToday, overall, latest, series] = await Promise.all([
     pool.query<CountRow>(
       `SELECT kid_id, GREATEST(0, COALESCE(SUM(amount),0))::int AS n
          FROM ledger_entry WHERE kid_id = ANY($1::uuid[]) GROUP BY kid_id`,
@@ -90,10 +91,11 @@ export default async function AdminInsightsPage({
     ),
     pool.query<CountRow>(
       `SELECT kid_id, count(*)::int AS n FROM task_completion
-        WHERE kid_id = ANY($1::uuid[]) AND completion_date = $2::date
+        WHERE kid_id = ANY($1::uuid[])
+          AND completion_date = (now() AT TIME ZONE 'Asia/Jerusalem')::date
           AND undone_at IS NULL AND approval_status IN ('approved','auto_approved')
         GROUP BY kid_id`,
-      [kidIds, today],
+      [kidIds],
     ),
     pool.query<{ coins: number; tasks: number; redemptions: number; badges: number }>(
       `SELECT
@@ -119,6 +121,38 @@ export default async function AdminInsightsPage({
        LIMIT 8`,
       [kidIds],
     ),
+    // 14-day daily series: tasks completed + coins earned, household-wide,
+    // Asia/Jerusalem dates, zero-filled via generate_series.
+    pool.query<{ day: string; tasks: number; coins: number }>(
+      `WITH days AS (
+         SELECT generate_series(
+           (now() AT TIME ZONE 'Asia/Jerusalem')::date - INTERVAL '13 days',
+           (now() AT TIME ZONE 'Asia/Jerusalem')::date,
+           INTERVAL '1 day'
+         )::date AS day
+       ),
+       tk AS (
+         SELECT completion_date AS day, count(*)::int AS n
+           FROM task_completion
+          WHERE kid_id = ANY($1::uuid[]) AND undone_at IS NULL
+            AND approval_status IN ('approved','auto_approved')
+            AND completion_date >= (now() AT TIME ZONE 'Asia/Jerusalem')::date - INTERVAL '13 days'
+          GROUP BY completion_date
+       ),
+       cn AS (
+         SELECT (created_at AT TIME ZONE 'Asia/Jerusalem')::date AS day, COALESCE(SUM(amount),0)::int AS n
+           FROM ledger_entry
+          WHERE kid_id = ANY($1::uuid[]) AND amount > 0
+            AND (created_at AT TIME ZONE 'Asia/Jerusalem')::date >= (now() AT TIME ZONE 'Asia/Jerusalem')::date - INTERVAL '13 days'
+          GROUP BY (created_at AT TIME ZONE 'Asia/Jerusalem')::date
+       )
+       SELECT d.day::text AS day, COALESCE(tk.n,0)::int AS tasks, COALESCE(cn.n,0)::int AS coins
+         FROM days d
+         LEFT JOIN tk ON tk.day = d.day
+         LEFT JOIN cn ON cn.day = d.day
+        ORDER BY d.day`,
+      [kidIds],
+    ),
   ]);
 
   const balMap = toMap(bal.rows);
@@ -129,81 +163,143 @@ export default async function AdminInsightsPage({
   const o = overall.rows[0]!;
   const kidName = new Map(kids.map((k) => [k.id, k.name]));
 
+  const taskSeries = series.rows.map((r) => Number(r.tasks));
+  const coinSeries = series.rows.map((r) => Number(r.coins));
+  const dayLabels = series.rows.map((r) => r.day);
+  const journeysTotal = [...journeyMap.values()].reduce((a, b) => a + b, 0);
+  const maxBal = Math.max(1, ...kids.map((k) => balMap.get(k.id) ?? 0));
+
   return (
-    <div className="space-y-7">
+    <div className="space-y-6">
       <h1 className="text-2xl font-bold text-ink">{t.insights.heading}</h1>
 
-      {/* Per-player cards */}
-      <div className="grid sm:grid-cols-2 gap-4">
-        {kids.map((k) => (
-          <div key={k.id} className="bg-card rounded-2xl shadow-card border border-rule p-4 space-y-3">
-            <div className="flex items-center gap-3">
-              <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={44} />
-              <span className="font-bold text-ink text-lg flex-1 min-w-0 truncate">{k.name}</span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-yellow-pale text-[#7A5D10] text-sm font-bold num">
-                <Coin size={15} />
-                <span dir="ltr">{balMap.get(k.id) ?? 0}</span>
-              </span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <Stat label={t.insights.tasksToday} value={todayMap.get(k.id) ?? 0} tone="mint" />
-              <Stat label={t.insights.activeJourneys} value={journeyMap.get(k.id) ?? 0} tone="lavender" />
-              <Stat label={t.insights.pendingApprovals} value={apprMap.get(k.id) ?? 0} tone="pink" />
-              <Stat label={t.insights.pendingRedemptions} value={redemMap.get(k.id) ?? 0} tone="sky" />
-            </div>
-            <Link
-              href={`/${lang}/admin/kids/${k.id}/ledger`}
-              className="inline-block text-xs text-pink-dark font-bold underline-offset-2 hover:underline"
-            >
-              {t.insights.viewLedger}
-            </Link>
-          </div>
-        ))}
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Kpi label={t.insights.totalCoins} value={o.coins} accent={PINK} icon={<Coin size={16} />} />
+        <Kpi label={t.insights.totalTasks} value={o.tasks} accent={SKY} />
+        <Kpi label={t.insights.activeJourneys} value={journeysTotal} accent="#B59FE5" />
+        <Kpi label={t.insights.badgesEarned} value={o.badges} accent="#E8B927" />
       </div>
 
-      {/* Overall stats */}
-      <section className="space-y-3">
-        <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
-          {t.insights.overall}
+      {/* Activity trend */}
+      <section className="bg-card rounded-2xl border border-rule shadow-card p-4 sm:p-5">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft mb-4">
+          {t.insights.activityTrend}
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <Stat label={t.insights.totalCoins} value={o.coins} tone="yellow" big />
-          <Stat label={t.insights.totalTasks} value={o.tasks} tone="mint" big />
-          <Stat label={t.insights.totalRedemptions} value={o.redemptions} tone="sky" big />
-          <Stat label={t.insights.badgesEarned} value={o.badges} tone="lavender" big />
+        <div className="grid sm:grid-cols-2 gap-6">
+          <AreaChart
+            title={t.insights.tasksPerDay}
+            data={taskSeries}
+            labels={dayLabels}
+            accent={PINK}
+            lang={lang}
+          />
+          <AreaChart
+            title={t.insights.coinsPerDay}
+            data={coinSeries}
+            labels={dayLabels}
+            accent={SKY}
+            lang={lang}
+          />
         </div>
       </section>
 
-      {/* Latest requests */}
-      <section className="space-y-3">
+      {/* Players table */}
+      <section className="bg-card rounded-2xl border border-rule shadow-card overflow-hidden">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-4 pt-4 pb-2">
+          {t.insights.perPlayer}
+        </h2>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-[11px] uppercase tracking-wider text-ink-faded border-b border-rule">
+              <th className="text-start font-medium px-4 py-2">{t.insights.balanceByPlayer}</th>
+              <th className="text-center font-medium px-2 py-2 whitespace-nowrap">{t.insights.tasksToday}</th>
+              <th className="text-center font-medium px-2 py-2 whitespace-nowrap hidden sm:table-cell">{t.insights.activeJourneys}</th>
+              <th className="text-center font-medium px-2 py-2 whitespace-nowrap">{t.insights.needsAttention}</th>
+              <th className="px-2 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {kids.map((k) => {
+              const b = balMap.get(k.id) ?? 0;
+              const pending = (apprMap.get(k.id) ?? 0) + (redemMap.get(k.id) ?? 0);
+              return (
+                <tr key={k.id} className="border-b border-rule last:border-0">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={k.name} color={k.color} avatarKey={k.avatarKey} size={36} />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-bold text-ink truncate leading-tight">{k.name}</p>
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="h-1.5 rounded-full bg-rule overflow-hidden w-24 max-w-[40vw]">
+                            <span
+                              className="block h-full rounded-full"
+                              style={{ width: `${Math.round((b / maxBal) * 100)}%`, backgroundColor: PINK }}
+                            />
+                          </span>
+                          <span className="num text-xs font-bold text-ink inline-flex items-center gap-1" dir="ltr">
+                            <Coin size={12} />
+                            {b}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="text-center num font-bold text-ink px-2 py-3" dir="ltr">{todayMap.get(k.id) ?? 0}</td>
+                  <td className="text-center num text-ink px-2 py-3 hidden sm:table-cell" dir="ltr">{journeyMap.get(k.id) ?? 0}</td>
+                  <td className="text-center px-2 py-3">
+                    {pending > 0 ? (
+                      <span className="num inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-pink-pale text-pink-dark text-xs font-bold" dir="ltr">
+                        {pending}
+                      </span>
+                    ) : (
+                      <span className="text-ink-faded">—</span>
+                    )}
+                  </td>
+                  <td className="px-2 py-3 text-end">
+                    <Link
+                      href={`/${lang}/admin/kids/${k.id}/ledger`}
+                      className="text-xs text-pink-dark font-bold hover:underline"
+                    >
+                      {t.insights.viewLedger}
+                    </Link>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </section>
+
+      {/* Needs attention */}
+      <section className="space-y-2">
         <h2 className="text-xs font-bold uppercase tracking-wider text-ink-soft px-1">
-          {t.insights.latestRequests}
+          {t.insights.needsAttention}
         </h2>
         {latest.rows.length === 0 ? (
           <div className="bg-card rounded-2xl border border-rule p-5 text-center">
-            <p className="text-ink-soft">{t.insights.noRequests}</p>
+            <p className="text-ink-soft text-sm">{t.insights.noRequests}</p>
           </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="bg-card rounded-2xl border border-rule shadow-card divide-y divide-rule overflow-hidden">
             {latest.rows.map((r, i) => (
-              <li
-                key={i}
-                className="bg-card rounded-2xl border border-rule p-3 flex items-center gap-3"
-              >
+              <li key={i} className="flex items-center gap-3 px-4 py-3">
                 <span
-                  className={`inline-block px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${
-                    r.kind === 'approval' ? 'bg-pink-pale text-pink-dark' : 'bg-sky-pale text-sky-dark'
-                  }`}
-                >
+                  className="shrink-0 w-2 h-2 rounded-full"
+                  style={{ backgroundColor: r.kind === 'approval' ? PINK : SKY }}
+                  aria-hidden="true"
+                />
+                <span className="text-[11px] uppercase tracking-wider text-ink-soft shrink-0 w-20 truncate">
                   {r.kind === 'approval' ? t.insights.pendingApprovals : t.insights.pendingRedemptions}
                 </span>
                 <span className="flex-1 min-w-0 truncate text-sm text-ink">
                   {lang === 'he' ? r.title_he : r.title_en}
                 </span>
-                <span className="text-xs text-ink-soft truncate">{kidName.get(r.kid_id)}</span>
+                <span className="text-xs text-ink-soft truncate hidden sm:inline">{kidName.get(r.kid_id)}</span>
                 <Link
                   href={`/${lang}/admin/${r.kind === 'approval' ? 'approvals' : 'redemptions'}`}
-                  className="text-xs text-pink-dark font-bold shrink-0"
+                  className="text-pink-dark font-bold shrink-0"
+                  aria-label={r.kind === 'approval' ? t.admin.approvals : t.admin.redemptions}
                 >
                   →
                 </Link>
@@ -216,31 +312,96 @@ export default async function AdminInsightsPage({
   );
 }
 
-const TONE: Record<string, string> = {
-  mint: 'bg-mint-soft text-mint-dark',
-  lavender: 'bg-lavender-soft text-lavender-dark',
-  pink: 'bg-pink-soft text-pink-dark',
-  sky: 'bg-sky-soft text-sky-dark',
-  yellow: 'bg-yellow-pale text-[#7A5D10]',
-};
-
-function Stat({
+/** Monochrome KPI tile: big number + label + a thin accent rule on top. */
+function Kpi({
   label,
   value,
-  tone,
-  big,
+  accent,
+  icon,
 }: {
   label: string;
   value: number;
-  tone: keyof typeof TONE | string;
-  big?: boolean;
+  accent: string;
+  icon?: React.ReactNode;
 }) {
   return (
-    <div className={`rounded-xl px-3 py-2 ${TONE[tone] ?? 'bg-bg text-ink'}`}>
-      <p className={`num font-bold ${big ? 'text-2xl' : 'text-lg'}`} dir="ltr">
-        {value}
-      </p>
-      <p className="text-[11px] leading-tight opacity-80">{label}</p>
+    <div className="bg-card rounded-2xl border border-rule shadow-card overflow-hidden">
+      <div className="h-1" style={{ backgroundColor: accent }} aria-hidden="true" />
+      <div className="p-4">
+        <div className="flex items-center gap-1.5 text-ink-soft">
+          {icon}
+          <span className="text-[11px] uppercase tracking-wider font-medium truncate">{label}</span>
+        </div>
+        <p className="num font-extrabold text-ink text-3xl leading-tight mt-1" dir="ltr">
+          {value.toLocaleString('en-US')}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Inline SVG area chart for a daily series. Server-computed — no client JS.
+ * 0..max scaled into a fixed viewBox; renders area fill, line, last-point dot,
+ * a baseline, and first/last date ticks. `dir="ltr"` so the time axis always
+ * reads left→right (oldest→newest) even in RTL.
+ */
+function AreaChart({
+  title,
+  data,
+  labels,
+  accent,
+  lang,
+}: {
+  title: string;
+  data: number[];
+  labels: string[];
+  accent: string;
+  lang: string;
+}) {
+  const W = 280;
+  const H = 88;
+  const PAD = 4;
+  const max = Math.max(1, ...data);
+  const total = data.reduce((a, b) => a + b, 0);
+  const n = data.length;
+  const x = (i: number) => (n <= 1 ? PAD : PAD + (i * (W - PAD * 2)) / (n - 1));
+  const y = (v: number) => H - PAD - (v / max) * (H - PAD * 2);
+  const linePts = data.map((v, i) => `${x(i)},${y(v)}`).join(' ');
+  const areaPts = `${PAD},${H - PAD} ${linePts} ${x(n - 1)},${H - PAD}`;
+  const lastX = x(n - 1);
+  const lastY = y(data[n - 1] ?? 0);
+  const fmt = (iso: string) =>
+    new Intl.DateTimeFormat(lang === 'he' ? 'he-IL' : 'en-US', {
+      month: 'numeric',
+      day: 'numeric',
+    }).format(new Date(iso + 'T00:00:00'));
+
+  const empty = total === 0;
+
+  return (
+    <div dir="ltr">
+      <div className="flex items-baseline justify-between mb-1" dir={lang === 'he' ? 'rtl' : 'ltr'}>
+        <span className="text-sm font-bold text-ink">{title}</span>
+        <span className="num text-lg font-extrabold" style={{ color: accent }} dir="ltr">
+          {total.toLocaleString('en-US')}
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height={H} preserveAspectRatio="none" role="img">
+        {!empty && (
+          <>
+            <polygon points={areaPts} fill={accent} fillOpacity={0.12} />
+            <polyline points={linePts} fill="none" stroke={accent} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+            <circle cx={lastX} cy={lastY} r={3} fill={accent} />
+          </>
+        )}
+        {/* baseline */}
+        <line x1={PAD} y1={H - PAD} x2={W - PAD} y2={H - PAD} stroke="#E7E1DA" strokeWidth={1} />
+      </svg>
+      <div className="flex justify-between text-[10px] text-ink-faded num mt-0.5">
+        <span>{fmt(labels[0] ?? '')}</span>
+        <span>{fmt(labels[n - 1] ?? '')}</span>
+      </div>
     </div>
   );
 }

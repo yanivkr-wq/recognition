@@ -461,6 +461,13 @@ export interface Dictionary {
     latestRequests: string;
     noRequests: string;
     viewLedger: string;
+    activityTrend: string;
+    tasksPerDay: string;
+    coinsPerDay: string;
+    balanceByPlayer: string;
+    perPlayer: string;
+    needsAttention: string;
+    noActivity: string;
   };
   feedback: {
     button: string;
