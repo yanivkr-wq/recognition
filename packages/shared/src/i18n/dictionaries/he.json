@@ -403,7 +403,11 @@
     "badgeGenerateNoTitle": "יש להזין כותרת תחילה",
     "feedback": "משוב",
     "messages": "הודעות",
-    "insights": "תובנות"
+    "insights": "תובנות",
+    "groupOverview": "סקירה",
+    "groupPlayers": "שחקנים",
+    "groupContent": "תוכן",
+    "groupSystem": "מערכת"
   },
   "feedback": {
     "button": "משוב",

@@ -403,7 +403,11 @@
     "badgeGenerateNoTitle": "Add a title first",
     "feedback": "Feedback",
     "messages": "Messages",
-    "insights": "Insights"
+    "insights": "Insights",
+    "groupOverview": "Overview",
+    "groupPlayers": "Players",
+    "groupContent": "Content",
+    "groupSystem": "System"
   },
   "feedback": {
     "button": "Feedback",

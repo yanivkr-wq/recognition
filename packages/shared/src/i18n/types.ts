@@ -417,6 +417,10 @@ export interface Dictionary {
     feedback: string;
     messages: string;
     insights: string;
+    groupOverview: string;
+    groupPlayers: string;
+    groupContent: string;
+    groupSystem: string;
   };
   playerMsg: {
     heading: string;
