@@ -8,6 +8,7 @@
 
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { LoginForm } from './login-form';
+import { RecoWordmark } from '../../../components/reco-wordmark';
 
 export default async function LoginPage({
   params,
@@ -21,13 +22,9 @@ export default async function LoginPage({
     <main className="min-h-screen flex items-center justify-center bg-bg p-4">
       <section className="w-full max-w-sm bg-card rounded-3xl shadow-card p-8">
         <header className="text-center mb-8">
-          <p
-            className="text-5xl font-bold text-pink leading-none"
-            style={{ fontFamily: 'var(--font-fredoka), system-ui, sans-serif' }}
-            dir="ltr"
-          >
-            Reco
-          </p>
+          <div className="flex justify-center leading-none">
+            <RecoWordmark size={48} />
+          </div>
           <p className="mt-3 text-sm text-ink-soft">{t.auth.parentLogin}</p>
         </header>
 
