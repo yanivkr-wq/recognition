@@ -18,7 +18,7 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../../auth';
 import { THEME_IDS, type ThemeId } from '../theme';
-import { ADMIN_THEME_COOKIE } from './constants';
+import { ACTIVE_THEME_COOKIE, ADMIN_THEME_COOKIE } from './constants';
 
 const ONE_YEAR_S = 60 * 60 * 24 * 365;
 
@@ -44,15 +44,21 @@ export async function setAdminThemeAction(
 
   try {
     const jar = await cookies();
-    jar.set(ADMIN_THEME_COOKIE, theme, {
+    const opts = {
       path: '/',
       maxAge: ONE_YEAR_S,
-      sameSite: 'lax',
-      // Not HttpOnly — the value is non-sensitive and a future client hook
-      // could read it for instant local preview without a round-trip.
+      sameSite: 'lax' as const,
+      // Not HttpOnly — non-sensitive, and the active-theme cookie has to be
+      // readable by the root layout's generateViewport() server-side anyway.
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
-    });
+    };
+    jar.set(ADMIN_THEME_COOKIE, theme, opts);
+    // Mirror to the active-theme cookie so the next SSR sets <meta theme-color>
+    // to the picked tone before any client JS has a chance to override it.
+    // Otherwise iOS PWA reads the (stale, default-pink) SSR meta and ignores
+    // later JS updates, leaving a pink stripe on the OS notification bar.
+    jar.set(ACTIVE_THEME_COOKIE, theme, opts);
   } catch (err) {
     console.error('setAdminThemeAction failed', err);
     return { ok: false, error: 'internal' };

@@ -49,6 +49,17 @@ export function ThemeApplier({ themeId, statusBarColor }: Props) {
       document.head.appendChild(meta);
     }
     meta.setAttribute('content', statusBarColor);
+
+    // 3) Mirror to the reco-active-theme cookie. The server-side actions that
+    //    set this cookie only fire when the theme is CHANGED — but a kid who
+    //    picked their theme before this cookie existed (DB has ocean, cookie
+    //    missing) would otherwise SSR bubblegum on every reload until they
+    //    pick a new theme. Writing here on first hydration heals the gap:
+    //    after this one paint, every subsequent SSR reads the cookie and
+    //    ships the right <meta theme-color> up front.
+    document.cookie =
+      `reco-active-theme=${themeId}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax` +
+      (location.protocol === 'https:' ? '; secure' : '');
   }, [themeId, statusBarColor]);
 
   return null;

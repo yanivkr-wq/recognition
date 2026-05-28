@@ -16,12 +16,16 @@
 'use server';
 
 import 'server-only';
+import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { eq } from 'drizzle-orm';
 import { getDb, kid as kidTable } from '@reco/db';
 import { AVATAR_LIBRARY } from '../../components/avatar-library';
 import { requireKid, UnauthorizedError } from '../auth/guards';
+import { ACTIVE_THEME_COOKIE } from '../admin-theme/constants';
 import { THEME_IDS, type ThemeId } from '../theme';
+
+const ONE_YEAR_S = 60 * 60 * 24 * 365;
 
 export type SetAvatarState =
   | { ok: true; avatarKey: string | null }
@@ -136,6 +140,18 @@ export async function setKidThemeAction(
 
   try {
     await getDb().update(kidTable).set({ theme }).where(eq(kidTable.id, kid.kidId));
+    // Mirror to the active-theme cookie so the root layout's generateViewport
+    // can set <meta theme-color> to this kid's tone on the next SSR. iOS PWA
+    // reads theme-color once at load and ignores later JS updates, so getting
+    // it right at SSR is what eliminates the pink stripe on the OS bar.
+    const jar = await cookies();
+    jar.set(ACTIVE_THEME_COOKIE, theme, {
+      path: '/',
+      maxAge: ONE_YEAR_S,
+      sameSite: 'lax',
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+    });
   } catch (err) {
     console.error('setKidThemeAction failed', err);
     return { ok: false, error: 'internal' };

@@ -7,10 +7,12 @@
  * next/font/google as CSS variables that globals.css references.
  */
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Heebo, Fredoka, Quicksand } from 'next/font/google';
-import { headers } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { getDirection, type Locale } from '@reco/shared/i18n';
+import { ACTIVE_THEME_COOKIE } from '../lib/admin-theme/constants';
+import { asTheme, themeStatusBar } from '../lib/theme';
 import './globals.css';
 
 const heebo = Heebo({
@@ -51,10 +53,26 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport = {
-  // Pink-dark tint on the OS status bar when launched as PWA.
-  themeColor: '#E94B7F',
-};
+/**
+ * Dynamic viewport — reads ACTIVE_THEME_COOKIE so the SSR <meta theme-color>
+ * matches whatever theme will paint the chrome on this request. Critical for
+ * iOS PWA, which reads theme-color exactly once at page load and ignores any
+ * later JS updates; if SSR ships the bubblegum default for an ocean session,
+ * the OS notification bar gets a residual pink tint Lily saw at the top edge.
+ *
+ * Both setAdminThemeAction and setKidThemeAction write this cookie when the
+ * theme changes, so any subsequent SSR — including the cold-launch one — gets
+ * the right value here without any DB hit. `viewport-fit: cover` is paired in
+ * because the kid pages rely on env(safe-area-inset-top) padding.
+ */
+export async function generateViewport(): Promise<Viewport> {
+  const jar = await cookies();
+  const themeId = asTheme(jar.get(ACTIVE_THEME_COOKIE)?.value);
+  return {
+    themeColor: themeStatusBar(themeId),
+    viewportFit: 'cover',
+  };
+}
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers();
