@@ -12,7 +12,7 @@ import { Heebo, Fredoka, Quicksand } from 'next/font/google';
 import { cookies, headers } from 'next/headers';
 import { getDirection, type Locale } from '@reco/shared/i18n';
 import { ACTIVE_THEME_COOKIE } from '../lib/admin-theme/constants';
-import { asTheme, themeStatusBar } from '../lib/theme';
+import { asTheme, DEFAULT_THEME, themeStatusBar } from '../lib/theme';
 import './globals.css';
 
 const heebo = Heebo({
@@ -79,10 +79,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = (h.get('x-reco-locale') ?? 'he') as Locale;
   const dir = getDirection(locale);
 
+  // Pin `data-theme` to <html> at SSR time, before any client JS or :has()
+  // cascade has a chance to run. iOS PWA paints the safe-area-inset region
+  // from the html element's background colour at first paint — if html
+  // doesn't yet know it's "ocean", that strip paints in the bubblegum
+  // cream (--bg fallback), which shows up against the dark-teal status
+  // bar as a thin warm-pink line at the seam. Reading the active-theme
+  // cookie here applies the right --bg to html immediately.
+  const jar = await cookies();
+  const themeId = asTheme(jar.get(ACTIVE_THEME_COOKIE)?.value ?? DEFAULT_THEME);
+
   return (
     <html
       lang={locale}
       dir={dir}
+      data-theme={themeId}
       className={`${heebo.variable} ${fredoka.variable} ${quicksand.variable}`}
     >
       <body className="bg-bg text-ink antialiased">{children}</body>

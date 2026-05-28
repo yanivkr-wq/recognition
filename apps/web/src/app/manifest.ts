@@ -15,8 +15,20 @@
  */
 
 import type { MetadataRoute } from 'next';
+import { cookies } from 'next/headers';
+import { ACTIVE_THEME_COOKIE } from '../lib/admin-theme/constants';
+import { asTheme, themeStatusBar } from '../lib/theme';
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  // The PWA install caches the manifest's theme_color and uses it as the
+  // launcher / splash background tint. Reading the active-theme cookie at
+  // request time so a kid who already picked ocean gets the right colour
+  // baked into their installed PWA — otherwise the OS chrome above the
+  // page paints in the bubblegum default and looks wrong forever.
+  const jar = await cookies();
+  const themeId = asTheme(jar.get(ACTIVE_THEME_COOKIE)?.value);
+  const themeColor = themeStatusBar(themeId);
+
   return {
     name: 'Trophy',
     short_name: 'Trophy',
@@ -25,7 +37,7 @@ export default function manifest(): MetadataRoute.Manifest {
     display: 'standalone',
     orientation: 'portrait',
     background_color: '#FAF8F5',
-    theme_color: '#E94B7F',
+    theme_color: themeColor,
     dir: 'rtl',
     lang: 'he',
     icons: [
