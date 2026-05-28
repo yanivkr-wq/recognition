@@ -67,7 +67,7 @@ export default async function AdminInsightsPage({
 
   const toMap = (rows: CountRow[]) => new Map(rows.map((r) => [r.kid_id, Number(r.n)]));
 
-  const [bal, appr, redem, journeys, tToday, overall, latest, series] = await Promise.all([
+  const [bal, appr, redem, journeys, tToday, tTodayActive, overall, latest, series] = await Promise.all([
     pool.query<CountRow>(
       `SELECT kid_id, GREATEST(0, COALESCE(SUM(amount),0))::int AS n
          FROM ledger_entry WHERE kid_id = ANY($1::uuid[]) GROUP BY kid_id`,
@@ -96,6 +96,21 @@ export default async function AdminInsightsPage({
           AND completion_date = (now() AT TIME ZONE 'Asia/Jerusalem')::date
           AND undone_at IS NULL AND approval_status IN ('approved','auto_approved')
         GROUP BY kid_id`,
+      [kidIds],
+    ),
+    // Denominator for the "done today" stat: how many daily tasks the kid
+    // is actually expected to do today (= active, non-archived daily
+    // assignments). Matches what the kid sees on their home screen.
+    pool.query<CountRow>(
+      `SELECT ta.kid_id, count(*)::int AS n
+         FROM task_assignment ta
+         JOIN task_template tt ON tt.id = ta.template_id
+        WHERE ta.kid_id = ANY($1::uuid[])
+          AND ta.enabled = TRUE
+          AND ta.archived_at IS NULL
+          AND tt.archived_at IS NULL
+          AND tt.kind = 'daily'
+        GROUP BY ta.kid_id`,
       [kidIds],
     ),
     pool.query<{ coins: number; tasks: number; redemptions: number; badges: number }>(
@@ -164,6 +179,7 @@ export default async function AdminInsightsPage({
   const redemMap = toMap(redem.rows);
   const journeyMap = toMap(journeys.rows);
   const todayMap = toMap(tToday.rows);
+  const todayActiveMap = toMap(tTodayActive.rows);
   const o = overall.rows[0]!;
   const kidName = new Map(kids.map((k) => [k.id, k.name]));
 
@@ -257,7 +273,9 @@ export default async function AdminInsightsPage({
                   <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-soft ps-[52px]">
                     <span className="inline-flex items-center gap-1.5">
                       {t.insights.tasksToday}
-                      <span className="num font-bold text-ink" dir="ltr">{todayMap.get(k.id) ?? 0}</span>
+                      <span className="num font-bold text-ink" dir="ltr">
+                        {todayMap.get(k.id) ?? 0}/{todayActiveMap.get(k.id) ?? 0}
+                      </span>
                     </span>
                     <span className="inline-flex items-center gap-1.5">
                       {t.insights.activeJourneys}

@@ -50,6 +50,8 @@ export interface VerifyDeviceTrustResult {
 
 export async function verifyDeviceTrust(args: {
   rawToken: string;
+  /** Coarse "iphone/safari/he" signature — kept for audit + future re-tightening
+   *  but no longer used as a strict equality gate (see comment below). */
   userAgentFp: string;
 }): Promise<VerifyDeviceTrustResult | null> {
   const tokenHash = sha256hex(args.rawToken);
@@ -67,7 +69,18 @@ export async function verifyDeviceTrust(args: {
     .limit(1);
   const row = rows[0];
   if (!row) return null;
-  if (row.userAgentFp !== args.userAgentFp) return null;
+
+  // Intentionally NOT comparing row.userAgentFp to args.userAgentFp.
+  // The previous implementation rejected the cookie on any UA mismatch, but in
+  // practice the legit UA changes constantly on a phone (iOS patch bump, PWA
+  // install vs Safari, Private Relay) — which silently invalidated every
+  // "remember me" cookie and forced the kid back to PIN entry on each launch.
+  // The defense-in-depth that matters is HttpOnly+Secure+SameSite=Lax on the
+  // cookie plus the DB-side token hash + expiry + revocation — those carry
+  // the actual security. If we ever want a strict device gate again, the
+  // right home for it is a per-issue family-managed allow/deny list in the
+  // admin "devices" page, not an opaque server-side equality check.
+  void args.userAgentFp;
 
   await getDb()
     .update(deviceTrust)
