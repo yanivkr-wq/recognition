@@ -14,7 +14,7 @@ import { SplashIntro } from '../../components/splash-intro';
 import { requireKid } from '../../lib/auth/guards';
 import { ADMIN_THEME_COOKIE } from '../../lib/admin-theme/constants';
 import { asTheme, DEFAULT_THEME, themeStatusBar, type ThemeId } from '../../lib/theme';
-import { ThemeColorMeta } from '../../components/theme-color-meta';
+import { ThemeApplier } from '../../components/theme-applier';
 
 export async function generateStaticParams(): Promise<Array<{ lang: Locale }>> {
   return [{ lang: 'he' }, { lang: 'en' }];
@@ -53,9 +53,13 @@ export default async function LangLayout({
     if (adminTheme) theme = asTheme(adminTheme);
   }
 
+  // `data-theme` still sits on the inner wrapper for SSR / no-JS first paint,
+  // but ThemeApplier mirrors it (plus the status-bar meta) to <html> from the
+  // client so the theme survives Next's segment-cache reuse across soft navs.
+  // See components/theme-applier.tsx for the why.
   return (
     <div className="contents" data-theme={theme}>
-      <ThemeColorMeta color={themeStatusBar(theme)} />
+      <ThemeApplier themeId={theme} statusBarColor={themeStatusBar(theme)} />
       <SplashIntro />
       {children}
       {authed && <FeedbackButton t={t} />}
