@@ -12,7 +12,7 @@ import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { FeedbackButton } from '../../components/feedback-button';
 import { SplashIntro } from '../../components/splash-intro';
 import { requireKid } from '../../lib/auth/guards';
-import { ADMIN_THEME_COOKIE } from '../../lib/admin-theme/actions';
+import { ADMIN_THEME_COOKIE } from '../../lib/admin-theme/constants';
 import { asTheme, DEFAULT_THEME, themeStatusBar, type ThemeId } from '../../lib/theme';
 import { ThemeColorMeta } from '../../components/theme-color-meta';
 

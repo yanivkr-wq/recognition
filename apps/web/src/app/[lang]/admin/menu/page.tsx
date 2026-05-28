@@ -17,7 +17,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { auth } from '../../../../auth';
-import { ADMIN_THEME_COOKIE } from '../../../../lib/admin-theme/actions';
+import { ADMIN_THEME_COOKIE } from '../../../../lib/admin-theme/constants';
 import { DEFAULT_THEME } from '../../../../lib/theme';
 import { AdminThemePicker } from './_components/admin-theme-picker';
 

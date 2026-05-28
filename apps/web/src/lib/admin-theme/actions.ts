@@ -18,8 +18,8 @@ import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { auth } from '../../auth';
 import { THEME_IDS, type ThemeId } from '../theme';
+import { ADMIN_THEME_COOKIE } from './constants';
 
-export const ADMIN_THEME_COOKIE = 'reco-admin-theme';
 const ONE_YEAR_S = 60 * 60 * 24 * 365;
 
 export type SetAdminThemeState =
