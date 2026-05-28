@@ -13,15 +13,11 @@
 
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { and, desc, eq, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import {
   getDb,
   getPool,
-  ledgerEntry,
-  taskCompletion,
-  taskAssignment,
-  taskTemplate,
   kid as kidTable,
 } from '@reco/db';
 import { auth } from '../../../../../../auth';
@@ -31,10 +27,17 @@ import { arrowBack } from '../../../../../../lib/rtl';
 import { JokerForm } from '../wallet/adjust/_components/joker-form';
 import { LedgerList, type LedgerRow } from './_components/ledger-list';
 
-/** Ledger kinds whose point movement can be reversed one-click (earned →
- *  revoke, or revoked → add back). Redemptions/refunds/undo have their own
- *  flows, so they don't get a quick-reverse button. */
-const REVERSIBLE_KINDS = new Set(['earn', 'admin_credit', 'admin_debit', 'campaign_bonus']);
+/** Ledger kinds whose point movement can be reversed one-click. `undo` is
+ *  included so admin can un-revoke a previously revoked entry — that lengthens
+ *  the chain by 1 and the page render flips visibility back to the original
+ *  earn. Redemptions and refunds have their own flows. */
+const REVERSIBLE_KINDS = new Set([
+  'earn',
+  'admin_credit',
+  'admin_debit',
+  'campaign_bonus',
+  'undo',
+]);
 
 export const dynamic = 'force-dynamic';
 
@@ -114,25 +117,90 @@ export default async function AdminKidLedgerPage({
     [id],
   );
 
-  const rows = await db
-    .select({
-      id: ledgerEntry.id,
-      kind: ledgerEntry.kind,
-      amount: ledgerEntry.amount,
-      clampedAmount: ledgerEntry.clampedAmount,
-      balanceAfter: ledgerEntry.balanceAfter,
-      note: ledgerEntry.note,
-      createdAt: ledgerEntry.createdAt,
-      taskTitleHe: taskTemplate.titleHe,
-      taskTitleEn: taskTemplate.titleEn,
-    })
-    .from(ledgerEntry)
-    .leftJoin(taskCompletion, eq(taskCompletion.id, ledgerEntry.taskCompletionId))
-    .leftJoin(taskAssignment, eq(taskAssignment.id, taskCompletion.assignmentId))
-    .leftJoin(taskTemplate, eq(taskTemplate.id, taskAssignment.templateId))
-    .where(eq(ledgerEntry.kidId, id))
-    .orderBy(desc(ledgerEntry.createdAt))
-    .limit(200);
+  // Hand-rolled SQL: we need a self-join on ledger_entry to fetch the TARGET
+  // entry's task title for `undo` rows (the undo row itself has a null
+  // task_completion_id). The target's title is what makes "Revoked: Brush
+  // teeth" readable — without it the undo entry would render as a vague
+  // "Undo / -10" with no context.
+  const rowsRes = await getPool().query<{
+    id: string;
+    kind: string;
+    amount: number;
+    clamped_amount: number | null;
+    balance_after: number;
+    note: string | null;
+    created_at: Date;
+    undo_of_entry_id: string | null;
+    own_title_he: string | null;
+    own_title_en: string | null;
+    target_title_he: string | null;
+    target_title_en: string | null;
+  }>(
+    `SELECT le.id, le.kind, le.amount, le.clamped_amount, le.balance_after,
+            le.note, le.created_at, le.undo_of_entry_id,
+            tt.title_he   AS own_title_he,
+            tt.title_en   AS own_title_en,
+            ttt.title_he  AS target_title_he,
+            ttt.title_en  AS target_title_en
+       FROM ledger_entry le
+       LEFT JOIN task_completion tc  ON tc.id = le.task_completion_id
+       LEFT JOIN task_assignment ta  ON ta.id = tc.assignment_id
+       LEFT JOIN task_template   tt  ON tt.id = ta.template_id
+       LEFT JOIN ledger_entry    tgt ON tgt.id = le.undo_of_entry_id
+       LEFT JOIN task_completion ttc ON ttc.id = tgt.task_completion_id
+       LEFT JOIN task_assignment tta ON tta.id = ttc.assignment_id
+       LEFT JOIN task_template   ttt ON ttt.id = tta.template_id
+      WHERE le.kid_id = $1
+      ORDER BY le.created_at DESC
+      LIMIT 200`,
+    [id],
+  );
+  const rows = rowsRes.rows;
+
+  // Build the undo-chain visibility map. The append-only ledger keeps every
+  // entry forever (per SCHEMA.md §7) — including the original earn and the
+  // revoke that undid it. Lily's request: only show ONE entry per chain so
+  // the feed isn't cluttered with both halves of a cancellation.
+  //
+  // For each chain (root entry + zero-or-more undos stacking on it):
+  //   depth 0 (no undos) → root visible
+  //   depth 1 (one undo) → undo visible, root hidden    [revoke replaces earn]
+  //   depth 2 (re-revoke) → root visible, both undos hidden [back to original]
+  //   ...alternating: odd → leaf visible, even → root visible.
+  const rowById = new Map(rows.map((r) => [r.id, r] as const));
+  const chains = new Map<string, typeof rows>();
+  function chainRoot(id: string): string {
+    let current: string | null = id;
+    for (let i = 0; i < 100 && current; i++) {
+      const r = rowById.get(current);
+      if (!r || r.kind !== 'undo' || !r.undo_of_entry_id) return current;
+      current = r.undo_of_entry_id;
+    }
+    return id;
+  }
+  for (const r of rows) {
+    const root = chainRoot(r.id);
+    const arr = chains.get(root) ?? [];
+    arr.push(r);
+    chains.set(root, arr);
+  }
+  const visibleIds = new Set<string>();
+  for (const [rootId, entries] of chains) {
+    // Walk down the chain to find the leaf + depth (oldest-undo-first):
+    // there's only one undo per target in practice, but pick latest by
+    // created_at if multiple ever exist.
+    const path: string[] = [rootId];
+    let cursor = rootId;
+    for (let i = 0; i < 100; i++) {
+      const undos = entries.filter((e) => e.undo_of_entry_id === cursor);
+      if (undos.length === 0) break;
+      const next = undos.reduce((a, b) => (a.created_at > b.created_at ? a : b));
+      path.push(next.id);
+      cursor = next.id;
+    }
+    const depth = path.length - 1;
+    visibleIds.add(depth % 2 === 0 ? rootId : path[path.length - 1]!);
+  }
 
   // IL-tz formatters: a stable date key for grouping, a friendly date header,
   // and a per-row time. Grouping by day is what makes "which task on which
@@ -156,23 +224,34 @@ export default async function AdminKidLedgerPage({
     timeZone: 'Asia/Jerusalem',
   });
 
-  const ledgerRows: LedgerRow[] = rows.map((r) => {
-    const d = new Date(r.createdAt);
-    return {
-      id: r.id,
-      kind: r.kind,
-      amount: r.amount,
-      clampedAmount: r.clampedAmount,
-      balanceAfter: r.balanceAfter,
-      note: r.note,
-      taskTitle: lang === 'he' ? r.taskTitleHe : r.taskTitleEn,
-      label: t.wallet[KIND_LABEL_KEYS[r.kind as keyof typeof KIND_LABEL_KEYS] ?? 'entryEarn'],
-      dateKey: keyFmt.format(d),
-      dateLabel: dayFmt.format(d),
-      timeLabel: timeFmt.format(d),
-      reversible: REVERSIBLE_KINDS.has(r.kind) && r.amount !== 0,
-    };
-  });
+  const ledgerRows: LedgerRow[] = rows
+    .filter((r) => visibleIds.has(r.id))
+    .map((r) => {
+      const d = new Date(r.created_at);
+      // For undo entries the row's own task_completion_id is null (undos don't
+      // reference a completion directly); fall back to the target entry's
+      // task title so the row reads "Undo / Brush teeth / -10" instead of
+      // a bare "Undo / -10".
+      const ownTitle = lang === 'he' ? r.own_title_he : r.own_title_en;
+      const targetTitle = lang === 'he' ? r.target_title_he : r.target_title_en;
+      return {
+        id: r.id,
+        kind: r.kind,
+        amount: r.amount,
+        clampedAmount: r.clamped_amount,
+        balanceAfter: r.balance_after,
+        note: r.note,
+        taskTitle: ownTitle ?? targetTitle,
+        label: t.wallet[KIND_LABEL_KEYS[r.kind as keyof typeof KIND_LABEL_KEYS] ?? 'entryEarn'],
+        dateKey: keyFmt.format(d),
+        dateLabel: dayFmt.format(d),
+        timeLabel: timeFmt.format(d),
+        // A visible undo entry IS reversible (clicking it un-undoes — depth
+        // 1 → 2, root re-appears via the chain visibility filter). 'undo' is
+        // now in REVERSIBLE_KINDS so the button surfaces on those rows.
+        reversible: REVERSIBLE_KINDS.has(r.kind) && r.amount !== 0,
+      };
+    });
 
   return (
     <div className="space-y-6">

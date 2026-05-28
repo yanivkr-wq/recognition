@@ -18,7 +18,7 @@
 import 'server-only';
 import { headers } from 'next/headers';
 import { revalidatePath } from 'next/cache';
-import { getPool, adjustWalletOperation } from '@reco/db';
+import { getPool, adjustWalletOperation, ledgerPost } from '@reco/db';
 import { requireAdmin, UnauthorizedError } from '../auth/guards';
 
 export type AdjustWalletState =
@@ -107,37 +107,32 @@ export async function adjustWalletAction(
  * (Lily: "if I see someone earned points I can revoke them, or add back points
  * that were revoked, right from that page").
  *
- * The reverse is a NEW joker entry (admin_credit / admin_debit) of the opposite
- * sign — the append-only ledger is never mutated. The amount is computed
- * server-side from the looked-up entry, so a client can't forge it, and an
- * auto reason keeps the mandatory-reason contract satisfied + auditable.
+ * Writes a new entry of kind='undo' that points at the original via
+ * `undo_of_entry_id`. The link is what the ledger-page render uses to PAIR
+ * the entries and hide the cancelled one — Lily's request: "the original
+ * earned activity should disappear when revoked, not show side-by-side with
+ * the revoke record". Re-revoking (an undo of an undo) continues the chain,
+ * and the page logic surfaces only the live entry on each chain.
+ *
+ * The append-only ledger contract is preserved: we never UPDATE or DELETE;
+ * "hide" is purely a display concern computed from undo_of_entry_id chains.
  */
 export async function reverseLedgerEntryAction(formData: FormData): Promise<void> {
   const entryId = String(formData.get('entryId') ?? '');
-  const lang = String(formData.get('lang') ?? 'he');
   if (!entryId) return;
 
   const admin = await requireAdmin();
   const pool = getPool();
 
   // Scope to the household via the owning kid so a spoofed id can't reach
-  // another family's ledger. Pull the originating task title + note so the
-  // reverse names WHAT it reversed (Lily: "we need to see which task").
+  // another family's ledger.
   const { rows } = await pool.query<{
     kid_id: string;
     amount: number;
-    kind: string;
-    note: string | null;
-    title_he: string | null;
-    title_en: string | null;
   }>(
-    `SELECT le.kid_id, le.amount, le.kind, le.note,
-            tt.title_he, tt.title_en
+    `SELECT le.kid_id, le.amount
        FROM ledger_entry le
        JOIN kid k ON k.id = le.kid_id
-       LEFT JOIN task_completion tc ON tc.id = le.task_completion_id
-       LEFT JOIN task_assignment ta ON ta.id = tc.assignment_id
-       LEFT JOIN task_template tt ON tt.id = ta.template_id
       WHERE le.id = $1 AND k.household_id = $2
       LIMIT 1`,
     [entryId, admin.householdId],
@@ -149,24 +144,6 @@ export async function reverseLedgerEntryAction(formData: FormData): Promise<void
   const reverse = -orig;
   if (reverse === 0) return;
 
-  // What are we reversing? Prefer the task title, then the original note, then
-  // a kind word — so the ledger reads "Reversed: Brush teeth (+3)" not a vague
-  // "parent adjustment".
-  const kindWord: Record<string, [string, string]> = {
-    earn: ['משימה', 'task'],
-    campaign_bonus: ['בונוס מסע', 'quest bonus'],
-    admin_credit: ['זיכוי', 'credit'],
-    admin_debit: ['חיוב', 'debit'],
-  };
-  const taskTitle = lang === 'he' ? e.title_he : e.title_en;
-  const descriptor =
-    taskTitle?.trim() ||
-    e.note?.trim() ||
-    (kindWord[e.kind]?.[lang === 'he' ? 0 : 1] ?? (lang === 'he' ? 'תנועה' : 'entry'));
-  const reason =
-    (lang === 'he' ? 'ביטול: ' : 'Reversed: ') +
-    `${descriptor} (${orig > 0 ? '+' : ''}${orig})`;
-
   const hdrs = await headers();
   const requestIp = hdrs.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null;
   const userAgent = hdrs.get('user-agent') ?? null;
@@ -174,19 +151,37 @@ export async function reverseLedgerEntryAction(formData: FormData): Promise<void
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const result = await adjustWalletOperation(client, {
-      amount: reverse,
-      kidId: e.kid_id,
+    const posted = await ledgerPost(client, {
+      kind: 'undo',
       householdId: admin.householdId,
-      adminUserId: admin.userId,
-      reason,
-      requestIp,
-      userAgent,
+      kidId: e.kid_id,
+      amount: reverse,
+      undoOfEntryId: entryId,
     });
-    if (!result.ok) {
-      await client.query('ROLLBACK');
-      return;
-    }
+    // Audit log mirrors the wallet.admin_* path so both parents see who
+    // revoked what + when, with the linked entry id in the JSON body for
+    // forensics.
+    await client.query(
+      `INSERT INTO audit_log (
+         household_id, actor_user_id, action, target_kind, target_id,
+         after_json, request_ip, user_agent
+       ) VALUES (
+         $1, $2, 'wallet.undo', 'kid', $3, $4, $5, $6
+       )`,
+      [
+        admin.householdId,
+        admin.userId,
+        e.kid_id,
+        JSON.stringify({
+          amount: reverse,
+          ledger_entry_id: posted.id,
+          undo_of_entry_id: entryId,
+          balance_after: posted.balanceAfter,
+        }),
+        requestIp,
+        userAgent,
+      ],
+    );
     await client.query('COMMIT');
   } catch (err) {
     await client.query('ROLLBACK').catch(() => undefined);

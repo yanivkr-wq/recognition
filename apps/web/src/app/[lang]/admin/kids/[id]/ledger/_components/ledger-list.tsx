@@ -41,7 +41,9 @@ function categoryOf(kind: string): Exclude<Category, 'all'> {
 }
 
 /** Coloured left edge per kind so the type is scannable — and so a revoke
- *  (admin_debit) clearly stands out from an ordinary earn. */
+ *  clearly stands out from an ordinary earn. `undo` carries the same pink-dark
+ *  edge as admin_debit because that's the entry type now produced by the
+ *  ledger-page revoke button. */
 function accentFor(kind: string): string {
   switch (kind) {
     case 'earn':
@@ -50,6 +52,7 @@ function accentFor(kind: string): string {
     case 'redeem':
       return 'var(--pink)';
     case 'admin_debit':
+    case 'undo':
       return 'var(--pink-dark)';
     case 'admin_credit':
     case 'redemption_refund':
