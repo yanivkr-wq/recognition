@@ -111,14 +111,15 @@ export function TasksManager({ lang, t, tasks, kids }: Props) {
 
   return (
     <div className="space-y-5 pb-28">
-      {/* ── Filters ─────────────────────────────────────────────────────── */}
-      <div className="bg-card rounded-2xl border border-rule p-3 space-y-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">
-          {t.admin.filtersLabel}
-        </p>
-
-        {/* Kid filter — colored chips. */}
-        <div className="flex flex-wrap gap-2">
+      {/* ── Filters ─────────────────────────────────────────────────────────
+          Single horizontally-scrolling row on mobile (one line tall, swipe
+          right to reach more chips) — replaces the old 3-row card that ate
+          ~120px of vertical space on a 360px-wide phone. On sm+ the chips
+          wrap normally and the dividers stay visible. No "Filters:" label;
+          the grouping reads from the dividers. */}
+      <div className="-mx-1 overflow-x-auto sm:mx-0 sm:overflow-visible">
+        <div className="flex items-center gap-1.5 whitespace-nowrap px-1 py-1 sm:flex-wrap sm:gap-2 sm:px-0">
+          {/* Player */}
           <FilterChip active={kidFilter === 'all'} onClick={() => setKidFilter('all')}>
             {t.admin.filterKidAll}
           </FilterChip>
@@ -132,32 +133,9 @@ export function TasksManager({ lang, t, tasks, kids }: Props) {
               {k.name}
             </FilterChip>
           ))}
-        </div>
+          <FilterDivider />
 
-        {/* Kind + photo + status — compact segmented rows. */}
-        <div className="flex flex-wrap gap-2">
-          <FilterChip active={kindFilter === 'all'} onClick={() => setKindFilter('all')}>
-            {t.admin.filterKindAll}
-          </FilterChip>
-          <FilterChip active={kindFilter === 'daily'} onClick={() => setKindFilter('daily')}>
-            {t.admin.kindDaily}
-          </FilterChip>
-          <FilterChip active={kindFilter === 'long_term'} onClick={() => setKindFilter('long_term')}>
-            {t.admin.kindLongTerm}
-          </FilterChip>
-          <span className="w-px bg-rule mx-1" aria-hidden="true" />
-          <FilterChip active={evidenceFilter === 'all'} onClick={() => setEvidenceFilter('all')}>
-            {t.admin.filterEvidenceAll}
-          </FilterChip>
-          <FilterChip active={evidenceFilter === 'yes'} onClick={() => setEvidenceFilter('yes')}>
-            {t.admin.filterEvidenceYes}
-          </FilterChip>
-          <FilterChip active={evidenceFilter === 'no'} onClick={() => setEvidenceFilter('no')}>
-            {t.admin.filterEvidenceNo}
-          </FilterChip>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+          {/* Status — default is Active so put it first */}
           <FilterChip active={statusFilter === 'active'} onClick={() => setStatusFilter('active')}>
             {t.admin.filterStatusActive}
           </FilterChip>
@@ -170,11 +148,38 @@ export function TasksManager({ lang, t, tasks, kids }: Props) {
           <FilterChip active={statusFilter === 'all'} onClick={() => setStatusFilter('all')}>
             {t.admin.filterStatusAll}
           </FilterChip>
-          <span className="flex-1" />
+          <FilterDivider />
+
+          {/* Kind */}
+          <FilterChip active={kindFilter === 'all'} onClick={() => setKindFilter('all')}>
+            {t.admin.filterKindAll}
+          </FilterChip>
+          <FilterChip active={kindFilter === 'daily'} onClick={() => setKindFilter('daily')}>
+            {t.admin.kindDaily}
+          </FilterChip>
+          <FilterChip active={kindFilter === 'long_term'} onClick={() => setKindFilter('long_term')}>
+            {t.admin.kindLongTerm}
+          </FilterChip>
+          <FilterDivider />
+
+          {/* Evidence (photo required) */}
+          <FilterChip active={evidenceFilter === 'all'} onClick={() => setEvidenceFilter('all')}>
+            {t.admin.filterEvidenceAll}
+          </FilterChip>
+          <FilterChip active={evidenceFilter === 'yes'} onClick={() => setEvidenceFilter('yes')}>
+            {t.admin.filterEvidenceYes}
+          </FilterChip>
+          <FilterChip active={evidenceFilter === 'no'} onClick={() => setEvidenceFilter('no')}>
+            {t.admin.filterEvidenceNo}
+          </FilterChip>
+
+          {/* Select all — pushed to the end so it doesn't crowd the filters
+              when admin is just scanning */}
+          <span className="sm:flex-1" />
           <button
             type="button"
             onClick={selectAllVisible}
-            className="btn-admin-ghost text-xs"
+            className="btn-admin-ghost text-xs shrink-0"
           >
             {t.admin.bulkAssignSelectAll}
           </button>
@@ -355,11 +360,18 @@ function FilterChip({
       onClick={onClick}
       aria-pressed={active}
       data-on={active}
-      className="chip-admin"
+      className="chip-admin shrink-0"
     >
       {children}
     </button>
   );
+}
+
+/** Vertical hairline that visually separates groups of chips inside the
+ *  single-row filter toolbar. shrink-0 so it doesn't collapse when the row
+ *  overflows horizontally on mobile. */
+function FilterDivider() {
+  return <span className="h-5 w-px bg-rule shrink-0" aria-hidden="true" />;
 }
 
 // ─── Bulk archive button (its own form so the archive flag posts cleanly) ──

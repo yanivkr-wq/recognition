@@ -40,26 +40,33 @@ function categoryOf(kind: string): Exclude<Category, 'all'> {
   return 'adjusted'; // admin_credit, admin_debit, undo, redemption_refund
 }
 
-/** Coloured left edge per kind so the type is scannable — and so a revoke
- *  clearly stands out from an ordinary earn. `undo` carries the same pink-dark
- *  edge as admin_debit because that's the entry type now produced by the
- *  ledger-page revoke button. */
-function accentFor(kind: string): string {
-  switch (kind) {
-    case 'earn':
-    case 'campaign_bonus':
-      return 'var(--mint)';
-    case 'redeem':
-      return 'var(--pink)';
-    case 'admin_debit':
-    case 'undo':
-      return 'var(--pink-dark)';
-    case 'admin_credit':
-    case 'redemption_refund':
-      return 'var(--sky)';
-    default:
-      return 'var(--ink-faded)';
+/** Visual identity for a row, driven by amount sign FIRST (the brain reads
+ *  green vs pink instantly) and kind only for the few cases where sign alone
+ *  is ambiguous. Returns the colours used by the left edge, the tinted card
+ *  background, and the amount text — all three move together so the row reads
+ *  as one coloured block.
+ *
+ *  Brandbook §5 reminder: pink-dark stands in for "red"; we never use a true
+ *  red token, so revoked / denied entries land on --pink-dark. */
+function visualFor(kind: string, amount: number): {
+  edge: string;
+  bg: string;
+  amount: string;
+} {
+  // Redeem is its own thing — a kid spending coins. Pink family, neutral.
+  if (kind === 'redeem') {
+    return { edge: 'var(--pink)', bg: 'var(--card)', amount: 'text-pink-dark' };
   }
+  // Refunds always credit the kid back — read as positive even though the
+  // semantic kind is different from a normal earn.
+  if (kind === 'redemption_refund') {
+    return { edge: 'var(--sky-dark)', bg: 'var(--sky-soft)', amount: 'text-sky-dark' };
+  }
+  // Everything else: green for net-positive, pink-dark for net-negative.
+  if (amount > 0) {
+    return { edge: 'var(--mint-dark)', bg: 'var(--mint-soft)', amount: 'text-mint-dark' };
+  }
+  return { edge: 'var(--pink-dark)', bg: 'var(--pink-soft)', amount: 'text-pink-dark' };
 }
 
 export function LedgerList({
@@ -126,63 +133,80 @@ export function LedgerList({
               {g.dateLabel}
             </h2>
             <ul className="space-y-2">
-              {g.items.map((r) => (
-                <li
-                  key={r.id}
-                  className="bg-card rounded-2xl shadow-hairline border border-rule p-3 flex items-center gap-3"
-                  style={{ borderInlineStartWidth: 4, borderInlineStartColor: accentFor(r.kind) }}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-ink text-[14px]">{r.label}</p>
-                    {r.taskTitle && (
-                      <p className="text-xs text-ink-soft break-words">{r.taskTitle}</p>
-                    )}
-                    {r.note && (
-                      <p className="text-xs text-ink-soft break-words" title={r.note}>
-                        “{r.note}”
+              {g.items.map((r) => {
+                const v = visualFor(r.kind, r.amount);
+                // The task title is what the admin scans for ("what did the
+                // kid do?"), so it gets the prominent slot. The kind label
+                // ("Earned" / "Undo") is metadata — smaller, beside the time.
+                // If there's no task (joker / refund), the kind label is
+                // promoted to fill the prominent slot instead.
+                const primary = r.taskTitle ?? r.label;
+                const showMetaLabel = Boolean(r.taskTitle);
+                return (
+                  <li
+                    key={r.id}
+                    className="rounded-2xl shadow-hairline border border-rule p-3.5 flex items-center gap-3"
+                    style={{
+                      backgroundColor: v.bg,
+                      borderInlineStartWidth: 4,
+                      borderInlineStartColor: v.edge,
+                    }}
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-ink text-base leading-snug break-words">
+                        {primary}
                       </p>
-                    )}
-                    <p className="text-[11px] text-ink-faded mt-1 num" dir="ltr">
-                      {r.timeLabel}
-                    </p>
-                  </div>
-                  <div className="text-end shrink-0 num">
-                    <p
-                      className={`font-bold text-sm ${
-                        r.amount > 0 && r.kind !== 'undo' ? 'text-mint-dark' : 'text-ink-soft'
-                      }`}
-                      dir="ltr"
-                    >
-                      {r.amount > 0 ? '+' : ''}
-                      {r.amount}
-                    </p>
-                    <p className="text-[11px] text-ink-faded" dir="ltr">
-                      bal {r.balanceAfter}
-                    </p>
-                    {r.clampedAmount !== null && (
-                      <p className="text-[10px] text-pink-dark" dir="ltr">
-                        clamped {r.clampedAmount}
+                      <p className="text-[11px] text-ink-soft mt-1 num" dir="ltr">
+                        {showMetaLabel && (
+                          <>
+                            <span className="font-semibold">{r.label}</span>
+                            <span className="mx-1.5" aria-hidden>·</span>
+                          </>
+                        )}
+                        <span>{r.timeLabel}</span>
                       </p>
+                      {r.note && (
+                        <p
+                          className="text-xs text-ink-soft break-words mt-1"
+                          title={r.note}
+                        >
+                          “{r.note}”
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-end shrink-0 num">
+                      <p className={`font-extrabold text-lg leading-none ${v.amount}`} dir="ltr">
+                        {r.amount > 0 ? '+' : ''}
+                        {r.amount}
+                      </p>
+                      <p className="text-[10px] text-ink-faded mt-1" dir="ltr">
+                        bal {r.balanceAfter}
+                      </p>
+                      {r.clampedAmount !== null && (
+                        <p className="text-[10px] text-pink-dark" dir="ltr">
+                          clamped {r.clampedAmount}
+                        </p>
+                      )}
+                    </div>
+                    {r.reversible && (
+                      <form action={reverseLedgerEntryAction} className="shrink-0">
+                        <input type="hidden" name="entryId" value={r.id} />
+                        <input type="hidden" name="lang" value={lang} />
+                        <button
+                          type="submit"
+                          className={`text-xs font-bold rounded-lg py-1.5 px-3 transition hover:brightness-105 ${
+                            r.amount > 0
+                              ? 'bg-pink-dark text-card'
+                              : 'bg-mint-dark text-card'
+                          }`}
+                        >
+                          {r.amount > 0 ? t.admin.ledgerRevoke : t.admin.ledgerAddBack}
+                        </button>
+                      </form>
                     )}
-                  </div>
-                  {r.reversible && (
-                    <form action={reverseLedgerEntryAction} className="shrink-0">
-                      <input type="hidden" name="entryId" value={r.id} />
-                      <input type="hidden" name="lang" value={lang} />
-                      <button
-                        type="submit"
-                        className={`text-xs font-bold rounded-lg py-1.5 px-3 transition hover:brightness-105 ${
-                          r.amount > 0
-                            ? 'bg-pink-pale text-pink-dark'
-                            : 'bg-mint-soft text-mint-dark'
-                        }`}
-                      >
-                        {r.amount > 0 ? t.admin.ledgerRevoke : t.admin.ledgerAddBack}
-                      </button>
-                    </form>
-                  )}
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           </section>
         ))
