@@ -350,9 +350,11 @@ export async function bulkUpdateRewardsAction(formData: FormData): Promise<void>
     })),
   );
 
+  // Bulk-action bar lives ON /admin/rewards, so redirecting back to the same
+  // URL is a no-op for RSC refresh — Pattern C. revalidatePath alone makes
+  // both the admin list AND the kid shop pick up the changes on next view.
   revalidatePath('/[lang]/admin', 'layout');
   revalidatePath('/[lang]/redeem', 'page');
-  redirect(`/${lang}/admin/rewards`);
 }
 
 export async function toggleArchiveRewardAction(formData: FormData): Promise<void> {
@@ -384,7 +386,7 @@ export async function toggleArchiveRewardAction(formData: FormData): Promise<voi
     targetId: id,
   });
 
+  // Same-page archive toggle (Pattern C) — see bulkUpdateRewardsAction.
   revalidatePath('/[lang]/admin', 'layout');
   revalidatePath('/[lang]/redeem', 'page');
-  redirect(`/${lang}/admin/rewards`);
 }

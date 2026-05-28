@@ -304,7 +304,7 @@ export function BadgeForm({ mode, initial, lang, t }: Props) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <label className="block">
             <span className="block text-xs text-ink-soft mb-1">{t.admin.awardedVia}</span>
             <select

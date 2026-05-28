@@ -1,32 +1,28 @@
 /**
- * Splash intro — once-per-session launch animation for TasKidz.
+ * Splash intro — once-per-session launch animation for Trophy.
  *
- * Sequence (Lily's spec):
- *   1. cycle — only the gold reward hexagon, centered, its emblem cycling
- *      through the seven rewards.
- *   2. dock  — the hexagon flies up to the logo's top-right corner and SETTLES
- *      there (it doesn't fade) as the rest of the TasKidz logo scales in around
- *      it, so the cycling hexagon literally becomes the logo's gift badge.
- *   3. fade  — once the finished logo has held a beat, the whole overlay fades
- *      out and unmounts.
+ * Sequence:
+ *   1. show — the TrophyMark mounts centered + scales in (its inner hex
+ *      cycles through the seven emblems on its own via RewardHex's CSS
+ *      animation, so we don't need to orchestrate that here).
+ *   2. fade — after the cycle has had time to show off, the whole overlay
+ *      fades out and unmounts.
  *
  * Shown once per browser session (sessionStorage) and only after client mount
- * (no SSR flash). Respects prefers-reduced-motion by not showing at all.
+ * (no SSR flash). Respects prefers-reduced-motion by skipping the splash
+ * entirely.
  */
 
 'use client';
 
 import { useEffect, useState } from 'react';
-import { RewardHex } from './reward-hex';
-import { TasKidzLogo } from './taskidz-logo';
+import { TrophyMark } from './trophy-mark';
 
-const SESSION_KEY = 'taskidz-splash-shown';
+const SESSION_KEY = 'trophy-splash-shown';
 
-type Phase = 'hidden' | 'cycle' | 'dock' | 'fade';
+type Phase = 'hidden' | 'show' | 'fade';
 
-const LOGO_H = 150;
-const LOGO_W = Math.round(LOGO_H * (289 / 241));
-const HEX = 104;
+const MARK_SIZE = 180;
 
 export function SplashIntro() {
   const [phase, setPhase] = useState<Phase>('hidden');
@@ -38,20 +34,16 @@ export function SplashIntro() {
     if (sessionStorage.getItem(SESSION_KEY)) return;
     sessionStorage.setItem(SESSION_KEY, '1');
 
-    setPhase('cycle');
-    const t1 = setTimeout(() => setPhase('dock'), 1700);
-    const t2 = setTimeout(() => setPhase('fade'), 2900);
-    const t3 = setTimeout(() => setPhase('hidden'), 3400);
+    setPhase('show');
+    const t1 = setTimeout(() => setPhase('fade'), 2600);
+    const t2 = setTimeout(() => setPhase('hidden'), 3100);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, []);
 
   if (phase === 'hidden') return null;
-
-  const docked = phase === 'dock' || phase === 'fade';
 
   return (
     <div
@@ -70,36 +62,13 @@ export function SplashIntro() {
         pointerEvents: phase === 'fade' ? 'none' : 'auto',
       }}
     >
-      <div style={{ position: 'relative', width: LOGO_W, height: LOGO_H }}>
-        {/* Full logo — fades + scales in as the hex docks. */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            opacity: docked ? 1 : 0,
-            transform: docked ? 'scale(1)' : 'scale(.92)',
-            transition: 'opacity .5s ease, transform .5s ease',
-          }}
-        >
-          <TasKidzLogo height={LOGO_H} />
-        </div>
-
-        {/* Cycling gold hex — centered while cycling, then flies to the logo's
-            gift corner (top-right) and SETTLES there as the logo's gift badge
-            (it keeps cycling; it does not fade out separately). */}
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: docked
-              ? `translate(-50%, -50%) translate(${0.235 * LOGO_W}px, ${-0.351 * LOGO_H}px) scale(${(0.2 * LOGO_W) / HEX})`
-              : 'translate(-50%, -50%)',
-            transition: 'transform .6s cubic-bezier(.5,.05,.4,1)',
-          }}
-        >
-          <RewardHex size={HEX} />
-        </div>
+      <div
+        style={{
+          transform: phase === 'show' ? 'scale(1)' : 'scale(.92)',
+          transition: 'transform .5s ease',
+        }}
+      >
+        <TrophyMark size={MARK_SIZE} />
       </div>
     </div>
   );

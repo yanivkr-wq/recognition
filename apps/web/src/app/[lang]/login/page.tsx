@@ -8,7 +8,7 @@
 
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { LoginForm } from './login-form';
-import { TasKidzLogo } from '../../../components/taskidz-logo';
+import { TrophyMark } from '../../../components/trophy-mark';
 
 export default async function LoginPage({
   params,
@@ -23,7 +23,7 @@ export default async function LoginPage({
       <section className="w-full max-w-sm bg-card rounded-3xl shadow-card p-8">
         <header className="text-center mb-8">
           <div className="flex justify-center leading-none">
-            <TasKidzLogo height={104} animated />
+            <TrophyMark size={104} />
           </div>
           <p className="mt-3 text-sm text-ink-soft">{t.auth.parentLogin}</p>
         </header>

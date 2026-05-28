@@ -80,8 +80,8 @@ export default async function AdminBadgesPage({
 
   return (
     <div className="space-y-6">
-      <header className="flex items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-ink">{t.admin.badgesHeading}</h1>
+      <header className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="text-2xl font-bold text-ink min-w-0">{t.admin.badgesHeading}</h1>
         <Link
           href={`/${lang}/admin/badges/new`}
           className="btn-admin shrink-0"

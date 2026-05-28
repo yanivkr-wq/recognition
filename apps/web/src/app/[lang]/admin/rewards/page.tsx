@@ -10,7 +10,7 @@
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { desc, eq } from 'drizzle-orm';
+import { asc, desc, eq } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, rewardItem } from '@reco/db';
 import { auth } from '../../../../auth';
@@ -29,11 +29,14 @@ export default async function AdminRewardsPage({
   const session = await auth();
   if (!session?.user) redirect(`/${lang}/login`);
 
+  // Cheapest first to mirror the kid shop (Lily: "sort rewards page by price
+  // values from small to big"). createdAt remains a stable tiebreaker for
+  // rewards at the same coin cost.
   const rows = await getDb()
     .select()
     .from(rewardItem)
     .where(eq(rewardItem.householdId, session.user.householdId))
-    .orderBy(rewardItem.displayOrder, desc(rewardItem.createdAt));
+    .orderBy(asc(rewardItem.coinCost), desc(rewardItem.createdAt));
 
   const mapped: RewardRow[] = rows.map((r) => ({
     id: r.id,

@@ -444,7 +444,9 @@
     "notifications": "Notifications",
     "allCaughtUp": "All caught up!",
     "navMore": "More",
-    "journeysStatus": "Journey status"
+    "journeysStatus": "Journey status",
+    "themePickTitle": "App theme",
+    "themePickHint": "Saved on this device — each parent can pick their own theme on their own phone."
   },
   "feedback": {
     "button": "Feedback",

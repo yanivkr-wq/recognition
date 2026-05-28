@@ -197,7 +197,10 @@ export default async function WalletPage({
   return (
     <>
     <main className="min-h-screen bg-bg pb-28">
-      <header className="px-5 pt-10 pb-3 flex items-center justify-between">
+      <header
+        className="px-5 pb-3 flex items-center justify-between"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}
+      >
         <a
           href={`/${lang}/`}
           className="text-sm text-ink-soft underline-offset-4 hover:underline"

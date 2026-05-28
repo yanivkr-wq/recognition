@@ -458,6 +458,8 @@ export interface Dictionary {
     allCaughtUp: string;
     navMore: string;
     journeysStatus: string;
+    themePickTitle: string;
+    themePickHint: string;
   };
   playerMsg: {
     heading: string;

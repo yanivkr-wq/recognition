@@ -158,6 +158,30 @@
 }
 
 /*
+ * Theme cascade for <html> + <body>.
+ *
+ * The active theme is set on a `<div data-theme="…">` INSIDE <body> (see
+ * [lang]/layout.tsx). That correctly themes everything underneath the div,
+ * but <html> + <body> live ABOVE the data-theme node in the DOM, so they
+ * still pull `--bg` / `--rule` from `:root` (bubblegum off-white). On iOS
+ * PWA this leaks the wrong-coloured strip through the safe-area inset and
+ * any sub-pixel gap between the OS status bar and the first painted card.
+ *
+ * Use `:has()` to look DOWN from html/body and adopt the descendant theme's
+ * bg, so the entire viewport — including the status-bar inset and any chrome
+ * the player surfaces don't paint — matches the active theme.
+ * Browser support: iOS Safari 15.4+, Chrome 105+ (covers our PWA targets).
+ */
+html:has([data-theme="ocean"]),
+body:has([data-theme="ocean"]) {
+  background-color: #F1F8F9;
+}
+html:has([data-theme="sunset"]),
+body:has([data-theme="sunset"]) {
+  background-color: #FCF5F1;
+}
+
+/*
  * Admin button system — "Neutral monochrome" (Lily's Option C). Greyscale
  * chrome so the admin tool reads businesslike, not childish; colour is saved
  * for status chips. Used across admin surfaces in place of the playful pink

@@ -1,12 +1,13 @@
 /**
  * Apple touch icon (iOS "Add to Home Screen") — 180x180.
  *
- * The approved TasKidz logo (inlined PNG data URL) on a white tile; iOS rounds
- * the corners, and the padding keeps the mark clear of the rounding.
+ * The Trophy mark, full-bleed at 180×180. iOS applies its own corner rounding
+ * to whatever PNG it gets, so the SVG's rounded-square tile is what produces
+ * the visible badge on the Home Screen.
  */
 
 import { ImageResponse } from 'next/og';
-import { TASKIDZ_LOGO_DATA_URL } from '../lib/brand/taskidz-logo-data';
+import { TROPHY_MARK_DATA_URL } from '../lib/brand/trophy-mark-svg';
 
 export const size = { width: 180, height: 180 };
 export const contentType = 'image/png';
@@ -21,11 +22,11 @@ export default function AppleIcon() {
           height: '100%',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FFFFFF',
+          background: '#FFF0F6',
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={TASKIDZ_LOGO_DATA_URL} width={158} height={132} alt="TasKidz" />
+        <img src={TROPHY_MARK_DATA_URL} width={180} height={180} alt="Trophy" />
       </div>
     ),
     { ...size },

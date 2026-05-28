@@ -218,6 +218,7 @@ export async function toggleArchiveBadgeAction(formData: FormData): Promise<void
     targetId: id,
   });
 
+  // Form lives ON /admin/badges — redirect-to-same-URL is a Pattern C no-op;
+  // revalidatePath alone refreshes the list.
   revalidatePath('/[lang]/admin', 'layout');
-  redirect(`/${lang}/admin/badges`);
 }

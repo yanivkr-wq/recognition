@@ -456,8 +456,10 @@ export async function toggleArchiveTaskTemplateAction(formData: FormData): Promi
     targetId: id,
   });
 
+  // Form lives ON /admin/tasks (toggle button per row), so redirecting back to
+  // the same URL is a no-op for the RSC refresh — Pattern C. revalidatePath
+  // alone makes the list re-render with the new archive state.
   revalidatePath('/[lang]/admin', 'layout');
-  redirect(`/${lang}/admin/tasks`);
 }
 
 /**

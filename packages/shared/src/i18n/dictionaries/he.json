@@ -1,6 +1,6 @@
 {
   "common": {
-    "save": "שמרי",
+    "save": "שמירה",
     "cancel": "ביטול",
     "submit": "שלחי",
     "back": "חזרה",
@@ -92,7 +92,7 @@
     "editAvatar": "שני את הדמות",
     "avatarTitle": "בחרי דמות",
     "avatarSubtitle": "איזו חיה הכי מתאימה לך?",
-    "avatarSave": "שמרי",
+    "avatarSave": "שמירה",
     "avatarSaved": "נשמר!",
     "avatarClear": "מחקי",
     "colorPickTitle": "בחרי צבע",
@@ -444,7 +444,9 @@
     "notifications": "התראות",
     "allCaughtUp": "הכל מטופל!",
     "navMore": "עוד",
-    "journeysStatus": "מצב מסעות"
+    "journeysStatus": "מצב מסעות",
+    "themePickTitle": "ערכת צבעים של האפליקציה",
+    "themePickHint": "נשמר במכשיר הזה — אבא ואמא יכולים לבחור ערכות שונות בכל מכשיר."
   },
   "feedback": {
     "button": "משוב",

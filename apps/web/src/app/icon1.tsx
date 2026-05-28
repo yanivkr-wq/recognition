@@ -1,12 +1,13 @@
 /**
  * PWA standard 512x512 icon (Android / web manifest / iOS, + maskable).
  *
- * The approved TasKidz logo (inlined PNG data URL) on a white tile with a
- * generous safe-zone margin so a circular maskable crop never clips the mark.
+ * The Trophy mark, full-bleed at 512×512. The SVG already includes the
+ * pink-soft rounded-square tile, so it survives Android's circular maskable
+ * crop and iOS rounding without clipping the dashed ring or yellow hex.
  */
 
 import { ImageResponse } from 'next/og';
-import { TASKIDZ_LOGO_DATA_URL } from '../lib/brand/taskidz-logo-data';
+import { TROPHY_MARK_DATA_URL } from '../lib/brand/trophy-mark-svg';
 
 export const size = { width: 512, height: 512 };
 export const contentType = 'image/png';
@@ -21,11 +22,11 @@ export default function Icon() {
           height: '100%',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FFFFFF',
+          background: '#FFF0F6',
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={TASKIDZ_LOGO_DATA_URL} width={380} height={317} alt="TasKidz" />
+        <img src={TROPHY_MARK_DATA_URL} width={512} height={512} alt="Trophy" />
       </div>
     ),
     { ...size },

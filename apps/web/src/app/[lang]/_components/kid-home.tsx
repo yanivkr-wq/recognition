@@ -21,7 +21,7 @@ import { getIcon } from '../../../components/icon-library';
 import { celebrate } from '../../../lib/celebrate';
 import { BottomNav } from './bottom-nav';
 import { Avatar } from '../../../components/avatar';
-import { TasKidzLogo } from '../../../components/taskidz-logo';
+import { TrophyMark } from '../../../components/trophy-mark';
 import { arrowForward } from '../../../lib/rtl';
 
 export interface KidHomeTask {
@@ -144,10 +144,12 @@ export function KidHome(props: Props) {
     <>
     <main className="min-h-screen bg-bg pb-28">
       {/* Compact app bar (one tight row): player identity on the start side,
-          the TasKidz mark centered, bell + switch-user on the end. The coin
-          balance lives in the wallet hero card right below. */}
+          the Trophy mark centered (badge only, no wordmark — the dashed pink
+          ring is themed and the inner hex cycles through 7 emblems), bell +
+          switch-user on the end. The coin balance lives in the wallet hero
+          card right below. */}
       <header
-        className="px-4 pb-3 bg-card border-b border-rule shadow-hairline"
+        className="px-4 pb-3 bg-card border-b border-rule"
         style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.5rem)' }}
       >
         <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
@@ -160,7 +162,7 @@ export function KidHome(props: Props) {
           </a>
 
           {/* Brand mark (centered) */}
-          <TasKidzLogo height={30} animated />
+          <TrophyMark size={36} />
 
           {/* Actions */}
           <div className="flex items-center gap-2 justify-self-end">

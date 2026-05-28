@@ -25,6 +25,7 @@ import {
 } from '../../../../../lib/admin-tasks/actions';
 import { IconPicker } from '../../../../../components/icon-picker';
 import { AutofillButton } from '../../../../../components/autofill-button';
+import { Coin } from '../../../../../components/coin';
 
 interface InitialValues {
   id?: string;
@@ -180,17 +181,32 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
         />
       </div>
 
-      <div className="grid sm:grid-cols-3 gap-4">
-        {kind === 'daily' && (
-          <Field
-            label={t.admin.coinValue}
+      {/* Coin value — the most-edited number on a daily task, so it gets its
+          own prominent row (Lily, mobile audit: "make the value fields more
+          accessible and clear"). Big touch target + coin glyph next to the
+          input so the meaning is unmistakable on a small screen. */}
+      {kind === 'daily' && (
+        <label className="block">
+          <span className="flex items-center gap-1.5 text-sm font-bold text-ink mb-1">
+            <Coin size={18} />
+            {t.admin.coinValue}
+          </span>
+          <input
             name="coinValue"
             type="number"
-            defaultValue={String(initial?.coinValue ?? 5)}
-            required
+            inputMode="numeric"
             min={0}
+            required
+            defaultValue={String(initial?.coinValue ?? 5)}
+            dir="ltr"
+            className="w-full rounded-xl border border-rule bg-card px-3 py-3 text-xl font-bold text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
           />
-        )}
+        </label>
+      )}
+
+      {/* Color + display order — visual / power-user fields, paired together
+          and stacked on mobile so each gets a full-width touch target. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <ColorField
           label={t.admin.color}
           name="color"
@@ -251,7 +267,7 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
           unlimited; 1 = once. Daily only. */}
       {kind === 'daily' && (
         <label className="block">
-          <span className="block text-sm text-ink-soft mb-1">{t.admin.maxPerDay}</span>
+          <span className="block text-sm font-bold text-ink mb-1">{t.admin.maxPerDay}</span>
           <input
             type="number"
             name="maxPerDay"
@@ -261,7 +277,7 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
               initial?.maxPerDay === null ? '' : String(initial?.maxPerDay ?? 1)
             }
             dir="ltr"
-            className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+            className="w-full rounded-xl border border-rule bg-card px-3 py-3 text-base text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
           />
           <span className="block mt-1 text-[11px] text-ink-faded">
             {t.admin.maxPerDayHint}
@@ -271,11 +287,12 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
 
       {/* Journey measure (optional): how much one completion adds to a journey
           this task feeds, and the unit label. Empty = doesn't count toward
-          journeys. Daily only. */}
+          journeys. Daily only. Stack on mobile so each input gets a full-
+          width touch target; pair up at sm+ where there's room. */}
       {kind === 'daily' && (
         <div>
-          <span className="block text-sm text-ink-soft mb-1">{t.admin.measureLabel}</span>
-          <div className="grid grid-cols-2 gap-3">
+          <span className="block text-sm font-bold text-ink mb-1">{t.admin.measureLabel}</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               type="number"
               name="measureAmount"
@@ -284,14 +301,14 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
               placeholder={t.admin.measureAmountPlaceholder}
               defaultValue={initial?.measureAmount == null ? '' : String(initial.measureAmount)}
               dir="ltr"
-              className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+              className="w-full rounded-xl border border-rule bg-card px-3 py-3 text-base text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
             />
             <input
               type="text"
               name="measureUnit"
               placeholder={t.admin.measureUnitPlaceholder}
               defaultValue={initial?.measureUnit ?? ''}
-              className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-sm text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+              className="w-full rounded-xl border border-rule bg-card px-3 py-3 text-base text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
             />
           </div>
           <span className="block mt-1 text-[11px] text-ink-faded">
@@ -475,19 +492,26 @@ function Field({
   hint?: string;
 }) {
   const controlled = value !== undefined;
+  const isNumber = type === 'number';
   return (
     <label className="block">
       <span className="block text-sm text-ink-soft mb-1">{label}</span>
       <input
         name={name}
         type={type}
+        // Number inputs should bring up the numeric keypad on mobile, not
+        // the full alphabetic keyboard — saves taps and avoids fat-finger
+        // mistakes on small touch targets.
+        inputMode={isNumber ? 'numeric' : undefined}
         {...(controlled
           ? { value, onChange: (e) => onChange?.(e.currentTarget.value) }
           : { defaultValue })}
         required={required}
         min={min}
-        dir={dir}
-        className="w-full rounded-xl border border-rule bg-card px-3 py-2 text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+        dir={dir ?? (isNumber ? 'ltr' : undefined)}
+        className={`w-full rounded-xl border border-rule bg-card px-3 py-2 text-ink focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition ${
+          isNumber ? 'num' : ''
+        }`}
       />
       {hint && <span className="block mt-1 text-[11px] text-ink-faded">{hint}</span>}
     </label>

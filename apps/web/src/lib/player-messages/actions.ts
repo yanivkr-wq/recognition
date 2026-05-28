@@ -123,9 +123,9 @@ export async function archivePlayerMessageAction(formData: FormData): Promise<vo
     targetId: id,
   });
 
+  // Archive button lives ON /admin/messages — Pattern C no-op redirect.
   revalidatePath('/[lang]/admin', 'layout');
   revalidatePath('/[lang]', 'layout');
-  redirect(`/${lang}/admin/messages`);
 }
 
 export type DismissMessageState = { ok: boolean };

@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { auth, signOut } from '../../../auth';
-import { TasKidzLogo } from '../../../components/taskidz-logo';
+import { TrophyMark } from '../../../components/trophy-mark';
 import { getAdminNotificationCounts } from '../../../lib/admin/notifications';
 import { AdminBell } from './_components/admin-bell';
 import { AdminBottomNav } from './_components/admin-bottom-nav';
@@ -38,9 +38,9 @@ export default async function AdminLayout({
           <Link
             href={`/${lang}/admin`}
             className="flex items-center gap-3"
-            aria-label="TasKidz admin"
+            aria-label="Trophy admin"
           >
-            <TasKidzLogo height={40} animated />
+            <TrophyMark size={40} />
             <span className="text-sm text-ink-soft">·</span>
             <span className="text-sm text-ink-soft">{t.admin.title}</span>
           </Link>

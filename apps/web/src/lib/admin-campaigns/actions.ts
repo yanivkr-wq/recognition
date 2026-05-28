@@ -391,8 +391,9 @@ export async function toggleArchiveCampaignAction(formData: FormData): Promise<v
     targetId: id,
   });
 
+  // Form lives ON /admin/campaigns — redirect-to-same-URL is a Pattern C
+  // no-op; revalidatePath alone refreshes the list.
   revalidatePath('/[lang]/admin', 'layout');
-  redirect(`/${lang}/admin/campaigns`);
 }
 
 // Touched re-exports so unused-import lint doesn't kick the form types around.

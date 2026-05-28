@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TasKidz — app icon options (yellow hex + ring)</title>
+<style>
+  :root {
+    --bg: #FAF8F5; --ink: #2D2A4A; --ink-soft: #6B6786; --rule: #ECE7E0;
+    --pink: #FF6B9D; --pink-dark: #E94B7F; --pink-soft: #FFF0F6; --pink-pale: #FFE0EB;
+    --yellow: #FFD75E; --yellow-dark: #E8B927; --yellow-pale: #FFF3D6;
+    --mint: #4ED9A5; --mint-dark: #2EB683;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif; padding: 40px 20px 80px; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 6px; }
+  .sub { color: var(--ink-soft); margin: 0 0 32px; font-size: 15px; line-height:1.5; max-width: 70ch; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; }
+  .card { background: var(--card); border: 1px solid var(--rule); border-radius: 24px;
+    padding: 22px; box-shadow: 0 8px 24px rgba(45,42,74,.06);
+    display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .tag { align-self: flex-start; font-size: 11px; font-weight: 800; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--pink-dark); background: var(--pink-soft);
+    padding: 4px 10px; border-radius: 999px; }
+  .name { font-size: 18px; font-weight: 800; margin: 0; }
+  .desc { font-size: 13px; color: var(--ink-soft); text-align: center; margin: 0; line-height: 1.5; }
+  .tile { width: 152px; height: 152px; border-radius: 34px; overflow: hidden;
+          box-shadow: 0 6px 16px rgba(45,42,74,.18); background: var(--card); }
+  .tile svg { display: block; width: 100%; height: 100%; }
+  .sizes { display: flex; align-items: flex-end; gap: 18px; }
+  .fav { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .fav span { font-size: 10px; color: var(--ink-soft); }
+  .fav .chip { border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(45,42,74,.15);
+               background: var(--card); }
+  footer { margin-top: 40px; color: var(--ink-soft); font-size: 13px; text-align:center; }
+  .legend { display: flex; gap: 6px; flex-wrap: wrap; }
+  .swatch { padding: 4px 10px; font-size: 11px; border-radius: 999px;
+            border: 1px solid var(--rule); background: var(--card); color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>App icon — yellow hex + ring</h1>
+  <p class="sub">
+    Five throwaway directions for the TasKidz home-screen icon. Each centers on the
+    brand's yellow hexagon (the same gold hex used in the in-app reward mark) wrapped
+    in a circle, but they differ in ring treatment and the optional emblem inside the
+    hex. Shown at three sizes: 152&times;152 (home screen), 32&times;32 (Android adaptive
+    inner), 16&times;16 (browser tab favicon). Pick the one that reads cleanest at the
+    smallest size — that's the real test.
+  </p>
+
+  <div class="grid">
+
+    <!-- ============================================================
+         OPTION 1 — Plain ink ring
+         ============================================================ -->
+    <div class="card">
+      <span class="tag">Option 1</span>
+      <div class="tile">
+        <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+          <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+          <circle cx="76" cy="76" r="56" fill="none" stroke="#2D2A4A" stroke-width="6"/>
+          <!-- regular hexagon flat-top, radius 36 -->
+          <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                   fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="name">Clean &amp; quiet</p>
+      <p class="desc">Solid yellow hex inside a slim dark ring. Reads as a brand mark, not a sticker. Strongest at favicon size — the silhouette stays clear.</p>
+      <div class="sizes">
+        <div class="fav"><div class="chip" style="width:56px;height:56px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+            <circle cx="76" cy="76" r="56" fill="none" stroke="#2D2A4A" stroke-width="6"/>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        </div><span>32</span></div>
+        <div class="fav"><div class="chip" style="width:32px;height:32px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+            <circle cx="76" cy="76" r="56" fill="none" stroke="#2D2A4A" stroke-width="6"/>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        </div><span>16</span></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         OPTION 2 — Pink dashed ring (matches embroidered-patch badges)
+         ============================================================ -->
+    <div class="card">
+      <span class="tag">Option 2</span>
+      <div class="tile">
+        <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+          <rect width="152" height="152" rx="34" fill="#FFF0F6"/>
+          <circle cx="76" cy="76" r="58" fill="none" stroke="#FF6B9D" stroke-width="5"
+                  stroke-dasharray="6 5" stroke-linecap="round"/>
+          <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                   fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="name">Stitched patch</p>
+      <p class="desc">Pink dashed ring echoes the embroidered-patch badge family — the icon feels like one of the in-app badges, brand-coherent. Softest of the five.</p>
+      <div class="sizes">
+        <div class="fav"><div class="chip" style="width:56px;height:56px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FFF0F6"/>
+            <circle cx="76" cy="76" r="58" fill="none" stroke="#FF6B9D" stroke-width="5"
+                    stroke-dasharray="6 5" stroke-linecap="round"/>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        </div><span>32</span></div>
+        <div class="fav"><div class="chip" style="width:32px;height:32px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FFF0F6"/>
+            <circle cx="76" cy="76" r="58" fill="none" stroke="#FF6B9D" stroke-width="5"
+                    stroke-dasharray="6 5" stroke-linecap="round"/>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        </div><span>16</span></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         OPTION 3 — Pink ring + white star inside hex
+         ============================================================ -->
+    <div class="card">
+      <span class="tag">Option 3</span>
+      <div class="tile">
+        <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+          <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+          <circle cx="76" cy="76" r="56" fill="none" stroke="#FF6B9D" stroke-width="7"
+                  stroke-linecap="round"/>
+          <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                   fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          <!-- 5-point star centered in hex -->
+          <polygon
+            points="76,58 81.5,71.5 96,72.5 84.75,82 88.5,96 76,88 63.5,96 67.25,82 56,72.5 70.5,71.5"
+            fill="#FFFFFF"/>
+        </svg>
+      </div>
+      <p class="name">Pink ring, star core</p>
+      <p class="desc">Solid pink ring + white star inside the hex. The star reads at any size and makes the icon clearly "rewards / kudos" without text.</p>
+      <div class="sizes">
+        <div class="fav"><div class="chip" style="width:56px;height:56px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+            <circle cx="76" cy="76" r="56" fill="none" stroke="#FF6B9D" stroke-width="7"/>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+            <polygon
+              points="76,58 81.5,71.5 96,72.5 84.75,82 88.5,96 76,88 63.5,96 67.25,82 56,72.5 70.5,71.5"
+              fill="#FFFFFF"/>
+          </svg>
+        </div><span>32</span></div>
+        <div class="fav"><div class="chip" style="width:32px;height:32px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+            <circle cx="76" cy="76" r="56" fill="none" stroke="#FF6B9D" stroke-width="7"/>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+            <polygon
+              points="76,58 81.5,71.5 96,72.5 84.75,82 88.5,96 76,88 63.5,96 67.25,82 56,72.5 70.5,71.5"
+              fill="#FFFFFF"/>
+          </svg>
+        </div><span>16</span></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         OPTION 4 — Pink-filled ring (disk), hex floats above
+         ============================================================ -->
+    <div class="card">
+      <span class="tag">Option 4</span>
+      <div class="tile">
+        <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+          <rect width="152" height="152" rx="34" fill="#FFF0F6"/>
+          <circle cx="76" cy="76" r="56" fill="#FF6B9D"/>
+          <polygon points="76,42 110,60 110,96 76,114 42,96 42,60"
+                   fill="#FFD75E" stroke="#E8B927" stroke-width="3" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="name">Bold disk + hex</p>
+      <p class="desc">Solid pink disk with a chunky yellow hex laid over it. Highest visual punch — the icon pops on a crowded home screen. Less subtle than the others.</p>
+      <div class="sizes">
+        <div class="fav"><div class="chip" style="width:56px;height:56px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FFF0F6"/>
+            <circle cx="76" cy="76" r="56" fill="#FF6B9D"/>
+            <polygon points="76,42 110,60 110,96 76,114 42,96 42,60"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="3" stroke-linejoin="round"/>
+          </svg>
+        </div><span>32</span></div>
+        <div class="fav"><div class="chip" style="width:32px;height:32px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FFF0F6"/>
+            <circle cx="76" cy="76" r="56" fill="#FF6B9D"/>
+            <polygon points="76,42 110,60 110,96 76,114 42,96 42,60"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="3" stroke-linejoin="round"/>
+          </svg>
+        </div><span>16</span></div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         OPTION 5 — Hex inside ring of dots (orbital)
+         ============================================================ -->
+    <div class="card">
+      <span class="tag">Option 5</span>
+      <div class="tile">
+        <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+          <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+          <!-- 12 dots placed on a circle of radius 58 -->
+          <g fill="#FF6B9D">
+            <!-- generated 12-point ring -->
+            <circle cx="76"      cy="18"     r="4"/>
+            <circle cx="105"     cy="25.77"  r="4"/>
+            <circle cx="126.23"  cy="47"     r="4"/>
+            <circle cx="134"     cy="76"     r="4"/>
+            <circle cx="126.23"  cy="105"    r="4"/>
+            <circle cx="105"     cy="126.23" r="4"/>
+            <circle cx="76"      cy="134"    r="4"/>
+            <circle cx="47"      cy="126.23" r="4"/>
+            <circle cx="25.77"   cy="105"    r="4"/>
+            <circle cx="18"      cy="76"     r="4"/>
+            <circle cx="25.77"   cy="47"     r="4"/>
+            <circle cx="47"      cy="25.77"  r="4"/>
+          </g>
+          <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                   fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="name">Orbital dots</p>
+      <p class="desc">12 pink dots ring the hex — playful and celebratory, reads like confetti or stitching. Works hardest at 152&times;152; the dots blur at 16.</p>
+      <div class="sizes">
+        <div class="fav"><div class="chip" style="width:56px;height:56px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+            <g fill="#FF6B9D">
+              <circle cx="76"      cy="18"     r="4"/>
+              <circle cx="105"     cy="25.77"  r="4"/>
+              <circle cx="126.23"  cy="47"     r="4"/>
+              <circle cx="134"     cy="76"     r="4"/>
+              <circle cx="126.23"  cy="105"    r="4"/>
+              <circle cx="105"     cy="126.23" r="4"/>
+              <circle cx="76"      cy="134"    r="4"/>
+              <circle cx="47"      cy="126.23" r="4"/>
+              <circle cx="25.77"   cy="105"    r="4"/>
+              <circle cx="18"      cy="76"     r="4"/>
+              <circle cx="25.77"   cy="47"     r="4"/>
+              <circle cx="47"      cy="25.77"  r="4"/>
+            </g>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        </div><span>32</span></div>
+        <div class="fav"><div class="chip" style="width:32px;height:32px;">
+          <svg viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+            <rect width="152" height="152" rx="34" fill="#FAF8F5"/>
+            <g fill="#FF6B9D">
+              <circle cx="76"      cy="18"     r="4"/>
+              <circle cx="105"     cy="25.77"  r="4"/>
+              <circle cx="126.23"  cy="47"     r="4"/>
+              <circle cx="134"     cy="76"     r="4"/>
+              <circle cx="126.23"  cy="105"    r="4"/>
+              <circle cx="105"     cy="126.23" r="4"/>
+              <circle cx="76"      cy="134"    r="4"/>
+              <circle cx="47"      cy="126.23" r="4"/>
+              <circle cx="25.77"   cy="105"    r="4"/>
+              <circle cx="18"      cy="76"     r="4"/>
+              <circle cx="25.77"   cy="47"     r="4"/>
+              <circle cx="47"      cy="25.77"  r="4"/>
+            </g>
+            <polygon points="76,40 107.18,58 107.18,94 76,112 44.82,94 44.82,58"
+                     fill="#FFD75E" stroke="#E8B927" stroke-width="2.5" stroke-linejoin="round"/>
+          </svg>
+        </div><span>16</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Tell me the option number you want and I'll replace icon0/icon1/apple-icon in
+    apps/web/src/app/. — throwaway picker, fine to delete after you choose.
+  </footer>
+</div>
+</body>
+</html>

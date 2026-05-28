@@ -162,7 +162,9 @@ export function RewardForm({ mode, initial, lang, t }: Props) {
           onChange={setIconKey}
         />
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      {/* Numeric value fields — stacked on mobile so each gets a full-width
+          touch target; tripled at sm+ where the row fits. */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <Field
           label={t.admin.coinCost}
           name="coinCost"

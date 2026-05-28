@@ -13,9 +13,13 @@
  */
 
 import Link from 'next/link';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { auth } from '../../../../auth';
+import { ADMIN_THEME_COOKIE } from '../../../../lib/admin-theme/actions';
+import { DEFAULT_THEME } from '../../../../lib/theme';
+import { AdminThemePicker } from './_components/admin-theme-picker';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,6 +53,9 @@ export default async function AdminMenu({
   const t = getDictionary(lang as Locale);
   const session = await auth();
   if (!session?.user) redirect(`/${lang}/login`);
+
+  const currentTheme =
+    (await cookies()).get(ADMIN_THEME_COOKIE)?.value ?? DEFAULT_THEME;
 
   const groups: {
     title: string;
@@ -131,6 +138,12 @@ export default async function AdminMenu({
           </section>
         );
       })}
+
+      <AdminThemePicker
+        lang={lang as 'he' | 'en'}
+        t={t}
+        initialTheme={currentTheme}
+      />
     </div>
   );
 }

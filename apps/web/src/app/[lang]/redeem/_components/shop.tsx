@@ -68,7 +68,10 @@ export function Shop(props: Props) {
   return (
     <>
     <main className="min-h-screen bg-bg pb-28">
-      <header className="px-5 pt-12 pb-3 flex items-center justify-between">
+      <header
+        className="px-5 pb-3 flex items-center justify-between"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}
+      >
         <div className="flex items-center gap-3">
           <Avatar name={kidName} color={kidColor} avatarKey={kidAvatarKey} size={48} />
           <div>

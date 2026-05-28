@@ -6,9 +6,9 @@
  * /[lang]/pick/<slug> for PIN entry. A small parent-admin link drops a parent
  * to /[lang]/login.
  *
- * Revamped to the Plush brand: RecoMark + wordmark header on the warm cream
- * background, each kid in a soft tile tinted to her own color (peach = Lia,
- * sky = Yael) with a colored avatar ring. Mobile-first, big tap targets.
+ * Revamped to the Plush brand: TrophyMark header on the warm cream background,
+ * each kid in a soft tile tinted to her own color (peach = Lia, sky = Yael)
+ * with a colored avatar ring. Mobile-first, big tap targets.
  */
 
 import Link from 'next/link';
@@ -16,7 +16,7 @@ import { isNull } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import { getDb, kid as kidTable } from '@reco/db';
 import { Avatar } from '../../../components/avatar';
-import { TasKidzLogo } from '../../../components/taskidz-logo';
+import { TrophyMark } from '../../../components/trophy-mark';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,7 +51,7 @@ export default async function PickPage({
     >
       <header className="flex flex-col items-center text-center mb-9">
         <div className="motion-safe:animate-[recoPickPop_.5s_cubic-bezier(.34,1.56,.64,1)]">
-          <TasKidzLogo height={120} animated />
+          <TrophyMark size={120} />
         </div>
         <h1 className="mt-5 text-3xl font-bold text-ink">{t.profilePicker.title}</h1>
         <p className="mt-1.5 text-sm text-ink-soft">{t.profilePicker.subtitle}</p>

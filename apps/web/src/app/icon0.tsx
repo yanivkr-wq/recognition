@@ -1,14 +1,14 @@
 /**
  * PWA standard 192x192 icon (Android / web manifest).
  *
- * Generated via ImageResponse from the approved TasKidz logo (inlined as a PNG
- * data URL so Satori can render it without a network fetch). White full-bleed
- * tile with padding so Android's maskable circle / iOS rounding never clips
- * the mark.
+ * The Trophy mark (pink-soft tile + dashed pink ring + yellow hex + white
+ * trophy) rendered to PNG by Satori via an inlined SVG data URL. The static
+ * SVG (no animation) lives in lib/brand/trophy-mark-svg.ts and is the source
+ * of truth for everywhere a flat PNG is needed.
  */
 
 import { ImageResponse } from 'next/og';
-import { TASKIDZ_LOGO_DATA_URL } from '../lib/brand/taskidz-logo-data';
+import { TROPHY_MARK_DATA_URL } from '../lib/brand/trophy-mark-svg';
 
 export const size = { width: 192, height: 192 };
 export const contentType = 'image/png';
@@ -23,11 +23,11 @@ export default function Icon() {
           height: '100%',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#FFFFFF',
+          background: '#FFF0F6',
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={TASKIDZ_LOGO_DATA_URL} width={168} height={140} alt="TasKidz" />
+        <img src={TROPHY_MARK_DATA_URL} width={192} height={192} alt="Trophy" />
       </div>
     ),
     { ...size },
