@@ -41,32 +41,55 @@ function categoryOf(kind: string): Exclude<Category, 'all'> {
 }
 
 /** Visual identity for a row, driven by amount sign FIRST (the brain reads
- *  green vs pink instantly) and kind only for the few cases where sign alone
- *  is ambiguous. Returns the colours used by the left edge, the tinted card
- *  background, and the amount text — all three move together so the row reads
- *  as one coloured block.
+ *  green vs raspberry instantly) and kind only for the few cases where sign
+ *  alone is ambiguous. Returns CSS colour strings used inline on the left
+ *  edge, the tinted card background, and the amount text — all three move
+ *  together so the row reads as one coloured block.
  *
- *  Brandbook §5 reminder: pink-dark stands in for "red"; we never use a true
- *  red token, so revoked / denied entries land on --pink-dark. */
+ *  Theme-independence note: the bubblegum-pink-dark hex is hardcoded for the
+ *  revoke variant (rather than var(--pink-dark)) because the ocean + sunset
+ *  themes override --pink-dark to a teal / coral that blends into the rest
+ *  of the chrome. Brandbook §5 reserves pink-dark as the denial colour, but
+ *  denial is a semantic role that must stay stable across themes — Lily on
+ *  ocean reported "I can't tell what was revoked, everything's the same teal."
+ *  So we use the bubblegum value (#E94B7F + #FFE0EB) regardless of theme. */
+const DENY = '#E94B7F';
+const DENY_SOFT = '#FFE0EB';
+
 function visualFor(kind: string, amount: number): {
   edge: string;
   bg: string;
   amount: string;
+  buttonBg: string;
 } {
   // Redeem is its own thing — a kid spending coins. Pink family, neutral.
   if (kind === 'redeem') {
-    return { edge: 'var(--pink)', bg: 'var(--card)', amount: 'text-pink-dark' };
+    return { edge: 'var(--pink)', bg: 'var(--card)', amount: DENY, buttonBg: DENY };
   }
   // Refunds always credit the kid back — read as positive even though the
   // semantic kind is different from a normal earn.
   if (kind === 'redemption_refund') {
-    return { edge: 'var(--sky-dark)', bg: 'var(--sky-soft)', amount: 'text-sky-dark' };
+    return {
+      edge: 'var(--sky-dark)',
+      bg: 'var(--sky-soft)',
+      amount: 'var(--sky-dark)',
+      buttonBg: 'var(--mint-dark)',
+    };
   }
-  // Everything else: green for net-positive, pink-dark for net-negative.
+  // Net-positive (earn / un-revoke): green. Mint isn't themed so it's stable
+  // and reads as "earned" in every theme.
   if (amount > 0) {
-    return { edge: 'var(--mint-dark)', bg: 'var(--mint-soft)', amount: 'text-mint-dark' };
+    return {
+      edge: 'var(--mint-dark)',
+      bg: 'var(--mint-soft)',
+      amount: 'var(--mint-dark)',
+      buttonBg: DENY, // clicking revoke moves to denial
+    };
   }
-  return { edge: 'var(--pink-dark)', bg: 'var(--pink-soft)', amount: 'text-pink-dark' };
+  // Net-negative (revoke / debit): theme-independent raspberry-pink for the
+  // strongest "this was taken away" signal we can ship without breaking the
+  // brandbook's "never red" rule.
+  return { edge: DENY, bg: DENY_SOFT, amount: DENY, buttonBg: 'var(--mint-dark)' };
 }
 
 export function LedgerList({
@@ -175,7 +198,11 @@ export function LedgerList({
                       )}
                     </div>
                     <div className="text-end shrink-0 num">
-                      <p className={`font-extrabold text-lg leading-none ${v.amount}`} dir="ltr">
+                      <p
+                        className="font-extrabold text-lg leading-none"
+                        style={{ color: v.amount }}
+                        dir="ltr"
+                      >
                         {r.amount > 0 ? '+' : ''}
                         {r.amount}
                       </p>
@@ -183,7 +210,11 @@ export function LedgerList({
                         bal {r.balanceAfter}
                       </p>
                       {r.clampedAmount !== null && (
-                        <p className="text-[10px] text-pink-dark" dir="ltr">
+                        <p
+                          className="text-[10px]"
+                          style={{ color: DENY }}
+                          dir="ltr"
+                        >
                           clamped {r.clampedAmount}
                         </p>
                       )}
@@ -194,11 +225,8 @@ export function LedgerList({
                         <input type="hidden" name="lang" value={lang} />
                         <button
                           type="submit"
-                          className={`text-xs font-bold rounded-lg py-1.5 px-3 transition hover:brightness-105 ${
-                            r.amount > 0
-                              ? 'bg-pink-dark text-card'
-                              : 'bg-mint-dark text-card'
-                          }`}
+                          className="text-xs font-bold rounded-lg py-1.5 px-3 text-card transition hover:brightness-105"
+                          style={{ backgroundColor: v.buttonBg }}
                         >
                           {r.amount > 0 ? t.admin.ledgerRevoke : t.admin.ledgerAddBack}
                         </button>
