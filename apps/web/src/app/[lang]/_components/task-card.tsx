@@ -59,6 +59,10 @@ export type TaskCardStatus = 'todo' | 'needsPhoto' | 'pending' | 'done' | 'denie
 interface Props {
   assignmentId: string;
   completionId: string | null;
+  /** Evidence id for the latest submission attached to this assignment (when
+   *  in pending / done / denied with a photo). Renders the photo the kid
+   *  sent so she can review what's waiting on the parent. */
+  evidenceId: string | null;
   status: TaskCardStatus;
   titleHe: string;
   titleEn: string;
@@ -73,6 +77,9 @@ interface Props {
   doneToday?: number;
   pendingApproval?: number;
   canDoAgain?: boolean;
+  /** One-time task — date the task is scoped to. When set, badge as "today
+   *  only" so the kid knows to grab it before tomorrow. */
+  availableDate?: string | null;
   lang: 'he' | 'en';
   t: Dictionary;
   onBalance?: (newBalance: number) => void;
@@ -135,7 +142,9 @@ export function TaskCard(props: Props) {
             ? t.home.alreadyDone
             : r1.error === 'deadline_passed'
               ? t.home.deadlinePassed
-              : t.home.errorTryAgain,
+              : r1.error === 'task_taken'
+                ? t.admin.taskTaken
+                : t.home.errorTryAgain,
         );
         setPhotoBusy(false);
         return;
@@ -194,6 +203,8 @@ export function TaskCard(props: Props) {
     completeState?.ok === false && completeState.error === 'already_done';
   const showDeadlinePassed =
     completeState?.ok === false && completeState.error === 'deadline_passed';
+  const showTaskTaken =
+    completeState?.ok === false && completeState.error === 'task_taken';
   const showInternalError =
     (completeState?.ok === false && completeState.error === 'internal') ||
     (undoState?.ok === false && undoState.error === 'internal') ||
@@ -246,6 +257,17 @@ export function TaskCard(props: Props) {
                 {t.home.needsPhoto}
               </span>
             )}
+            {props.availableDate && (
+              <span
+                className="text-[10px] uppercase tracking-wider shrink-0 mt-1 px-1.5 py-0.5 rounded-md"
+                style={{
+                  backgroundColor: 'var(--yellow-pale)',
+                  color: '#7A5D10',
+                }}
+              >
+                {t.admin.oneTimeBadge}
+              </span>
+            )}
           </div>
           {status === 'pending' ? (
             <p className="text-xs text-ink-soft">{t.home.waitingApproval}</p>
@@ -268,6 +290,8 @@ export function TaskCard(props: Props) {
             <p className="text-xs text-pink-dark">{t.home.alreadyDone}</p>
           ) : showDeadlinePassed ? (
             <p className="text-xs text-pink-dark">{t.home.deadlinePassed}</p>
+          ) : showTaskTaken ? (
+            <p className="text-xs text-pink-dark">{t.admin.taskTaken}</p>
           ) : showUploadError ? (
             <p className="text-xs text-pink-dark">
               {submitState?.ok === false && submitState.error === 'too_large'
@@ -362,6 +386,19 @@ export function TaskCard(props: Props) {
           alt={fileName ?? ''}
           className="mt-3 max-h-44 w-auto rounded-xl border border-rule object-contain"
         />
+      )}
+
+      {/* Photo the kid already sent — shown in pending / done / denied so
+          the kid can SEE what parent will (or did) approve. The session-gated
+          /api/evidence route only serves the kid her own photos. */}
+      {(status === 'pending' || status === 'done' || status === 'denied') &&
+        props.evidenceId && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`/api/evidence/${props.evidenceId}`}
+            alt={title}
+            className="mt-3 max-h-44 w-auto rounded-xl border border-rule object-contain"
+          />
       )}
 
       {/* Photo-upload affordance — only when the kid has a pending completion

@@ -315,6 +315,13 @@ export interface Dictionary {
     measureAmountPlaceholder: string;
     measureUnitPlaceholder: string;
     measureHint: string;
+    oneTimeFields: string;
+    availableDate: string;
+    maxCompletionsTotal: string;
+    maxCompletionsTotalPlaceholder: string;
+    oneTimeHint: string;
+    oneTimeBadge: string;
+    taskTaken: string;
     reopenForToday: string;
     reopenSuccess: string;
     approvals: string;

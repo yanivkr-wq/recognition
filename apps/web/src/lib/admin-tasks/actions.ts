@@ -60,6 +60,10 @@ interface ParsedDaily {
   measureAmount: number | null;
   /** Display unit label for the measure (hours / pages / …). null = none. */
   measureUnit: string | null;
+  /** One-time daily task: the date the task is visible on. null = repeats. */
+  availableDate: string | null;
+  /** Cap on approved+pending completions across ALL kids. null = uncapped. */
+  maxCompletionsTotal: number | null;
 }
 
 interface ParsedLongTerm {
@@ -145,6 +149,21 @@ function parseTaskForm(formData: FormData): ParsedTask | TaskFormError {
       measureAmount = v;
     }
     const measureUnit = String(formData.get('measureUnit') ?? '').trim() || null;
+    // One-time task: optional ISO date. Empty = repeats daily.
+    const availableDateRaw = String(formData.get('availableDate') ?? '').trim();
+    let availableDate: string | null = null;
+    if (availableDateRaw !== '') {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(availableDateRaw)) return 'invalid_coin_value';
+      availableDate = availableDateRaw;
+    }
+    // Total completions across all kids. Empty / 0 = uncapped.
+    const totalCapRaw = String(formData.get('maxCompletionsTotal') ?? '').trim();
+    let maxCompletionsTotal: number | null = null;
+    if (totalCapRaw !== '' && totalCapRaw !== '0') {
+      const v = Number.parseInt(totalCapRaw, 10);
+      if (!Number.isInteger(v) || v < 1) return 'invalid_coin_value';
+      maxCompletionsTotal = v;
+    }
     return {
       ...common,
       kind: 'daily',
@@ -153,6 +172,8 @@ function parseTaskForm(formData: FormData): ParsedTask | TaskFormError {
       maxPerDay,
       measureAmount,
       measureUnit,
+      availableDate,
+      maxCompletionsTotal,
     };
   }
 
@@ -233,6 +254,9 @@ export async function createTaskTemplateAction(
         maxPerDay: parsed.kind === 'daily' ? parsed.maxPerDay : 1,
         measureAmount: parsed.kind === 'daily' ? parsed.measureAmount : null,
         measureUnit: parsed.kind === 'daily' ? parsed.measureUnit : null,
+        availableDate: parsed.kind === 'daily' ? parsed.availableDate : null,
+        maxCompletionsTotal:
+          parsed.kind === 'daily' ? parsed.maxCompletionsTotal : null,
       })
       .returning({ id: taskTemplate.id });
 
@@ -315,6 +339,9 @@ export async function updateTaskTemplateAction(
         maxPerDay: parsed.kind === 'daily' ? parsed.maxPerDay : 1,
         measureAmount: parsed.kind === 'daily' ? parsed.measureAmount : null,
         measureUnit: parsed.kind === 'daily' ? parsed.measureUnit : null,
+        availableDate: parsed.kind === 'daily' ? parsed.availableDate : null,
+        maxCompletionsTotal:
+          parsed.kind === 'daily' ? parsed.maxCompletionsTotal : null,
         updatedAt: new Date(),
       })
       .where(eq(taskTemplate.id, id));

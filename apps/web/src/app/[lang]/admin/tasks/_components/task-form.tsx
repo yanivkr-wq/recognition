@@ -51,6 +51,10 @@ interface InitialValues {
   /** Journey measure: amount one completion adds + unit label. */
   measureAmount?: number | null;
   measureUnit?: string | null;
+  /** One-time: single date (YYYY-MM-DD) the task is visible on. null = repeats. */
+  availableDate?: string | null;
+  /** Cap on approved + pending completions across all kids. null = uncapped. */
+  maxCompletionsTotal?: number | null;
 }
 
 interface AssignKid {
@@ -315,6 +319,53 @@ export function TaskForm({ mode, initial, lang, t, submitLabel, assignKids }: Pr
             {t.admin.measureHint}
           </span>
         </div>
+      )}
+
+      {/* One-time daily task (Lily's "like a sale" feature): the task is only
+          visible on `availableDate`, and `maxCompletionsTotal` caps the
+          household-wide claim count. Empty fields = repeats every day, no cap. */}
+      {kind === 'daily' && (
+        <fieldset className="space-y-3 rounded-2xl border border-yellow-pale bg-yellow-pale/30 p-4">
+          <legend className="text-sm font-bold text-[#7A5D10] px-2">
+            {t.admin.oneTimeFields}
+          </legend>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label className="block">
+              <span className="block text-sm font-bold text-ink mb-1">
+                {t.admin.availableDate}
+              </span>
+              <input
+                type="date"
+                name="availableDate"
+                defaultValue={initial?.availableDate ?? ''}
+                dir="ltr"
+                className="w-full rounded-xl border border-rule bg-card px-3 py-3 text-base text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+              />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-bold text-ink mb-1">
+                {t.admin.maxCompletionsTotal}
+              </span>
+              <input
+                type="number"
+                name="maxCompletionsTotal"
+                min={1}
+                inputMode="numeric"
+                placeholder={t.admin.maxCompletionsTotalPlaceholder}
+                defaultValue={
+                  initial?.maxCompletionsTotal == null
+                    ? ''
+                    : String(initial.maxCompletionsTotal)
+                }
+                dir="ltr"
+                className="w-full rounded-xl border border-rule bg-card px-3 py-3 text-base text-ink num focus:border-pink focus:outline-none focus:ring-2 focus:ring-pink-pale transition"
+              />
+            </label>
+          </div>
+          <p className="text-[11px] text-ink-faded leading-snug">
+            {t.admin.oneTimeHint}
+          </p>
+        </fieldset>
       )}
 
       {kind === 'long_term' && (

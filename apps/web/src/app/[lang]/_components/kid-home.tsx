@@ -27,6 +27,11 @@ import { arrowForward } from '../../../lib/rtl';
 export interface KidHomeTask {
   assignmentId: string;
   completionId: string | null;
+  /** Latest submission's evidence id for this assignment, when relevant
+   *  (pending / done / denied with a photo). Lets the task card render the
+   *  photo the kid just sent so she can SEE it while waiting for parent
+   *  approval. */
+  evidenceId: string | null;
   status: TaskCardStatus;
   titleHe: string;
   titleEn: string;
@@ -48,6 +53,10 @@ export interface KidHomeTask {
    *  Shown as "pending", not yet counted in doneToday/x-of-N. */
   pendingApproval: number;
   canDoAgain: boolean;
+  /** One-time task: the date this task is scoped to. NULL = repeating daily.
+   *  Used purely as a badge hint — the server already filtered the list to
+   *  today's tasks only (see [lang]/page.tsx). */
+  availableDate: string | null;
 }
 
 export interface KidHomeLongTermTask {

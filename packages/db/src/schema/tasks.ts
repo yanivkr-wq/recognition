@@ -15,6 +15,7 @@ import {
   integer,
   smallint,
   boolean,
+  date,
   time,
   unique,
 } from 'drizzle-orm/pg-core';
@@ -53,6 +54,14 @@ export const taskTemplate = pgTable('task_template', {
   /** Phase 7.5: optional daily deadline TIME in household tz. NULL = no
    *  deadline. Read as a string ('HH:MM:SS') from Postgres TIME columns. */
   deadlineTime: text('deadline_time'),
+  /** One-time task: the single date the task is visible to kids. NULL =
+   *  the existing repeating-daily behaviour. See 0013_one_time_tasks. */
+  availableDate: date('available_date'),
+  /** Cap on approved completions across ALL kids in the household. NULL =
+   *  uncapped (per-kid limit governed by max_per_day). Used by one-time
+   *  "first-come" tasks: set to 1 and the task disappears for everyone the
+   *  moment one kid claims it. */
+  maxCompletionsTotal: integer('max_completions_total'),
   displayOrder: integer('display_order').notNull().default(0),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),

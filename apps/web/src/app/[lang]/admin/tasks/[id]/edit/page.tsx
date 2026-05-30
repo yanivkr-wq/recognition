@@ -115,6 +115,8 @@ export default async function EditTaskPage({
           maxPerDay: row.maxPerDay,
           measureAmount: row.measureAmount,
           measureUnit: row.measureUnit,
+          availableDate: row.availableDate,
+          maxCompletionsTotal: row.maxCompletionsTotal,
         }}
         lang={lang}
         t={t}

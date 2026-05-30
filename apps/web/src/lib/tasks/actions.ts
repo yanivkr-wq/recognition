@@ -58,7 +58,18 @@ function isUniqueViolation(err: unknown): boolean {
 
 export type CompleteTaskState =
   | { ok: true; completionId: string; balanceAfter: number; coinsAdded: number; evidenceRequired: boolean }
-  | { ok: false; error: 'already_done' | 'cap_reached' | 'not_found' | 'wrong_kind' | 'forbidden' | 'deadline_passed' | 'internal' };
+  | {
+      ok: false;
+      error:
+        | 'already_done'
+        | 'cap_reached'
+        | 'not_found'
+        | 'wrong_kind'
+        | 'forbidden'
+        | 'deadline_passed'
+        | 'task_taken'
+        | 'internal';
+    };
 
 export async function completeTaskAction(
   _prev: CompleteTaskState | undefined,
@@ -89,6 +100,8 @@ export async function completeTaskAction(
       evidenceRequired: taskTemplate.evidenceRequired,
       deadlineTime: taskTemplate.deadlineTime,
       maxPerDay: taskTemplate.maxPerDay,
+      availableDate: taskTemplate.availableDate,
+      maxCompletionsTotal: taskTemplate.maxCompletionsTotal,
     })
     .from(taskAssignment)
     .innerJoin(taskTemplate, eq(taskTemplate.id, taskAssignment.templateId))
@@ -125,6 +138,39 @@ export async function completeTaskAction(
       [HOUSEHOLD_TZ],
     );
     const completionDate = todayRes.rows[0]!.today;
+
+    // One-time task gate: refuse if today isn't the task's available date.
+    // (The kid-home query also filters this, but a stale client tab could
+    // still POST.)
+    if (a.availableDate && a.availableDate !== completionDate) {
+      await client.query('ROLLBACK');
+      return { ok: false, error: 'not_found' };
+    }
+
+    // First-come gate: if the template caps total completions across all
+    // kids, serialize on the TEMPLATE id (not just the assignment) so two
+    // kids racing the same one-time task can't both win. Count approved +
+    // auto + pending — a kid with a photo waiting on the parent reserves
+    // the slot until the parent decides.
+    if (a.maxCompletionsTotal != null) {
+      await client.query(
+        'SELECT pg_advisory_xact_lock(hashtext($1::text))',
+        [a.templateId],
+      );
+      const globalRes = await client.query<{ n: string }>(
+        `SELECT count(*)::text AS n
+           FROM task_completion tc
+           JOIN task_assignment ta ON ta.id = tc.assignment_id
+          WHERE ta.template_id = $1
+            AND tc.undone_at IS NULL
+            AND tc.approval_status IN ('approved', 'auto_approved', 'pending')`,
+        [a.templateId],
+      );
+      if (Number(globalRes.rows[0]!.n) >= a.maxCompletionsTotal) {
+        await client.query('ROLLBACK');
+        return { ok: false, error: 'task_taken' };
+      }
+    }
 
     // Repeatable cap: count active occurrences today that hold a slot —
     // approved/auto + pending (waiting) count; denied ones free their slot

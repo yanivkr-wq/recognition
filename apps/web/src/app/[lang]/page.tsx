@@ -12,7 +12,7 @@
 
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, or, sql } from 'drizzle-orm';
 import { getDictionary, type Locale } from '@reco/shared/i18n';
 import {
   getDb,
@@ -96,6 +96,7 @@ async function KidView({
   const dailyRows = await db
     .select({
       assignmentId: taskAssignment.id,
+      templateId: taskTemplate.id,
       titleHe: taskTemplate.titleHe,
       titleEn: taskTemplate.titleEn,
       iconKey: taskTemplate.iconKey,
@@ -105,6 +106,11 @@ async function KidView({
       deadlineTime: taskTemplate.deadlineTime,
       displayOrder: taskTemplate.displayOrder,
       maxPerDay: taskTemplate.maxPerDay,
+      // One-time task fields (see 0013): when availableDate is set, only show
+      // on that date. maxCompletionsTotal caps approved+pending across all
+      // kids — once met, the task disappears for kids who didn't claim it.
+      availableDate: taskTemplate.availableDate,
+      maxCompletionsTotal: taskTemplate.maxCompletionsTotal,
     })
     .from(taskAssignment)
     .innerJoin(taskTemplate, eq(taskTemplate.id, taskAssignment.templateId))
@@ -115,6 +121,8 @@ async function KidView({
         isNull(taskAssignment.archivedAt),
         isNull(taskTemplate.archivedAt),
         eq(taskTemplate.kind, 'daily'),
+        // One-time filter: hide tasks scoped to a different date.
+        or(isNull(taskTemplate.availableDate), eq(taskTemplate.availableDate, today)),
       ),
     )
     .orderBy(taskTemplate.displayOrder, taskTemplate.titleHe);
@@ -128,6 +136,9 @@ async function KidView({
     id: string;
     approval_status: string;
     evidence_submission_id: string | null;
+    /** Evidence id behind the submission, if any — exposed so the kid can SEE
+     *  the photo she just sent while it's waiting for parent approval. */
+    evidence_id: string | null;
     deny_reason: string | null;
   };
   const occByAssignment = new Map<
@@ -137,7 +148,7 @@ async function KidView({
   if (dailyIds.length > 0) {
     const occRes = await getPool().query<OccRow>(
       `SELECT tc.assignment_id, tc.id, tc.approval_status, tc.evidence_submission_id,
-              s.deny_reason
+              s.evidence_id, s.deny_reason
          FROM task_completion tc
          LEFT JOIN submission s ON s.id = tc.evidence_submission_id
         WHERE tc.kid_id = $1 AND tc.completion_date = $2 AND tc.undone_at IS NULL
@@ -167,13 +178,53 @@ async function KidView({
   );
   const nowIl = nowRes.rows[0]!.now_il;
 
-  const tasks: KidHomeTask[] = dailyRows.map((r) => {
+  // Global completion counts for capped templates — used to hide first-come
+  // tasks from kids who didn't claim them. We count approved + pending so a
+  // submission that's still waiting on approval also reserves the slot
+  // (otherwise two kids could both submit a "claim it once" task before
+  // either gets approved).
+  const cappedTemplateIds = dailyRows
+    .filter((r) => r.maxCompletionsTotal != null)
+    .map((r) => r.templateId);
+  const globalCountByTemplate = new Map<string, number>();
+  if (cappedTemplateIds.length > 0) {
+    const res = await getPool().query<{ template_id: string; n: string }>(
+      `SELECT ta.template_id, count(*)::text AS n
+         FROM task_completion tc
+         JOIN task_assignment ta ON ta.id = tc.assignment_id
+        WHERE ta.template_id = ANY($1::uuid[])
+          AND tc.undone_at IS NULL
+          AND tc.approval_status IN ('approved', 'auto_approved', 'pending')
+        GROUP BY ta.template_id`,
+      [cappedTemplateIds],
+    );
+    for (const row of res.rows) {
+      globalCountByTemplate.set(row.template_id, Number(row.n));
+    }
+  }
+
+  const tasks: KidHomeTask[] = dailyRows.flatMap((r) => {
     const occ = occByAssignment.get(r.assignmentId) ?? {
       approved: [],
       waiting: [],
       needsPhoto: [],
       denied: [],
     };
+    // First-come filter: if the template has a global cap and the cap is
+    // already met AND this kid has no claim on it, the task is hidden — some
+    // other kid took it. We DON'T hide tasks the kid already has an active
+    // completion / submission / denial on, so they can still see their own.
+    if (r.maxCompletionsTotal != null) {
+      const globalCount = globalCountByTemplate.get(r.templateId) ?? 0;
+      const myActive =
+        occ.approved.length +
+        occ.waiting.length +
+        occ.needsPhoto.length +
+        occ.denied.length;
+      if (globalCount >= r.maxCompletionsTotal && myActive === 0) {
+        return [];
+      }
+    }
     // Slot usage: approved + waiting + open-needs-photo count; denied frees a
     // slot (retry). NULL maxPerDay = unlimited.
     const capUsed = occ.approved.length + occ.waiting.length + occ.needsPhoto.length;
@@ -188,6 +239,7 @@ async function KidView({
     let status: KidHomeTask['status'];
     let completionId: string | null = null;
     let denyReason: string | null = null;
+    let evidenceId: string | null = null;
     if (occ.needsPhoto.length > 0) {
       status = 'needsPhoto';
       completionId = occ.needsPhoto[0]!.id;
@@ -196,19 +248,25 @@ async function KidView({
       status = 'denied';
       completionId = d.id;
       denyReason = d.deny_reason;
+      evidenceId = d.evidence_id;
     } else if (capUsed === 0) {
       status = locked ? 'locked' : 'todo';
     } else if (occ.approved.length > 0) {
       status = 'done';
-      completionId = occ.approved[occ.approved.length - 1]!.id;
+      const a = occ.approved[occ.approved.length - 1]!;
+      completionId = a.id;
+      evidenceId = a.evidence_id;
     } else {
       status = 'pending';
-      completionId = occ.waiting[occ.waiting.length - 1]!.id;
+      const w = occ.waiting[occ.waiting.length - 1]!;
+      completionId = w.id;
+      evidenceId = w.evidence_id;
     }
 
-    return {
+    return [{
       assignmentId: r.assignmentId,
       completionId,
+      evidenceId,
       status,
       titleHe: r.titleHe,
       titleEn: r.titleEn,
@@ -222,7 +280,9 @@ async function KidView({
       doneToday,
       pendingApproval,
       canDoAgain,
-    };
+      // Flag the one-time tasks so the UI can badge them. NULL = repeating.
+      availableDate: r.availableDate,
+    }];
   });
 
   // Pull LONG-TERM assignments + current total + today's individual entries.
